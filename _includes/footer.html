@@ -37,16 +37,14 @@ var duoshuoQuery = {short_name:"fuyajun1983cn"};
           </li>
           {% endif %}
 
-          {% if site.twitter_username %}
           <li>
-            {% include icon-twitter.html username=site.twitter_username %}
+            微信号：{{ site.wemedia_username }}
           </li>
-          {% endif %}
         </ul>
       </div>
 
       <div class="footer-col footer-col-3">
-        <p>{{ site.description }}</p>
+        <p><img src="{{site.base_url}}/images/logo_18x18.png"/>{{ site.description }}</p>
       </div>
     </div>
 
