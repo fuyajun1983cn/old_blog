@@ -1,0 +1,47 @@
+---
+layout: page
+title: 博文大全
+permalink: /archives/
+---
+
+<div class="home">
+  
+  <h1 class="page-heading">2016年度文章</h1>
+   <hr><hr>
+  <ul class="post-list">
+    {% for post in site.posts %}
+{% assign year = post.date | date: "%Y" %}
+    {% if year == "2016" %}
+    {% include readingtime.html %}
+              <a href="{{ post.url }}">
+                <h3 class="article-title">{{ post.title }}</h3>
+                <p class="article-date">{{ post.date | date: "%B %e, %Y" }} • 预计阅读此文需要 {{ reading_time }}</p>
+                <p class="article-except"><b>内容摘要: </b>{{ post.excerpt | remove: '<p>' | remove: '</p>' | strip_html | truncate: 150 }}</p>
+              </a>
+{% endif %}
+{% endfor %}
+              
+  </ul>
+</div>
+
+
+
+<div class="home">
+  <h1 class="page-heading">2015年度文章</h1>
+   <hr><hr>
+  <ul class="post-list">
+    {% for post in site.posts %}
+{% assign year = post.date | date: "%Y" %}
+    {% if year == "2015" %}
+    {% include readingtime.html %}
+              <a href="{{ post.url }}">
+                <h3 class="article-title">{{ post.title }}</h3>
+                <p class="article-date">{{ post.date | date: "%B %e, %Y" }} • 预计阅读此文需要 {{ reading_time }}</p>
+                <p class="article-except"><b>内容摘要: </b>{{ post.excerpt | remove: '<p>' | remove: '</p>' | strip_html | truncate: 150 }}</p>
+              </a>
+{% endif %}
+{% endfor %}
+              
+  </ul>
+</div>
+

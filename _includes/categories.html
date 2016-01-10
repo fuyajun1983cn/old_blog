@@ -1,0 +1,16 @@
+
+<div class="home">
+
+  <div class="page-heading ">
+
+    <h2>Posts by Category</h2>
+
+  </div>
+
+  <ul class="category-list ">
+    {% for category in site.categories %}
+    <li><a href="/writing/{{ category | first }}/">{{ category | first }}</a></li>
+    {% endfor %}
+  </ul>
+
+</div>

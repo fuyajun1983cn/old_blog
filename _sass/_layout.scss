@@ -1,3 +1,4 @@
+
 /**
  * Site header
  */
@@ -182,6 +183,60 @@
     > li {
         margin-bottom: $spacing-unit;
     }
+}
+
+.article-title {
+      font-weight:bold;
+      font-size: 28px;
+      color: #000;
+      letter-spacing: -1px;
+      margin-bottom: 4px;
+      line-height: 1.2;
+}
+
+.article-date {
+      font-size: 16px;
+      color: #a29f9c;
+      margin: 0;
+      font-weight: 400;
+      @media (max-width: 450px) { font-size: 14px; }
+ }
+
+.article-excerpt {
+      margin: 7px 0 0;
+      font-size: 20px;
+      color: #000;
+      letter-spacing: -1px;
+      margin-bottom: 4px;
+      line-height: 1.2;
+}
+
+.post-category {
+      padding: 0;
+      list-style:none;
+
+      > li {
+      text-transform: capitalize;
+      float: left;
+      > a {
+      color:  #000;
+      line-height: 1.25;
+      letter-spacing: -1px;
+      padding: 3px 10px;
+       background-color: #f4f0ed;
+      text-decoration: none;
+      outline:none;
+      float: left;
+      margin: 0 4px 8px;
+      font-size: 20px;
+       @media (max-width: 450px) { font-size: 16px; }
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        -moz-border-radius: 5px;
+       }
+       &:hover { opacity: .6;}
+
+       }
 }
 
 .post-meta {

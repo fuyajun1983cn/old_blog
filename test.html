@@ -1,5 +1,5 @@
 ---
-layout: home
+layout: default
 ---
       <div class="home">
        <p>测试site.pages: </p>
@@ -56,10 +56,20 @@ layout: home
 
   <ul class="category-list constrained">
     {% for category in site.categories %}
+    {% assign currentCategory = category | first %}
+    {{currentCategory}}
+    {% if currentCategory != "java" %}
     <li><a href="/writing/{{ category | first }}/">{{ category | first }}</a></li>
+    {% endif %}
     {% endfor %}
   </ul>
 
+
+  {% for post in site.categories["设计模式"] %}
+  {{post.title}}
+  {% endfor %}
+
+  
 </div>
 
 

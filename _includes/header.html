@@ -1,3 +1,4 @@
+
 <header class="site-header">
   <div class="wrapper">
     <a class="site-title" href="{{ site.baseurl }}/">{{ site.title }}</a>
@@ -12,11 +13,8 @@
       </a>
 
       <div class="trigger">
-        {% for my_page in site.pages %}
-          {% if my_page.title %}
-          <a class="page-link" href="{{ my_page.url | prepend: site.baseurl }}">{{ my_page.title }}</a>
-          {% endif %}
-        {% endfor %}
+        <a class "page-link" href="{{site.baseurl}}/archives">文章存档</a>
+        <a class "page-link" href="{{site.baseurl}}/about">个人信息</a>
       </div>
     </nav>
 
