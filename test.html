@@ -1,0 +1,66 @@
+---
+layout: home
+---
+      <div class="home">
+       <p>测试site.pages: </p>
+        {% for my_page in site.pages %}
+          {% if my_page.title %}
+          <b>Page Title: </b>{{ my_page.title }} <br/>
+          {% endif %}
+          {% endfor %}
+
+          <hr>
+          <hr>
+
+
+          
+          <p>测试site.posts: </p>
+              {% for post in site.posts %}
+              <b>Post Title: </b>{{post.title}} <br/>
+              <b>Post Categories: </b> {{post.categories}}<br>
+              <b>Post Date: </b>{{post.date}}<br>
+              <b>自定义属性:</b> {{post.test}}<br>
+              <b>Reading Time: </b>
+              {% assign words = post.content | number_of_words %}
+{% if words <= 90 %}
+{% assign reading_time = "30 sec" %}
+{% elsif words < 270 %}
+{% assign reading_time = "1 min" %}
+{% elsif words < 450 %}
+{% assign reading_time = "2 min" %}
+{% elsif words < 630 %}
+{% assign reading_time = "3 min" %}
+{% elsif words < 810 %}
+{% assign reading_time = "4 min" %}
+{% elsif words < 990 %}
+{% assign reading_time = "5 min" %}
+{% else %}
+{% assign reading_time = words | divided_by:180 | append:" min" %}
+                 {% endif %}
+                 {{reading_time}}<br>
+                  {% if post.excerpt %}
+                <p class="article-excerpt">{{ post.excerpt | remove: '<p>' | remove: '</p>' | strip_html | truncate: 150 }}</p>
+                {% endif %}
+                 <hr><hr>
+              {% endfor %}
+
+      </div>
+
+      <div class="categories">
+
+  <div class="section-heading group">
+
+    <h2>Posts {% if page.layout == 'home' %}by category{% else%}in other categories{% endif %}</h2>
+
+  </div>
+
+  <ul class="category-list constrained">
+    {% for category in site.categories %}
+    <li><a href="/writing/{{ category | first }}/">{{ category | first }}</a></li>
+    {% endfor %}
+  </ul>
+
+</div>
+
+
+              
