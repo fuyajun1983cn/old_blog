@@ -21,17 +21,40 @@
 
           <!-- Your title is also defined in the _config.yml file -->
           <h2 class="header-title">{{ site.resume_title }}</h2>
-
-          <!-- This is the markup for the icon links; moved out to an include because it's very verbose, and you shouldn't ever need to edit the markup (unless you want to re-order the icons); if you want to customize which links appear, define them in the _config.yml file -->
-          {% include icon-links.html %}
+          <br>
+          <ul class="reume-item-list">
+            <li>性别：男</li>
+            <li>年龄：32岁</li>
+            <li>婚姻状况：已婚</li>
+            <li>工作年限：7年</li>
+            <li>现居城市：深圳</li>
+          </ul>
         </div>
 
         <div class="executive-summary">
-          <p>This is the executive summary. You should write a few brief, concise, and meaningful sentences about yourself from a professional context, and your immediate career goals. Make the length appropriate for your needs, but K.I.S.S.</p>
+          <p>我目前是一名<b>WiFi工程师</b>，负责处理客户现场问题，主要解决WiFi驱动和wpa_supplicant等相关问题，重点支持WiFi P2P/Miracast等连接性相关的问题 。熟悉802.11相关规范，Linux网络设备驱动架构。在此之前，有如下一些岗位上的经历:  </p>
+          <ul class="resume-item-list">
+            <li><b>应用程序开发工程师(Linux/Qt)</b></li>
+            <li><b>Android工程师(Android/OpenGL ES/Mali GPU driver)</b></li>
+            <li><b>客户项目支持工程师(Android OTT Box)</b></li>
+          </ul>
+          <p>从这些工作中，我获得了技术方面的积累以及人际沟通技能的提升。目前希望寻找一份与上述工作经历相关的工作岗位，具体来说，我会优先寻找如下类型的工作：<p>
+            <ul class="resume-item-list">
+              <li>Linux驱动工程师</li>
+              <li>应用开发工程师</li>
+              <li>系统工程师</li>
+            </ul>
+            希望加入的公司类型：
+            <ul class="resume-item-list">
+              <li>芯片方案提供商</li>
+              <li>智能设备制造商</li>
+              <li>新兴互联网公司</li>
+            </ul>
+            工作岗位可以是<b>研发岗位</b>或<b>FAE岗位</b>。
         </div>
 
         {% if site.resume_looking_for_work == 'yes' %}
-        <a href="mailto:{{ site.resume_contact_email }}" class="contact-button">Contact me</a>
+        <a href="mailto:{{ site.resume_contact_email }}" class="contact-button">邮件联系</a>
         {% elsif site.resume_looking_for_work == 'no' %}
         <a class="contact-button not-looking">I'm not looking for work right now.</a>
         {% else %}
@@ -49,32 +72,76 @@
 
         <!-- Duplicate these resume-item elements and edit accordingly for each job you want to add here -->
         <div class="resume-item">
-          <h3 class="resume-item-title">Springfield Nuclear Power Plant</h3>
-          <h4 class="resume-item-details">Safety Inspector &bull; Nov, 1980 &mdash; Present</h4>
-          <p class="resume-item-copy">Write about your core competencies in one or two sentences describing your position. If you held the position for a long time, it could be a longer section, including a couple bullet points:</p>
+          <h3 class="resume-item-title">联发软件设计(深圳)有限公司/MT76XX网卡技术支持团队</h3>
+          <h4 class="resume-item-details">技术副理/WiFi工程师 &bull; 2015年3月 &mdash; 至今</h4>
+          <p class="resume-item-copy">作为以客户导向为理念的公司，我时刻准备着在客户规定的DEADLINE下解决各种各样的客户现场问题。在这样的客户支持的历练中，积累了不少实战经累，技术上也获得了提升。在以下方面获得了能力上的锻炼和提升：</p>
           <ul class="resume-item-list">
-            <li>Ate lots of donuts</li>
-            <li>Fell asleep rarely</li>
-            <li>Left promptly at end of day (sometimes earlier)</li>
+            <li>现场处理问题的应变能力</li>
+            <li>抗压能力</li>
+            <li>802.11协议以及Wifi P2P/Display协议的理解</li>
+            <li>熟悉了Linux内核网络驱动框架，cfg80211模块相关知识</li>
+            <li>熟悉wpa_supplicant软件代码</li>
           </ul>
-          <p class="resume-item-copy">If you're going to copy paste markup, or edit it, just be sure to keep the appropriate classnames on your new elements for styling purposes.</p>
-
         </div><!-- end of resume-item -->
 
         <!-- another resume item -->
         <div class="resume-item">
-          <h3 class="resume-item-title">Sir Putt-A-Lot's Merrie Olde Fun Centre</h3>
-          <h4 class="resume-item-details">Windmill Crank Operator &bull; Jun, 1978 &mdash; Sept, 1979</h4>
-          <p class="resume-item-copy">If your stint was shorter, feel free to be brief and just call out the most meaningful points of your role. Be concise, and be meaninful. The person reading just needs enough to want to talk to you more about your experience.</p>
-
+          <h3 class="resume-item-title">联发软件设计(深圳)有限公司/BDP-OTT客户项目支持团队</h3>
+          <h4 class="resume-item-details">高级工程师/客户项目工程师 &bull; 2013年5月 &mdash; 2015年2月</h4>
+          <p class="resume-item-copy">在此期间，先是作为BDP项目支持工程师，负责了Sum Sung BDP项目的支持工作，承接一些模块如JPEG播放，Opera网络应用的支持工作，并赴韩去Sum Sung客户现场支持。一年后，公司决定进入OTT市场，参与了OTT小米小盒子的项目支持工作，主要跟进WiFi/BT问题，系统烧机问题，并负责去小米现场支持，处理客户反馈的第一手问题。在此期间，获得了如下一些能力上的锻炼与提升：</p>
+            <ul class="resume-item-list">
+            <li>现场处理问题的应变能力</li>
+            <li>抗压能力</li>
+            <li>客户沟通技巧</li>
+             <li>会议组织能力</li>
+            <li>熟悉了Android WiFi框架/BT规范</li>
+            <li>积累了处理内存泄漏等系统问题的技术</li>
+          </ul>
         </div><!-- end of resume-item -->
 
         <!-- by now you're getting the picture... -->
         <div class="resume-item">
-          <h3 class="resume-item-title">Simpson Lazer Tag</h3>
-          <h4 class="resume-item-details">Front Desk Attendant &bull; Jun, 1975 &mdash; May, 1978</h4>
-          <p class="resume-item-copy">Boy, when Marge first told me she was going to the Police Academy, I thought it would be fun and exciting, you know, like the movie... Spaceballs. But instead, it's been painful and disturbing, like the movie Police Academy.</p>
+          <h3 class="resume-item-title">联发软件设计(深圳)有限公司/Android智能电视团队</h3>
+          <h4 class="resume-item-details">高级工程师/Android OpenGL ES工程师 &bull; 2011年7月 &mdash; 2013年4月</h4>
+          <p class="resume-item-copy">作为进入公司的第一个岗位，我第一次接触了Android系统，并熟悉了基本的Activity开发流程。在此期间，主要负责3D模块功能上的一些问题，处理公版与客户反馈的一些OpenGL相关问题，并维护Mali GPU 450的驱动代码，与Arm Mali驱动支持团队保持沟通，共同处理GPU驱动出现的问题。在此期间，获得了如下一些能力上的锻炼和提升：</p>
+          <ul class="resume-item-list">
+            <li>撰写英文邮件的能力</li>
+            <li>提问的技巧</li>
+            <li>熟悉了Android系统, 掌握了Android App开发方法</li>
+            <li>熟练掌握了Android OpenGL ES程序编写方法</li>
+            <li>加深了Linux内核知识的理解</li>
+          </ul>
+        </div><!-- end of resume-item -->
 
+          <div class="resume-item">
+          <h3 class="resume-item-title">比亚迪汽车股份有限公司/中央研究院平台软件部</h3>
+          <h4 class="resume-item-details">高级工程师/Smart TV项目组长 &bull; 2010年7月 &mdash; 2011年6月</h4>
+          <p class="resume-item-copy"> 负责Smart TV项目，作为项目组长，主导软件开发进度，定期向部门经理汇报项目进展情况。项目软件平台采用 Linux + Qt, 负责平台系统软件的移植，DirectFB遥控器驱动开发，gstreamer播放功能调试，Qt上层播放器应用程序开发， 其他成员模块功能整合，跟进组内成员开发进度，协调开发人员与美工人员工作上的配合。 在如下方面获得了能力上的锻炼与提升：</p>
+          <ul class="resume-item-list">
+            <li>编写文档的能力</li>
+            <li>编译和移植开源软件的能力</li>
+            <li>熟悉Qt应用程序开发</li>
+            <li>熟悉Linux系统与内核相关知识</li>
+            <li>团队管理和项目管理能力</li>
+          </ul>
+        </div><!-- end of resume-item -->
+
+           <div class="resume-item">
+          <h3 class="resume-item-title">比亚迪汽车股份有限公司/电子研究院算法部</h3>
+          <h4 class="resume-item-details">高级工程师/软件开发成员 &bull; 2009年6月 &mdash; 2010年6月</h4>
+          <p class="resume-item-copy">作为毕业后的第一个工作岗位，主要任务是配合路由器开发的同事完成配套软件的开发。 在此期间，有参与过如下模块的开发与调试任务：</p>
+          <ul class="resume-item-list">
+            <li>路由器设置界面CGI后端C代码功能的调试</li>
+            <li>局域网视频会议系统服务器端代码编写</li>
+            <li>无线网络上网认证客户端代码编写</li>
+          </ul>
+          <p class="resume-item-copy">通过这些项目实践经历，获得了如下方面能力上的锻炼与提升：</p>
+          <ul class="resume-item-list">
+            <li>熟悉了Linux系统</li>
+            <li>熟悉了make编译工具以及bash脚本语言</li>
+            <li>熟悉了Linux系统编程</li>
+            <li>熟悉了C/C++语言编程</li>
+            </ul>
         </div><!-- end of resume-item -->
 
       </section>
@@ -90,9 +157,15 @@
         </header>
 
         <div class="resume-item">
-          <h3 class="resume-item-title">Springfield College</h3>
-          <h4 class="resume-item-details">Associates Degree, Business Management &bull; 1984 &mdash; 1986</h4>
-          <p class="resume-item-copy">If you had any meaningful roles at college, feel free to write about them here.</p>
+          <h3 class="resume-item-title">湖南大学</h3>
+          <h4 class="resume-item-details">工科硕士研究生学位, 计算机科学与技术  &bull; 2006 &mdash; 2009</h4>
+          <p class="resume-item-copy">在学习期间，主要跟导师一起进行智能Agent方面的学术研究，发表了两篇学术论文，并通过了《基于政策分解的智能Agent机制研究》的硕士学位论文答辩。</p>
+        </div>
+
+         <div class="resume-item">
+          <h3 class="resume-item-title">三峡大学</h3>
+          <h4 class="resume-item-details">理学本科学位, 信息与计算科学  &bull; 2002 &mdash; 2006</h4>
+          <p class="resume-item-copy">在学习期间，主要学习了数学与计算机相关的课程，并荣获过贫困生一等奖学金。在校期间，通过了英语四六级考试，计算机三级网络技术考试，并获得了软件工程师资格证书，顺利考取湖南大学公费硕士研究生。</p>
         </div>
 
       </section>
@@ -130,20 +203,75 @@
         <header class="section-header">
           <h2>Skills</h2>
         </header>
-
+        <p>以下技能来源于不同时期工作岗位上的实际经验：</p>
         <div class="resume-item">
-          <h4 class="resume-item-details">Donut design</h4>
-          <p class="resume-item-copy">Sprinkle art, icing design, eclair management, taste testing, donut/coffee pairing research</p>
+          <h4 class="resume-item-details">编程语言</h4>
+          <p class="resume-item-copy">在工作和自我学习过程中，主要熟悉了如下一些语言：</p>
+          <ul class="resume-item-list">
+            <li>C/C++</li>
+            <li>Java(JNI)</li>
+            <li>Python</li>
         </div>
 
         <div class="resume-item">
-          <h4 class="resume-item-details">Craft beer brewing</h4>
-          <p class="resume-item-copy">Hops inspection, brew testing, distribution management, bottle label design, festival and event management</p>
+          <h4 class="resume-item-details">软件开发工具</h4>
+          <p class="resume-item-copy">总体来讲，主要接触了如下一些集成开发工具： </p>
+          <ul class="resume-item-list">
+            <li>Eclipse</li>
+            <li>Qt Creator</li>
+            <li>Netbean</li>
+            <li>Visual Studio</li>
         </div>
 
         <div class="resume-item">
-          <h4 class="resume-item-details">Family leadership</h4>
-          <p class="resume-item-copy">Bread winning, conflict resolution, couch inspection, TV longevity testing</p>
+          <h4 class="resume-item-details">编译工具</h4>
+          <p class="resume-item-copy">在工作中，主要使用了如下几种编译工具：</p>
+          <ul class="resume-item-list">
+            <li>make</li>
+            <li>CMake</li>
+            <li>Android Build System</li>
+        </div>
+
+        <div class="resume-item">
+          <h4 class="resume-item-details">应用开发</h4>
+          <p class="resume-item-copy">在工作中，主要锻炼了如下程序开发能力：</p>
+          <ul class="resume-item-list">
+            <li>Android App开发</li>
+            <li>Open GL ES开发</li>
+            <li>Qt开发</li>
+        </div>
+
+        <div class="resume-item">
+          <h4 class="resume-item-details">平台经验</h4>
+          <p class="resume-item-copy">在工作中，主要熟悉了如下一些平台经验：</p>
+          <ul class="resume-item-list">
+            <li>Android</li>
+            <li>Linux</li>
+        </div>
+
+        <div class="resume-item">
+          <h4 class="resume-item-details">版本控制工具</h4>
+          <p class="resume-item-copy">在工作中，主要用到了如下两种版本工具：</p>
+          <ul class="resume-item-list">
+            <li>Git </li>
+            <li>Perforce</li>
+        </div>
+
+        <div class="resume-item">
+          <h4 class="resume-item-details">个人偏好工具</h4>
+          <p class="resume-item-copy">在工作中，个人偏好使用的工具如下：</p>
+          <ul class="resume-item-list">
+            <li>Emacs(主要使用Org-Mode进行任务跟踪以及重要信息的记录) </li>
+            <li>Vim(编写程序)</li>
+             <li>Notepad++(查看Log)</li>
+        </div>
+
+        <div class="resume-item">
+          <h4 class="resume-item-details">语言</h4>
+          <p class="resume-item-copy">在工作中，主要锻炼了如下语言能力：</p>
+          <ul class="resume-item-list">
+            <li>普通话 </li>
+            <li>英文(无障碍阅读英文技术文档，撰写英文邮件(技术文档)以及日常简单对话)</li>
         </div>
 
       </section>
@@ -213,9 +341,11 @@
         </header>
 
         <div class="resume-item">
+          <p class="resume-item-copy">以下网站是我在学习和工作过程中留下的一些脚印，欢迎访问：</p>
           <ul class="resume-item-list">
-            <li><a href="#">Springfield Poker Club</a></li>
-            <li><a href="#">Springfield Donut Eater's User Group</a></li>
+            <li><a href="http://ifjy.me">个人网站</a></li>
+            <li><a href="http://blog.csdn.net/fuyajun01">CSDN博客主页</a></li>
+            <li><a href="https://github.com/">GitHub个人主页</li>
           </ul>
         </div>
 
