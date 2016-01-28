@@ -1,0 +1,875 @@
+---
+layout: post
+date: 2016-01-28
+categories: kernel
+---
+<div id="content">
+<h1 class="title">LDD3学习笔记</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. Tasks <code>[1/2]</code></a></li>
+<li><a href="#sec-2">2. Source Code说明</a>
+<ul>
+<li><a href="#sec-2-1">2.1. 驱动说明</a>
+<ul>
+<li><a href="#sec-2-1-1">2.1.1. scull0 to scull3</a></li>
+<li><a href="#sec-2-1-2">2.1.2. scullpipe0 to scullpipe3</a></li>
+<li><a href="#sec-2-1-3">2.1.3. scullsingle, scullpriv, sculluid, scullwuid</a></li>
+<li><a href="#sec-2-1-4">2.1.4. scull device的数据结构示意图</a></li>
+<li><a href="#sec-2-1-5">2.1.5. 数据结构定义</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-2">2.2. 学习笔记</a>
+<ul>
+<li><a href="#sec-2-2-1">2.2.1. 内核模块</a></li>
+<li><a href="#sec-2-2-2">2.2.2. 调试技术</a></li>
+<li><a href="#sec-2-2-3">2.2.3. 字符设备</a></li>
+<li><a href="#sec-2-2-4">2.2.4. 同步与竞态</a></li>
+<li><a href="#sec-2-2-5">2.2.5. 休眠与唤醒</a></li>
+<li><a href="#sec-2-2-6">2.2.6. 计时器与延时</a></li>
+<li><a href="#sec-2-2-7">2.2.7. 内存分配</a></li>
+<li><a href="#sec-2-2-8">2.2.8. 与硬件通信</a></li>
+<li><a href="#sec-2-2-9">2.2.9. 内核中断处理</a></li>
+<li><a href="#sec-2-2-10">2.2.10. 内核数据结构</a></li>
+<li><a href="#sec-2-2-11">2.2.11. 网络驱动</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-3">2.3. 引用</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Tasks <code>[1/1]</code></h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li><code>[X]</code> Porting to linux kernel 3.13
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Source Code说明</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> 驱动说明</h3>
+<div class="outline-text-3" id="text-2-1">
+</div><div id="outline-container-sec-2-1-1" class="outline-4">
+<h4 id="sec-2-1-1"><span class="section-number-4">2.1.1</span> scull0 to scull3</h4>
+<div class="outline-text-4" id="text-2-1-1">
+<p>
+每个包含一段内存区域，这段内存是全局的，且是可持久的。 
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-1-2" class="outline-4">
+<h4 id="sec-2-1-2"><span class="section-number-4">2.1.2</span> scullpipe0 to scullpipe3</h4>
+<div class="outline-text-4" id="text-2-1-2">
+<p>
+FIFO(First In First Out)设备，像管道一样工作。 
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-1-3" class="outline-4">
+<h4 id="sec-2-1-3"><span class="section-number-4">2.1.3</span> scullsingle, scullpriv, sculluid, scullwuid</h4>
+<div class="outline-text-4" id="text-2-1-3">
+<ul class="org-ul">
+<li>scullsingle  每次只允许一个进程访问该设备
+</li>
+<li>scullpriv   对每个虚拟终端，都是私有的。
+</li>
+<li>sculluid, scullwuid  可被打开多次， 但一次只能由一个用户打开
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-2-1-4" class="outline-4">
+<h4 id="sec-2-1-4"><span class="section-number-4">2.1.4</span> scull device的数据结构示意图</h4>
+<div class="outline-text-4" id="text-2-1-4">
+
+<div class="figure">
+<p><img src="/images/2016/layout_of_a_scull_device.png" alt="layout_of_a_scull_device.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-1-5" class="outline-4">
+<h4 id="sec-2-1-5"><span class="section-number-4">2.1.5</span> 数据结构定义</h4>
+<div class="outline-text-4" id="text-2-1-5">
+<div class="org-src-container">
+
+<pre class="src src-c">/*
+ * Representation of scull quantum sets.
+ */
+struct scull_qset {
+        void **data;
+        struct scull_qset *next;
+};
+
+struct scull_dev {
+        struct scull_qset *data;  /* Pointer to first quantum set */
+        int quantum;              /* the current quantum size */
+        int qset;                 /* the current array size */
+        unsigned long size;       /* amount of data stored here */
+        unsigned int access_key;  /* used by sculluid and scullpriv */
+        struct semaphore sem;     /* mutual exclusion semaphore     */
+        struct cdev cdev;         /* Char device structure              */
+};
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> 学习笔记</h3>
+<div class="outline-text-3" id="text-2-2">
+</div><div id="outline-container-sec-2-2-1" class="outline-4">
+<h4 id="sec-2-2-1"><span class="section-number-4">2.2.1</span> 内核模块</h4>
+<div class="outline-text-4" id="text-2-2-1">
+<ul class="org-ul">
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7845461">Linux内核模块</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7901857">Linux-2.6设备模型与sysfs文件系统</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7901866">udev与devfs文件系统</a>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2-2" class="outline-4">
+<h4 id="sec-2-2-2"><span class="section-number-4">2.2.2</span> 调试技术</h4>
+<div class="outline-text-4" id="text-2-2-2">
+</div><ol class="org-ol"><li><a id="sec-2-2-2-1" name="sec-2-2-2-1"></a>内核常见的调试项：<br  /><div class="outline-text-5" id="text-2-2-2-1">
+<ol class="org-ol">
+<li><code>CONFIG_DEBUG_KERNEL</code>
+         打开此项后，就可以使其他的一些调试选项可见。
+</li>
+<li><code>CONFIG_DEBUG_SLAB</code>
+         检测内存越界或是未初始化等错误。
+</li>
+<li><code>CONFIG_DEBUG_PAGEALLOC</code>
+         当释放时，完整的页会从内核地址空间删除。
+</li>
+<li><code>CONFIG_DEBUG_SPINLOCK</code>
+         检测对一个未初始化的spinlock的操作。
+</li>
+<li><code>CONFIG_DEBUG_SPINLOCK_SLEEP</code>
+         检测当拥有一个spinlock时，还试图进入sleep的代码。
+</li>
+<li><code>CONFIG_INIT_DEBUG</code>
+         检测试图访问_<sub>init</sub>(或_<sub>initdata</sub>)标记的代码。
+</li>
+<li><code>CONFIG_DEBUG_INFO</code>
+         将完整的调试信息统进内核。特别是想使用gdb调试内核时，非常有用。
+</li>
+<li><code>CONFIG_MAGIC_SYSRQ</code>
+         启用"magic SysRq"键。
+</li>
+<li><code>CONFIG_DEBUG_STACKOVERFLOW</code>
+</li>
+<li><code>CONFIG_DEBUG_STACK_USAGE</code>
+          有助于跟踪内核栈溢出的问题。
+</li>
+<li><code>CONFIG_KALLSYMS</code>
+将内核符号信息编译进内核。发生oops时，打印调用栈时可以看到函
+数符号信息，而不是一些十六进制的数字。
+</li>
+<li><code>CONFIG_IKCONFIG</code>
+</li>
+<li><code>CONFIG_IKCONFIG_PROC</code>
+打开后，会将完整的内核配置状态编进内核，这样可以通过/proc/目
+录下的一些文件查看。
+</li>
+<li><code>CONFIG_ACPI_DEBUG</code>
+          ACPI调试信息。
+</li>
+<li><code>CONFIG_DEBUG_DRIVER</code>
+          打开驱动核心代码的日志输出。
+</li>
+<li><code>CONFIG_SCSI_CONSTANTS</code>
+          SCSI驱动调试时使用。
+</li>
+<li><code>CONFIG_INPUT_EVBUG</code>
+          打开输入事件的一些输出。调试输入设备驱动时使用
+</li>
+<li><code>CONFIG_PROFILING</code>
+          性能调优或跟踪内核Hang住等相关问题。
+</li>
+</ol>
+</div>
+</li>
+
+<li><a id="sec-2-2-2-2" name="sec-2-2-2-2"></a>prink<br  /><div class="outline-text-5" id="text-2-2-2-2">
+<p>
+<i>printk</i> 函数将消息发送到一个环形Buffer:_<sub>LOG</sub><sub>BUF</sub><sub>LEN字节长，大</sub>
+小从4 KB到1 MB大小。可以通过syslog或读取/proc/kmsg来获取该buffer
+中的信息。其中，读取/proc/kmsg的方式会消耗掉buffer中的数据。
+</p>
+</div>
+</li>
+
+<li><a id="sec-2-2-2-3" name="sec-2-2-2-3"></a>rate limit<br  /><div class="outline-text-5" id="text-2-2-2-3">
+<p>
+有时，同一个Log信息打印太多，会影响Log分析，可以通过
+<code>printk_ratelimit()</code> 来控制一条Log的打印次数。 使用方法一般如下所示：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">if (printk_ratelimit( ))
+  printk(KERN_NOTICE "The printer is still on fire\n");
+</pre>
+</div>
+
+<p>
+可以通过如下两种方法修改 <code>printk_ratelimit()</code> 的行为：
+</p>
+<ol class="org-ol">
+<li>修改"/proc/sys/kernel/printk<sub>ratelimit</sub>"  重新enable消息打印前，
+等待的时间。
+</li>
+<li>"/proc/sys/kernel/printk<sub>ratelimit</sub><sub>burst</sub>": 在启用rate<sub>limit前，</sub>
+        允许同一份Log打印的次数。
+</li>
+</ol>
+</div>
+</li>
+
+<li><a id="sec-2-2-2-4" name="sec-2-2-2-4"></a>打印设备号<br  /><div class="outline-text-5" id="text-2-2-2-4">
+<div class="org-src-container">
+
+<pre class="src src-c">int print_dev_t(char *buffer, dev_t dev);
+char *format_dev_t(char *buffer, dev_t dev);
+</pre>
+</div>
+</div>
+</li></ol>
+</div>
+
+<div id="outline-container-sec-2-2-3" class="outline-4">
+<h4 id="sec-2-2-3"><span class="section-number-4">2.2.3</span> 字符设备</h4>
+<div class="outline-text-4" id="text-2-2-3">
+<ul class="org-ul">
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7845492">字符设备驱动程序框架</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7901879">Miscellaneous Character Drivers</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7901881">iotcl函数</a>
+</li>
+<li>常见函数
+<div class="org-src-container">
+
+<pre class="src src-c">copy_from_user
+__copy_from_user //(no access check)
+copy_to_user
+__copy_to_user
+
+//传输小数据如1,2, 4, 8字节的数据
+__put_user()
+  put_user()
+  __get_user()
+  get_user()
+
+//能力函数
+#include &lt;linux/sched.h&gt;
+int capable(int capability);
+</pre>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2-4" class="outline-4">
+<h4 id="sec-2-2-4"><span class="section-number-4">2.2.4</span> 同步与竞态</h4>
+<div class="outline-text-4" id="text-2-2-4">
+<ul class="org-ul">
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7313560">内核同步机制——完成量</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7313551">内核同步机制——互斥量</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7251060">内核同步机制——信号量</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7249772">内核同步机制——自旋锁</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/6926750">内核同步机制——原子操作</a>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2-5" class="outline-4">
+<h4 id="sec-2-2-5"><span class="section-number-4">2.2.5</span> 休眠与唤醒</h4>
+<div class="outline-text-4" id="text-2-2-5">
+<ul class="org-ul">
+<li><code>基本调用步骤:</code>
+<ol class="org-ol">
+<li>初始化一个等待队列头：
+
+<p>
+<code>init_waitqueue_head(&amp;ret-&gt;wait_queue);</code>
+</p>
+
+<p>
+注： 判断队列是否为空： <code>waitqueue_active(...)</code> ， 返回false即表示队列为空.
+</p>
+</li>
+
+<li>等待某个条件发生：
+
+<p>
+<code>wait_event(...)</code> 或 <code>wait_event_timeout(...)</code>
+</p>
+</li>
+
+<li>唤醒队列
+
+<p>
+<code>wake_up_all(...)</code>
+</p>
+</li>
+</ol>
+</li>
+
+<li><code>手动睡眠</code>
+<ol class="org-ol">
+<li>初始化一个等待队列项
+
+<div class="org-src-container">
+
+<pre class="src src-c">DEFINE_WAIT(my_wait);
+</pre>
+</div>
+
+<p>
+或者
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">wait_queue_t my_wait;
+init_wait(&amp;my_wait);
+</pre>
+</div>
+</li>
+
+<li>将等待队列项加入到队列中
+
+<div class="org-src-container">
+
+<pre class="src src-c">void prepare_to_wait(wait_queue_head_t *queue,
+                     wait_queue_t *wait,
+                     int state);
+</pre>
+</div>
+</li>
+
+<li>调用 <code>prepare_to_wait</code> 后，可以调用 <code>schedule()</code>
+</li>
+
+<li>当schedule返回，执行清理工作。
+
+<div class="org-src-container">
+
+<pre class="src src-c">void finish_wait(wait_queue_head_t *queue, wait_queue_t *wait);
+</pre>
+</div>
+</li>
+</ol>
+</li>
+</ul>
+
+
+
+<ul class="org-ul">
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7408853">等待队列——休眠与唤醒</a>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2-6" class="outline-4">
+<h4 id="sec-2-2-6"><span class="section-number-4">2.2.6</span> 计时器与延时</h4>
+<div class="outline-text-4" id="text-2-2-6">
+<ul class="org-ul">
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7694538">内核变量——Jiffies</a>
+      jiffies与struct timeval, struct timespec之间的转换：
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;linux/time.h&gt;
+unsigned long timespec_to_jiffies(struct timespec *value);
+void jiffies_to_timespec(unsigned long jiffies, struct timespec *value);
+unsigned long timeval_to_jiffies(struct timeval *value);
+void jiffies_to_timeval(unsigned long jiffies, struct timeval *value);
+</pre>
+</div>
+
+<p>
+读取64-bit的jiffies值：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;linux/jiffies.h&gt;
+u64 get_jiffies_64(void);
+</pre>
+</div>
+
+<p>
+turn a wall-clock time into a jiffies value:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;linux/time.h&gt;
+unsigned long mktime (unsigned int year, unsigned int mon,
+                      unsigned int day, unsigned int hour,
+                      unsigned int min, unsigned int sec);
+</pre>
+</div>
+
+<p>
+获取绝对时间：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;linux/time.h&gt;
+void do_gettimeofday(struct timeval *tv);
+
+//获取当前时间
+#include &lt;linux/time.h&gt;
+struct timespec current_kernel_time(void);
+</pre>
+</div>
+</li>
+
+<li>延迟运行
+
+<ol class="org-ol">
+<li>Busy Waiting
+
+<p>
+The HZ symbol specifies the number of clock ticks generated per second.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">while (time_before(jiffies, j1))
+  cpu_relax( );
+</pre>
+</div>
+</li>
+
+<li>schedule
+
+<div class="org-src-container">
+
+<pre class="src src-c">while (time_before(jiffies, j1)) {
+  schedule( );
+}
+</pre>
+</div>
+</li>
+
+<li>Timeouts
+
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;linux/wait.h&gt;
+long wait_event_timeout(wait_queue_head_t q, condition, long timeout);
+long wait_event_interruptible_timeout(wait_queue_head_t q,
+                                      condition, long timeout);
+
+#include &lt;linux/sched.h&gt;
+signed long schedule_timeout(signed long timeout);
+set_current_state(TASK_INTERRUPTIBLE);
+schedule_timeout (delay);
+</pre>
+</div>
+</li>
+
+<li>短延时
+
+<div class="org-src-container">
+
+<pre class="src src-c">//busy waiting
+#include &lt;linux/delay.h&gt;
+void ndelay(unsigned long nsecs);
+void udelay(unsigned long usecs);
+void mdelay(unsigned long msecs);
+
+//no busy waiting
+void msleep(unsigned int millisecs);
+unsigned long msleep_interruptible(unsigned int millisecs);
+void ssleep(unsigned int seconds)
+</pre>
+</div>
+</li>
+
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7694557">内核定时器与延时</a>
+
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;linux/timer.h&gt;
+struct timer_list {
+/* ... */
+unsigned long expires;
+void (*function)(unsigned long);
+  unsigned long data;
+};
+void init_timer(struct timer_list *timer);
+struct timer_list TIMER_INITIALIZER(_function, _expires, _data);
+void add_timer(struct timer_list * timer);
+int del_timer(struct timer_list * timer);
+int mod_timer(struct timer_list *timer, unsigned long expires);//update timer
+//Works like del_timer, but also guarantees that when it returns, the timer
+//function is not running on any CPU.
+int del_timer_sync(struct timer_list *timer);
+/*
+  Returns true or false to indicate whether the timer is currently scheduled to run
+by reading one of the opaque fields of the structure.
+*/
+int timer_pending(const struct timer_list * timer);
+</pre>
+</div>
+</li>
+
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7524288">下半部机制之微线程</a>
+
+<p>
+数据结构：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;linux/interrupt.h&gt;
+struct tasklet_struct {
+  /* ... */
+  void (*func)(unsigned long);
+  unsigned long data;
+};
+void tasklet_init(struct tasklet_struct *t,
+void (*func)(unsigned long), unsigned long data);
+DECLARE_TASKLET(name, func, data);
+DECLARE_TASKLET_DISABLED(name, func, data);
+</pre>
+</div>
+</li>
+
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7544332">下半部机制之工作队列</a>
+
+<div class="org-src-container">
+
+<pre class="src src-c">struct workqueue_struct *create_workqueue(const char *name);//为每个CPU创建一个内核线程
+struct workqueue_struct *create_singlethread_workqueue(const char *name);//只创建一个内核线程
+
+// work_struct
+DECLARE_WORK(name, void (*function)(void *), void *data);
+INIT_WORK(struct work_struct *work, void (*function)(void *), void *data);
+PREPARE_WORK(struct work_struct *work, void (*function)(void *), void *data); //修改work_struct
+
+//submit work
+int queue_work(struct workqueue_struct *queue, struct work_struct *work);
+int queue_delayed_work(struct workqueue_struct *queue,
+                       struct work_struct *work, unsigned long delay);
+//cancel pending workqueue entry
+int cancel_delayed_work(struct work_struct *work);
+
+//make sure the work function is not running
+//anywhere in the system after cancel_delayed_work returns 0
+void flush_workqueue(struct workqueue_struct *queue);
+
+//get rid of a workqueue
+void destroy_workqueue(struct workqueue_struct *queue);
+</pre>
+</div>
+</li>
+
+<li>共享工作队列
+
+<p>
+大部分情况下，我们不需要创建自己的工作队列，可以将工作项提交
+到默认的工作队列中。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">int schedule_work(struct work_struct *work);
+
+//submit work
+int schedule_delayed_work(struct work_struct *work, unsigned long delay);
+
+//cancel delayed work
+int cancel_delayed_work(struct work_struct *work);
+
+//flush the shared workqueue
+void flush_scheduled_work(void);
+</pre>
+</div>
+</li>
+</ol>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2-7" class="outline-4">
+<h4 id="sec-2-2-7"><span class="section-number-4">2.2.7</span> 内存分配</h4>
+<div class="outline-text-4" id="text-2-2-7">
+<ul class="org-ul">
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7694571">内存管理</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/6919032">内核中的几种内存分配器</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7694580">每-CPU变量</a>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2-8" class="outline-4">
+<h4 id="sec-2-2-8"><span class="section-number-4">2.2.8</span> 与硬件通信</h4>
+<div class="outline-text-4" id="text-2-2-8">
+<ul class="org-ul">
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/19634277">I/O端口和I/O内存</a>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2-9" class="outline-4">
+<h4 id="sec-2-2-9"><span class="section-number-4">2.2.9</span> <a href="http://blog.csdn.net/fuyajun01/article/details/7422249">内核中断处理</a></h4>
+<div class="outline-text-4" id="text-2-2-9">
+<ul class="org-ul">
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7434194">内核中断下半部机制</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7544332">下半部机制之工作队列</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7524304">内核线程ksoftirqd</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7524288">下半部机制之微线程</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7463625">下半部机制之软中断</a>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2-10" class="outline-4">
+<h4 id="sec-2-2-10"><span class="section-number-4">2.2.10</span> 内核数据结构</h4>
+<div class="outline-text-4" id="text-2-2-10">
+<ul class="org-ul">
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7413595">内核数据结构之红黑树</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7413584">内核数据结构之映射</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/7413579">内核数据结构之队列</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/6727022">内核数据结构之链表</a>
+</li>
+<li><a href="http://blog.csdn.net/fuyajun01/article/details/6575871">内核错误码处理宏</a>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2-11" class="outline-4">
+<h4 id="sec-2-2-11"><span class="section-number-4">2.2.11</span> 网络驱动</h4>
+<div class="outline-text-4" id="text-2-2-11">
+</div><ol class="org-ol"><li><a id="sec-2-2-11-1" name="sec-2-2-11-1"></a>snull驱动设计说明<br  /><div class="outline-text-5" id="text-2-2-11-1">
+<ul class="org-ul">
+<li>it simulates conversations with real remote hosts in order to
+better demonstrate the task of writing a network driver.
+</li>
+<li>it supports only IP traffic.
+</li>
+<li>The <i>snull</i> module creates two interfaces.
+</li>
+<li>How a host sees its interfaces
+
+
+<div class="figure">
+<p><img src="/images/2016/snull.png" alt="snull.png" />
+</p>
+</div>
+</li>
+<li>possible configuration
+
+<p>
+/etc/networks
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">network</th>
+<th scope="col" class="right">ip</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">snullnet0</td>
+<td class="right">192.168.0.0</td>
+</tr>
+
+<tr>
+<td class="left">snullnet1</td>
+<td class="right">192.168.1.0</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+/etc/hosts
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="right" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="right">ip</th>
+<th scope="col" class="left">host</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="right">192.168.0.1</td>
+<td class="left">local0</td>
+</tr>
+
+<tr>
+<td class="right">192.168.0.2</td>
+<td class="left">remote0</td>
+</tr>
+
+<tr>
+<td class="right">192.168.1.2</td>
+<td class="left">local1</td>
+</tr>
+
+<tr>
+<td class="right">192.168.1.1</td>
+<td class="left">remote1</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</div>
+</li>
+
+<li><a id="sec-2-2-11-2" name="sec-2-2-11-2"></a>网络驱动基本知识<br  /><div class="outline-text-5" id="text-2-2-11-2">
+<ul class="org-ul">
+<li><code>struct net_device</code> 描述一个网络接口。头文件：
+&lt;linux/netdevice.h&gt;
+<div class="org-src-container">
+
+<pre class="src src-c">struct net_device *alloc_netdev(int sizeof_priv,
+                                const char *name,
+                                void (*setup)(struct net_device *));
+</pre>
+</div>
+</li>
+<li>注册网络设备
+<div class="org-src-container">
+
+<pre class="src src-c">for (i = 0; i &lt; 2; i++)
+  if ((result = register_netdev(snull_devs[i])))
+    printk("snull: error %i registering device \"%s\"\n",
+           result, snull_devs[i]-&gt;name);
+</pre>
+</div>
+</li>
+<li><code>netif_start_queue/netif_stop_queue</code> 标记Driver是否可以传输数据包。
+<div class="org-src-container">
+
+<pre class="src src-c">/*
+  If you must disable packet transmission from anywhere other than your hard_start_xmit
+  function (in response to a reconfiguration request, perhaps), the function you want to
+  use is:
+*/
+void netif_tx_disable(struct net_device *dev);
+
+/*
+  This function is just like netif_start_queue, except that it also pokes the networking
+system to make it start transmitting packets again.
+*/
+void netif_wake_queue(struct net_device *dev);
+</pre>
+</div>
+</li>
+<li>数据传输与接收
+当可以传输数据时，内核会调用 <code>ndo_start_transmit</code> 将数据放到队
+列中。
+<div class="org-src-container">
+
+<pre class="src src-c">netif_rx(skb);//hand off the socket buffer to the upper layers.
+netif_receive_skb(skb); //feed packets to the kernel, used in poll mode
+</pre>
+</div>
+</li>
+<li>chagnes in link state
+
+<div class="org-src-container">
+
+<pre class="src src-c">void netif_carrier_off(struct net_device *dev);
+void netif_carrier_on(struct net_device *dev);
+int netif_carrier_ok(struct net_device *dev);
+</pre>
+</div>
+</li>
+<li>ioctl
+
+<p>
+Any ioctl command that is not recognized by the protocol layer
+is passed to the device layer. These device-related ioctl
+commands accept a third argument from user space, a <code>struct
+       ifreq *</code> . 
+</p>
+</li>
+</ul>
+</div>
+</li></ol>
+</div>
+</div>
+
+
+
+
+
+<div id="outline-container-sec-2-3" class="outline-3">
+<h3 id="sec-2-3"><span class="section-number-3">2.3</span> 引用</h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+<a href="https://github.com/fuyajun1983cn/ldd3">GitHub Ldd3</a>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2015-12-17</p>
+<p class="author">Author: Fu Yajun</p>
+<p class="date">Created: 2016-01-28 四 13:44</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.5.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
