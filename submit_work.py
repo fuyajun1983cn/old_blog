@@ -45,9 +45,16 @@ def git_push():
     git push command
     '''
     os.system("git push {0} {1}".format(remote_name, branch_name))
+
+def git_pull():
+    '''
+    sync with latest file
+    '''
+    os.system("git pull {0} {1}".format(remote_name, branch_name))
     
 if __name__ == "__main__":
 
+    git_pull()
     git_add()
     git_commit()
     git_push()
