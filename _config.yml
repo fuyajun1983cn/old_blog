@@ -15,21 +15,24 @@ sass:
 
 # Resume settings
 resume_avatar:                  "true"
-resume_name:                    "Fu Yajun's Resume"
-resume_title:                   "Sofeware Engineer"
+resume_name:                    "付亚军的个人简历"
+resume_name_en:              "Fu Yajun's Resume"
+resume_title_en:                   "Sofeware Engineer"
+resume_title:                       "软件工程师"
 resume_contact_email: "fuyajun1983cn@163.com"
+resume_contact_phone: "186 2034 9460"
 
 # use "yes" to display the email contact button,
 # "no" to display an "I'm not looking for work" message,
 # or remove the resume_looking_for_work option entirely
 # to leave blank
-resume_looking_for_work:        "yes"
+#resume_looking_for_work:        "yes"
 
 # Decide which sections to use
 # comment out to hide
 resume_section_experience:      true
 resume_section_education:       true
-resume_section_projects:        false
+resume_section_projects:        true
 resume_section_skills:          true
 resume_section_recognition:     false
 resume_section_links:           true
