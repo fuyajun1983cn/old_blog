@@ -1,0 +1,168 @@
+---
+layout: post
+date: 2016-03-12
+author: 付亚军
+categories: wifi 
+---
+<div id="content">
+<h1 class="title">WiFi案例1 &#x2013; Miracast无法连接</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">问题描述</a></li>
+<li><a href="#sec-2">问题分析</a></li>
+<li><a href="#sec-3">解决方法</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">问题描述</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+客户平台的网卡从一家厂商的芯片更换为另一家的芯片，结果出现WiFi
+Miracast无法连接成功的情况。
+</p>
+</div>
+</div>
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">问题分析</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+初步信息调查：
+</p>
+<ol class="org-ol">
+<li>客户平台内核版本为： 3.1.10
+</li>
+<li>实测发现，当平台作GC时，连接没有问题。
+</li>
+<li>分析手机端和平台端的 <code>wpa_supplicant.log</code> ，有如下一些发现：
+<ul class="org-ul">
+<li>平台端如下Log异常：
+<img src="/images/2016/2016031101.png" alt="2016031101.png" />
+Associaite Request中没有包含RSN IE等相关信息，这是P2P连接过程
+中，所必须。
+</li>
+<li>手机端有如下Log异常：
+<pre class="example">
+ 03-03 16:06:08.252 I/wpa_supplicant(  864): p2p0: WPS-M2D dev_password_id=0 config_error=12
+ 03-03 16:06:08.255 D/wpa_supplicant(  864): EAPOL: txSuppRsp
+03-03 16:06:08.255 D/wpa_supplicant(  864): TX EAPOL: dst=06:3d:98:a6:29:34
+03-03 16:06:08.255 D/wpa_supplicant(  864): TX EAPOL - hexdump(len=78): 01 00 00 4a 02 4d 00 4a fe 00 37 2a 00 00 00 01 02 00 10 4a 00 01 10 10 22 00 01 0d 10 1a 00 10 ...
+03-03 16:06:08.256 D/wpa_supplicant(  864): EAPOL: SUPP_BE entering state RECEIVE
+03-03 16:06:08.256 D/wpa_supplicant(  864): P2P: Terminate connection due to WPS PBC session overlap
+03-03 16:06:08.256 D/wpa_supplicant(  864): P2P: Group Formation failed with 06:3d:98:a6:29:34
+03-03 16:06:08.256 D/wpa_supplicant(  864): P2P: Clear timeout (state=PROVISIONING)
+03-03 16:06:08.256 D/wpa_supplicant(  864): P2P: State PROVISIONING -&gt; IDLE
+03-03 16:06:08.256 I/wpa_supplicant(  864): P2P-GROUP-FORMATION-FAILURE
+</pre>
+</li>
+</ul>
+<p>
+<code>config_error</code>  的值为 12， 其意义为：　
+<code>WPS_CFG_MULTIPLE_PBC_DETECTED</code> ，这个是GO在处理M1信息时，带上的。
+</p>
+</li>
+<li>根据双方的Log， GO在处理GC发送过来的M1消息后，回复了M2D信息给GC，
+从而中断了WPS的交互过程。从如下代码入手分析：
+
+
+<div class="figure">
+<p><img src="/images/2016/2016031102.png" alt="2016031102.png" />
+</p>
+</div>
+
+<p>
+函数 <code>wps_registrar_p2p_dev_addr_match</code> 中进行地址过滤时，发现了
+线索：
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016031103.png" alt="2016031103.png" />
+</p>
+</div>
+
+<p>
+正常情况下， <code>reg-&gt;p2p_dev_addr</code> 的值应该与 <code>wps-&gt;p2p_dev_addr</code>
+的值一致，但是从出错Log中发现 <code>wps-&gt;p2p_dev_addr</code> 的值为0。  
+而 wps 相关的初始化是在 <code>eap_wsc_init</code> 在调用了 <code>wps_init</code> 来进
+行初始化的。  如下图所示 ：
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016031104.png" alt="2016031104.png" />
+</p>
+</div>
+
+<p>
+有个条件引起来我们的注意：
+<code>sm-&gt;assoc_p2p_ie</code>  
+是否因为这个为NULL，导致 <code>wps_init</code> 初始化时， <code>p2p_dev_addr</code>  没有
+得到赋值？
+</p>
+</li>
+<li>分析 <code>wpa_supplicant</code> 处理Associate Request的函数代码：
+在函数 <code>hostapd_notif_assoc</code> 里面，会解析 Associate Request 携带
+的IE信息， 代码如下：  
+
+
+<div class="figure">
+<p><img src="/images/2016/2016031105.png" alt="2016031105.png" />
+</p>
+</div>
+
+<p>
+可以发现，并结合之前的Log发现， WPS， RSN， WPA等 IE信息都为空。
+所以有理由 怀疑Driver送上来的Associate Request中就没有包含这些IE
+信息， IE信息为空！！！
+</p>
+</li>
+<li>Driver层确认
+ 在Driver处理Association Request的地方， 加一些打印Log确认收到的
+IE是否为空，结果发现，Driver有收到这些IE信息的。 Driver在处理完
+Associate Request后，如果OK，会送回一个Associate Response给对方
+，并调用 <code>cfg80211_new_sta</code> 将Associate Request事件通知到上层。
+应该在这个地方可能将IE信息漏掉了。 
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">解决方法</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+由于定位到问题的原因是：驱动在调用 <code>cfg80211_new_sta</code> 时，没有将 如
+下标记设置：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">struct station_info sinfo;
+struct ieee80211_mgmt *mgmt;
+
+NdisZeroMemory(&amp;sinfo, sizeof(sinfo));
+
+//因为这个标记没有置上，导致nl80211模块处理IE信息时，
+//将assoc_req IE给过滤掉了, 正解就是要让这句执行。
+ sinfo.filled = STATION_INFO_ASSOC_REQ_IES;
+
+ mgmt = (struct ieee80211_mgmt *) assoc_frame;
+ sinfo.assoc_req_ies_len = assoc_len - 24 - 4;
+sinfo.assoc_req_ies = mgmt-&gt;u.assoc_req.variable;
+
+return cfg80211_new_sta(pNetDev, mac_addr, &amp;sinfo, GFP_KERNEL);
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Fu Yajun</p>
+<p class="date">Created: 2016-03-12 ���� 15:15</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.0.50.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
