@@ -1,0 +1,99 @@
+---
+layout: post
+date: 2016-03-12
+author: 付亚军
+categories: wifi 
+---
+<div id="content">
+<h1 class="title">WiFi案例2 &#x2013; p2p虚拟网络接口打开时，出现设备忙</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">问题描述</a></li>
+<li><a href="#sec-2">问题分析</a></li>
+<li><a href="#sec-3">解决方法</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">问题描述</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+设备当GO时， p2p virtual interface 启动时，有时会出现Device or Resource is busy
+</p>
+</div>
+</div>
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">问题分析</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+p2p 协商成功后，会创建一个virtual interface, 即 调用
+<code>wpa_driver_nl80211_if_add</code> ， 在该函数中，会调用
+<code>linux_set_iface_flags</code> 将虚拟接口设置为UP状态， 查看该函数的代码如
+下：
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016031106.png" alt="2016031106.png" />
+</p>
+</div>
+
+<p>
+在下这个命令时，出现上述错误。 kernel中处理该命令的函数为：
+<code>devinet_ioctl</code>
+进一步追下去，在该函数中： <code>__dev_change_flags</code> 有如下代码：
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016031107.png" alt="2016031107.png" />
+</p>
+</div>
+
+<p>
+UP会对应 <code>__dev_open</code> 函数。 这个函数会调用driver注册的打开网络接口
+的回调函数。如下代码所示 ：
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016031108.png" alt="2016031108.png" />
+</p>
+</div>
+
+<p>
+从上述代码也可以看到，在打开设备之前，会发送一个 <code>NETDEV_PRE_UP</code> 通
+知链消息。 在 <code>cfg80211_netdev_notifier_call</code> 函数中，会处理该消息：
+这个逻辑主要是一些Sanity Check，即此时能不能打开该网络接口。
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016031109.png" alt="2016031109.png" />
+</p>
+</div>
+
+<p>
+最重要的处理函数是 <code>cfg80211_can_use_iftype_chan</code> ，在这个函数中会
+分析当前打开网络接口是否有问题。
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">解决方法</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+通过对上述代码的分析，结合driver的Log，做出了如下的修改：
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016031110.png" alt="2016031110.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
