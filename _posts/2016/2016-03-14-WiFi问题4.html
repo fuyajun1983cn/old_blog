@@ -1,0 +1,62 @@
+---
+layout: post
+date: 2016-03-14
+author: gstefanick
+categories: wifi
+---
+<div id="content">
+<h1 class="title">WiFi案例4 &#x2013; 固件升级后，手机出现奇怪现象</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">问题描述</a></li>
+<li><a href="#sec-2">问题分析</a></li>
+<li><a href="#sec-3">解决方法</a></li>
+</ul>
+</div>
+</div>
+
+
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">问题描述</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+固件升级后，一些手机出现奇怪的现象。 它们会连接到网络，然后断开并显
+示定位网络服务的信息。这个过程是可重复的。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">问题分析</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+数据包抓取结果如下：
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016031404.png" alt="2016031404.png" />
+</p>
+</div>
+
+<p>
+如上图红色标记，Duration的值太大，有点异常，一般情况下，应该只有几十
+毫秒。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">解决方法</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+这个问题最后查出是手机Firmware代码的Bug，导致在处理与802.11n的AP交互时，
+出现Duration值异常的情况。这会影响周围所有的WiFi设备，而不仅仅是这个
+手机。
+</p>
+</div>
+</div>
+</div>

@@ -1,0 +1,59 @@
+---
+layout: post
+date: 2016-03-14
+author: gstefanick
+categories: wifi
+---
+<div id="content">
+<h1 class="title">WiFi案例5 &#x2013; WiFi性能差，且有时连接不上WiFi网络</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">问题描述</a></li>
+<li><a href="#sec-2">问题分析</a></li>
+<li><a href="#sec-3">问题解决</a></li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">问题描述</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+客户抱怨WiFi网络性能差，且有时甚至连接不上WiFi网络。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">问题分析</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+抓包信息如下：
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016031405.png" alt="2016031405.png" />
+</p>
+</div>
+
+<p>
+可以看到出现了CRC错误， 这表明我的抓包工具不能正确地读取帧信息。当靠
+近发送数据的设备时，CRC错误率会降低。 
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">问题解决</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+当通信双方的距离大于一定值后，会出现CRC错误率变高的情况，尝试靠近一
+下，看CRC错误率是否会降低。 
+</p>
+</div>
+</div>
+</div>
