@@ -1,0 +1,724 @@
+---
+layout: post
+date: 2016-04-09
+author: 山庄来客
+categories: wifi 
+---
+<div id="content">
+<h1 class="title"><code>SK_Buffer</code> 学习笔记</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">概述</a></li>
+<li><a href="#sec-2">数据结构</a>
+<ul>
+<li><a href="#sec-2-1"><code>struct sk_buff</code> 解析</a></li>
+<li><a href="#sec-2-2"><code>skb_buff_head</code></a></li>
+<li><a href="#sec-2-3"><code>skb_data</code></a>
+<ul>
+<li><a href="#sec-2-3-1">新建一个SKB</a></li>
+<li><a href="#sec-2-3-2">调用 <code>skb_reserve</code></a></li>
+<li><a href="#sec-2-3-3">添加用户数据</a></li>
+<li><a href="#sec-2-3-4">添加UDP头部信息</a></li>
+<li><a href="#sec-2-3-5">添加IPv4头部信息</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-4"><code>skb_shared_info</code></a></li>
+</ul>
+</li>
+<li><a href="#sec-3">主要API</a>
+<ul>
+<li><a href="#sec-3-1">分配内存</a>
+<ul>
+<li><a href="#sec-3-1-1"><code>alloc_skb</code></a></li>
+<li><a href="#sec-3-1-2"><code>dev_alloc_skb(size) : sk_buff*</code></a></li>
+</ul>
+</li>
+<li><a href="#sec-3-2">释放内存</a>
+<ul>
+<li><a href="#sec-3-2-1"><code>dev_kfree_skb_any</code> 释放</a></li>
+<li><a href="#sec-3-2-2"><code>dev_kfree_skb</code></a></li>
+<li><a href="#sec-3-2-3"><code>kfree_skb</code></a></li>
+<li><a href="#sec-3-2-4"><code>dev_kfree_skb_irq</code></a></li>
+<li><a href="#sec-3-2-5"><code>dev_kfree_skb_any</code></a></li>
+</ul>
+</li>
+<li><a href="#sec-3-3">复制和拷贝</a>
+<ul>
+<li><a href="#sec-3-3-1"><code>skb_clone</code></a></li>
+<li><a href="#sec-3-3-2"><code>skb_cloned</code></a></li>
+</ul>
+</li>
+<li><a href="#sec-3-4"><code>skb_set_tail_pointer</code></a></li>
+<li><a href="#sec-3-5"><code>skb_tail_pointer</code> 获取TAIL指针</a></li>
+<li><a href="#sec-3-6"><code>skb_end_pointer</code></a></li>
+<li><a href="#sec-3-7">Buffer Management</a>
+<ul>
+<li><a href="#sec-3-7-1"><code>skb_push</code></a></li>
+<li><a href="#sec-3-7-2"><code>skb_put</code></a></li>
+<li><a href="#sec-3-7-3"><code>skb_pull</code></a></li>
+<li><a href="#sec-3-7-4"><code>skb_reserve</code></a></li>
+</ul>
+</li>
+<li><a href="#sec-3-8"><code>skb_trim</code></a></li>
+<li><a href="#sec-3-9"><code>skb_shinfo</code>  share info</a></li>
+<li><a href="#sec-3-10"><code>skb_headlen</code>  header length</a></li>
+<li><a href="#sec-3-11"><code>skb_tailroom</code></a></li>
+<li><a href="#sec-3-12"><code>skb_headroom</code></a></li>
+<li><a href="#sec-3-13"><code>skb_copy_expand</code></a></li>
+<li><a href="#sec-3-14"><code>skb_copy</code></a></li>
+<li><a href="#sec-3-15"><code>skb_copy_to_linear_data</code></a></li>
+<li><a href="#sec-3-16"><code>skb_copy_from_linear_data</code></a></li>
+</ul>
+</li>
+<li><a href="#sec-4">Pass Package to Upper Layer</a></li>
+<li><a href="#sec-5">初始化一个 <code>skb_buffer</code></a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">概述</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+在如下两种情况下，会创建 <code>sk_buff</code>
+</p>
+<ol class="org-ol">
+<li>当应用程序将数据传递给 <code>socket</code> 时。
+</li>
+<li>当数据包到达网络适配器时。
+</li>
+</ol>
+<p>
+包只会拷贝两次：
+</p>
+<ol class="org-ol">
+<li>通过显式地从用户空间拷贝到内核空间。
+</li>
+<li>数据传入网络适配器，或从网络适配器中读取。（一般是通过DMA）
+</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">数据结构</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1"><code>struct sk_buff</code> 解析</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+参考文章： <a href="http://vger.kernel.org/~davem/skb.html">SKB数据结构解读</a>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct sk_buff {
+        /* These two members must be first. */
+        //这两个成员主要实现链表的一些操作
+        //数据包可以存在在多个不同类型的链表和队列中，
+        //比如TCP 套接字发送队列
+        struct sk_buff          *next;
+        struct sk_buff          *prev;
+
+        //which list the packet is on
+        struct sk_buff_head     *list;
+
+        //与SKB关联的socket
+        //当数据的源地址和目的地址任何一个都不是本机时，该值为NULL
+       //例如本机只是转发数据包
+        struct sock             *sk;
+
+        //记录数据包的时间戳，计算该值比较消耗资源，仅在必要的时候才需要计算
+        //该值。通过调用 net_enable_timestamp() 记录数据的时间戳
+        // 调用 net_disable_timestamp() 来取记录数据的时间戳。
+        //时间戳通常用于Sniffer数据包，也可用于实现一些 socket 选项，一些
+        //netfilter模块也会使用该值。
+        //一般记录的是数据接收到的时间。
+        struct timeval          stamp;
+
+        //这三个成员主要用于跟踪与该数据包关联的设备，
+        //由于数据包在通过虚拟接口的过程中，skb-&gt;dev的值会发生变化，所以需要额外的两个指针
+        //来跟踪当前数据包关联的设备。
+        //So if we are receiving a packet from a device which is part of a bonding
+        //device instance, initially 'skb-&gt;dev' will be set to point the real underlying
+        //bonding slave. When the packet enters the networking (via 'netif_receive_skb()')
+        //we save 'skb-&gt;dev' away in 'skb-&gt;real_dev' and update 'skb-&gt;dev' to point to the bonding device.
+        //Likewise, the physical device receiving a packet always records itself in 'skb-&gt;input_dev'.
+        //In this way, no matter how many layers of virtual devices end up being decapsulated,
+        //'skb-&gt;input_dev' can always be used to find the top-level device that actually
+        //received this packet from the network.
+        struct net_device       *dev;
+        struct net_device       *input_dev;
+        struct net_device       *real_dev;
+
+        //各种协议层的头部信息
+        union {
+                struct tcphdr   *th;
+                struct udphdr   *uh;
+                struct icmphdr  *icmph;
+                struct igmphdr  *igmph;
+                struct iphdr    *ipiph;
+                struct ipv6hdr  *ipv6h;
+                unsigned char   *raw;
+        } h;
+
+        union {
+                struct iphdr    *iph;
+                struct ipv6hdr  *ipv6h;
+                struct arphdr   *arph;
+                unsigned char   *raw;
+        } nh;
+
+        union {
+                unsigned char   *raw;
+        } mac;
+
+        //This member is the generic route for the packet.
+        //It tells us how to get the packet to it's destination.
+        //Note that routes are used for both input and output.
+        struct  dst_entry       *dst;
+
+        //Here we store the security path traversed by the packet, if any. 
+        struct  sec_path        *sp;
+
+        //SKB control block, It is an opaque storage area usable by protocols,
+        //and even some drivers, to store private per-packet information.
+        char                    cb[40];
+
+        //包的总长度是len
+        //SKB是由一个线性的数据缓冲区(main bufer) for head)以及一个或多个页缓冲区(fragments)构成，如果有页缓冲区，则
+        //页缓冲区中的总字节数是：data_len。所以线性缓冲区的长度为skb-&gt;len - skb-&gt;data_len，
+        //或者直接调用 skb_headlen()。
+        // mac_len记录了MAC头部的长度。
+        //csum: 为数据包的check sum。 
+        unsigned int            len,
+                                data_len,
+                                mac_len,
+                                csum;
+
+        //local_df: 由IPV4 protocol使用
+        //cloned: 判断该SKB是否是拷贝的, 拷贝的SKB之间共享数据区。
+        //nohdr: support of TCP Segmentation Offload ('TSO' for short).
+        //pkt_type: 数据包的类型
+        //ip_summed: describes what kind of checksumming assistence the card has provided for a receive packet.
+        unsigned char           local_df,
+                                cloned:1,
+                                nohdr:1,
+                                pkt_type,
+                                ip_summed;
+
+        //QoS相关
+        __u32                   priority;
+
+
+        //protocol: 数据包接收的协议类型  eth_type_trans
+        //  Since each protocol has its own function handler for the processing of
+        //incoming packets, this field is used by the driver to inform the layer above it what handler to use.
+        //Each driver calls netif_rx to invoke the handler for the upper network layer, so the protocol
+        //field must be initialized before that function is invoked.
+        //security: IPSec相关, no longer used.
+        unsigned short          protocol,
+                                security;
+
+        //这两个成员主要用于socket buffer统计
+        // destructor 通常被初始化为删除Buffer时执行的一些操作。当该Buffer不属于任何socket
+        //时，该函数指针为空。否则通常初始化为： sock_rfree或sock_wfree。
+        void                    (*destructor)(struct sk_buff *skb);
+        ...
+
+        //这个代码Buffer总的大小，包含struct sk_buff结构体本身。
+        unsigned int            truesize;
+
+
+        //引用计数
+        //增加引用计数： skb_get
+        //减少引用计数： kfree_skb
+        atomic_t                users;
+
+        //These four pointers provide the core management of the linear packet data area of an SKB.
+        unsigned char           *head,
+                                *data,
+                                *tail,
+                                *end;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2"><code>skb_buff_head</code></h3>
+<div class="outline-text-3" id="text-2-2">
+<div class="org-src-container">
+
+<pre class="src src-c">struct sk_buff_head {
+  /* These two members must be first. */
+  struct sk_buff * next;
+  struct sk_buff * prev;
+  _ _u32 qlen; //元素的个数 
+  spinlock_t lock;
+};
+</pre>
+</div>
+<p>
+它与 <code>skb_buff</code> 的关系如下： 
+<img src="/images/2016/2016031001.png" alt="2016031001.png" />
+</p>
+</div>
+</div>
+<div id="outline-container-sec-2-3" class="outline-3">
+<h3 id="sec-2-3"><code>skb_data</code></h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+首先看下SKB数据区的布局
+<img src="/images/2016/2016030801.png" alt="2016030801.png" />
+</p>
+</div>
+<div id="outline-container-sec-2-3-1" class="outline-4">
+<h4 id="sec-2-3-1">新建一个SKB</h4>
+<div class="outline-text-4" id="text-2-3-1">
+<p>
+通过调用如下函数来新建一个SKB。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">skb = alloc_skb(len, GFP_KERNEL);
+</pre>
+</div>
+<p>
+下图是一个SKB刚创建时的布局：
+<img src="/images/2016/2016030802.png" alt="2016030802.png" />
+</p>
+</div>
+</div>
+<div id="outline-container-sec-2-3-2" class="outline-4">
+<h4 id="sec-2-3-2">调用 <code>skb_reserve</code></h4>
+<div class="outline-text-4" id="text-2-3-2">
+<p>
+当调用如下函数时，
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">skb_reserve(skb, header_len);
+</pre>
+</div>
+<p>
+SKB的布局如下：
+<img src="/images/2016/2016030803.png" alt="2016030803.png" />
+</p>
+</div>
+</div>
+<div id="outline-container-sec-2-3-3" class="outline-4">
+<h4 id="sec-2-3-3">添加用户数据</h4>
+<div class="outline-text-4" id="text-2-3-3">
+<p>
+当往这个SKB中添加一些数据后，
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">unsigned char *data = skb_put(skb, user_data_len);
+int err = 0;
+skb-&gt;csum = csum_and_copy_from_user(user_pointer, data,
+                                    user_data_len, 0, &amp;err);
+if (err)
+        goto user_fault;
+</pre>
+</div>
+<p>
+这个时间，SKB的布局如下：
+<img src="/images/2016/2016030804.png" alt="2016030804.png" />
+</p>
+</div>
+</div>
+<div id="outline-container-sec-2-3-4" class="outline-4">
+<h4 id="sec-2-3-4">添加UDP头部信息</h4>
+<div class="outline-text-4" id="text-2-3-4">
+<p>
+当往里面添加UDP头部信息后，
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct inet_sock *inet = inet_sk(sk);
+struct flowi *fl = &amp;inet-&gt;cork.fl;
+struct udphdr *uh;
+
+skb-&gt;h.raw = skb_push(skb, sizeof(struct udphdr));
+uh = skb-&gt;h.uh
+uh-&gt;source = fl-&gt;fl_ip_sport;
+uh-&gt;dest = fl-&gt;fl_ip_dport;
+uh-&gt;len = htons(user_data_len);
+uh-&gt;check = 0;
+skb-&gt;csum = csum_partial((char *)uh,
+                         sizeof(struct udphdr), skb-&gt;csum);
+uh-&gt;check = csum_tcpudp_magic(fl-&gt;fl4_src, fl-&gt;fl4_dst,
+                              user_data_len, IPPROTO_UDP, skb-&gt;csum);
+if (uh-&gt;check == 0)
+        uh-&gt;check = -1;
+</pre>
+</div>
+<p>
+此时SKB布局如下：
+<img src="/images/2016/2016030805.png" alt="2016030805.png" />
+</p>
+</div>
+</div>
+<div id="outline-container-sec-2-3-5" class="outline-4">
+<h4 id="sec-2-3-5">添加IPv4头部信息</h4>
+<div class="outline-text-4" id="text-2-3-5">
+<div class="org-src-container">
+
+<pre class="src src-c">struct rtable *rt = inet-&gt;cork.rt;
+struct iphdr *iph;
+
+skb-&gt;nh.raw = skb_push(skb, sizeof(struct iphdr));
+iph = skb-&gt;nh.iph;
+iph-&gt;version = 4;
+iph-&gt;ihl = 5;
+iph-&gt;tos = inet-&gt;tos;
+iph-&gt;tot_len = htons(skb-&gt;len);
+iph-&gt;frag_off = 0;
+iph-&gt;id = htons(inet-&gt;id++);
+iph-&gt;ttl = ip_select_ttl(inet, &amp;rt-&gt;u.dst);
+iph-&gt;protocol = sk-&gt;sk_protocol; /* IPPROTO_UDP in this case */
+iph-&gt;saddr = rt-&gt;rt_src;
+iph-&gt;daddr = rt-&gt;rt_dst;
+ip_send_check(iph);
+
+skb-&gt;priority = sk-&gt;sk_priority;
+skb-&gt;dst = dst_clone(&amp;rt-&gt;u.dst);
+</pre>
+</div>
+<p>
+这时，SKB的布局如下： 
+<img src="/images/2016/2016030806.png" alt="2016030806.png" />
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-2-4" class="outline-3">
+<h3 id="sec-2-4"><code>skb_shared_info</code></h3>
+<div class="outline-text-3" id="text-2-4">
+<p>
+该数据结构的定义如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct skb_shared_info {
+  //represents the number of "users" of the data block
+  atomic_t dataref;
+  //nr_frags, frag_list, and frags are used to handle IP fragments
+  //tso_size and tso_seqs 用于TCP segmentation
+  unsigned int nr_frags;
+  unsigned short tso_size;
+  unsigned short tso_seqs;
+  struct sk_buff *frag_list;
+  skb_frag_t frags[MAX_SKB_FRAGS];
+};
+</pre>
+</div>
+<p>
+访问该结构信息：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#define skb_shinfo(SKB) ((struct skb_shared_info *)((SKB)-&gt;end))
+
+skb_shinfo(skb)-&gt;dataref++;
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">主要API</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1">分配内存</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+分配内存包含两个部分的内存分配：one for the buffer and one for
+the <code>sk_buff</code> structure
+</p>
+</div>
+
+<div id="outline-container-sec-3-1-1" class="outline-4">
+<h4 id="sec-3-1-1"><code>alloc_skb</code></h4>
+<div class="outline-text-4" id="text-3-1-1">
+<p>
+基本的逻辑如下面代码所示 ：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">skb = kmem_cache_alloc(skbuff_head_cache, gfp_mask &amp; ~_ _GFP_DMA);
+... ... ...
+size = SKB_DATA_ALIGN(size);
+data = kmalloc(size + sizeof(struct skb_shared_info), gfp_mask);
+</pre>
+</div>
+<p>
+分配后，内存分配情况如下：
+<img src="/images/2016/2016031003.png" alt="2016031003.png" />
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-1-2" class="outline-4">
+<h4 id="sec-3-1-2"><code>dev_alloc_skb(size) : sk_buff*</code></h4>
+<div class="outline-text-4" id="text-3-1-2">
+<p>
+该函数用于中断上下文中，代码实现如下所示： 
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">static inline struct sk_buff *dev_alloc_skb(unsigned int length)
+{
+  return _ _dev_alloc_skb(length, GFP_ATOMIC);
+}
+
+static inline
+struct sk_buff *_ _dev_alloc_skb(unsigned int length, int gfp_mask)
+{
+  struct sk_buff *skb = alloc_skb(length + 16, gfp_mask);
+  if (likely(skb))
+    skb_reserve(skb, 16);
+  return skb;
+}
+</pre>
+</div>
+
+<div class="figure">
+<p><img src="/images/2016/2016030807.png" alt="2016030807.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2">释放内存</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+主要有两个函数： <code>kfree_skb</code>,  <code>dev_kfree_skb</code> , <code>dev_kfree_skb</code>
+会调用 <code>kfree_skb</code> 。
+</p>
+</div>
+<div id="outline-container-sec-3-2-1" class="outline-4">
+<h4 id="sec-3-2-1"><code>dev_kfree_skb_any</code> 释放</h4>
+</div>
+<div id="outline-container-sec-3-2-2" class="outline-4">
+<h4 id="sec-3-2-2"><code>dev_kfree_skb</code></h4>
+<div class="outline-text-4" id="text-3-2-2">
+<p>
+For use by drivers in non-interrupt context.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-2-3" class="outline-4">
+<h4 id="sec-3-2-3"><code>kfree_skb</code></h4>
+<div class="outline-text-4" id="text-3-2-3">
+<p>
+Decrements reference count for skb. If null, free the memory.
+Used by the kernel in non-interrupt context, <code>not meant to be used
+    by drivers</code>.
+该函数的执行逻辑如下图所示 ：
+</p>
+
+<div class="figure">
+<p><img src="/images/2016/2016031006.png" alt="2016031006.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3-2-4" class="outline-4">
+<h4 id="sec-3-2-4"><code>dev_kfree_skb_irq</code></h4>
+<div class="outline-text-4" id="text-3-2-4">
+<p>
+For use by drivers in interrupt context.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-2-5" class="outline-4">
+<h4 id="sec-3-2-5"><code>dev_kfree_skb_any</code></h4>
+<div class="outline-text-4" id="text-3-2-5">
+<p>
+For use by drivers in any context.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-3-3" class="outline-3">
+<h3 id="sec-3-3">复制和拷贝</h3>
+<div class="outline-text-3" id="text-3-3">
+</div><div id="outline-container-sec-3-3-1" class="outline-4">
+<h4 id="sec-3-3-1"><code>skb_clone</code></h4>
+<div class="outline-text-4" id="text-3-3-1">
+<p>
+Creates a new <code>sk_buff</code>, but not the packet data.
+Pointers in both <code>sk_buffs</code> point to the same packet data space.
+<img src="/images/2016/2016030814.png" alt="2016030814.png" />
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-3-2" class="outline-4">
+<h4 id="sec-3-3-2"><code>skb_cloned</code></h4>
+<div class="outline-text-4" id="text-3-3-2">
+<p>
+Is the buffer a clone.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-3-4" class="outline-3">
+<h3 id="sec-3-4"><code>skb_set_tail_pointer</code></h3>
+</div>
+<div id="outline-container-sec-3-5" class="outline-3">
+<h3 id="sec-3-5"><code>skb_tail_pointer</code> 获取TAIL指针</h3>
+</div>
+<div id="outline-container-sec-3-6" class="outline-3">
+<h3 id="sec-3-6"><code>skb_end_pointer</code></h3>
+</div>
+<div id="outline-container-sec-3-7" class="outline-3">
+<h3 id="sec-3-7">Buffer Management</h3>
+<div class="outline-text-3" id="text-3-7">
+<p>
+下图为如下几个函数的操作Buffer的行为：
+<img src="/images/2016/2016031002.png" alt="2016031002.png" />
+</p>
+</div>
+<div id="outline-container-sec-3-7-1" class="outline-4">
+<h4 id="sec-3-7-1"><code>skb_push</code></h4>
+<div class="outline-text-4" id="text-3-7-1">
+<p>
+Inserts data in front of the packet data space, need to check the headroom size.
+<img src="/images/2016/2016030811.png" alt="2016030811.png" />
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-7-2" class="outline-4">
+<h4 id="sec-3-7-2"><code>skb_put</code></h4>
+<div class="outline-text-4" id="text-3-7-2">
+<p>
+Appends data to the end of the packet, need to ensure the tailroom is sufficient.
+<img src="/images/2016/2016030809.png" alt="2016030809.png" />
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-7-3" class="outline-4">
+<h4 id="sec-3-7-3"><code>skb_pull</code></h4>
+<div class="outline-text-4" id="text-3-7-3">
+<p>
+Truncates len bytes at the beginning of a data.
+<img src="/images/2016/2016030812.png" alt="2016030812.png" />
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-7-4" class="outline-4">
+<h4 id="sec-3-7-4"><code>skb_reserve</code></h4>
+<div class="outline-text-4" id="text-3-7-4">
+<p>
+Increases headroom by len bytes, this is only allowed for an empty buffer.
+<img src="/images/2016/2016030808.png" alt="2016030808.png" />
+</p>
+
+<p>
+下图是执行 <code>skb_reserve(skb, 2)</code> 的一个示例：　
+<img src="/images/2016/2016031004.png" alt="2016031004.png" />
+</p>
+
+<p>
+下图是数据从TCP到链路层过程中，Buffer指针的变化过程：　
+<img src="/images/2016/2016031005.png" alt="2016031005.png" />
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-3-8" class="outline-3">
+<h3 id="sec-3-8"><code>skb_trim</code></h3>
+<div class="outline-text-3" id="text-3-8">
+<p>
+Trim skb to len bytes.
+<img src="/images/2016/2016030810.png" alt="2016030810.png" />
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-9" class="outline-3">
+<h3 id="sec-3-9"><code>skb_shinfo</code>  share info</h3>
+</div>
+<div id="outline-container-sec-3-10" class="outline-3">
+<h3 id="sec-3-10"><code>skb_headlen</code>  header length</h3>
+</div>
+<div id="outline-container-sec-3-11" class="outline-3">
+<h3 id="sec-3-11"><code>skb_tailroom</code></h3>
+</div>
+<div id="outline-container-sec-3-12" class="outline-3">
+<h3 id="sec-3-12"><code>skb_headroom</code></h3>
+</div>
+<div id="outline-container-sec-3-13" class="outline-3">
+<h3 id="sec-3-13"><code>skb_copy_expand</code></h3>
+<div class="outline-text-3" id="text-3-13">
+<p>
+alloc a new skb and copy the packet
+用于扩展当前的 <code>skb_buffer</code> 的使用空间。 
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-14" class="outline-3">
+<h3 id="sec-3-14"><code>skb_copy</code></h3>
+<div class="outline-text-3" id="text-3-14">
+<p>
+Creates a copy of the <code>sk_buff</code>, copying both the <code>sk_buff</code> structure and the packet data.
+Used when the caller wishes to modify the packet data.
+<img src="/images/2016/2016030813.png" alt="2016030813.png" />
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-15" class="outline-3">
+<h3 id="sec-3-15"><code>skb_copy_to_linear_data</code></h3>
+</div>
+<div id="outline-container-sec-3-16" class="outline-3">
+<h3 id="sec-3-16"><code>skb_copy_from_linear_data</code></h3>
+<div class="outline-text-3" id="text-3-16">
+<p>
+Use memcpy() to copy skb-&gt;data.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4">Pass Package to Upper Layer</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+驱动通过 <code>net_rx</code> 来通知内核有数据包需要提交给上层处理。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">/* pass the packet to upper layer */
+struct skb_buffer *pOSPkt;
+...
+pOSPkt-&gt;pkt_type = PACKET_OTHERHOST;
+pOSPkt-&gt;protocol = eth_type_trans(pOSPkt, pOSPkt-&gt;dev);
+pOSPkt-&gt;ip_summed = CHECKSUM_NONE;
+netif_rx(pOSPkt);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5">初始化一个 <code>skb_buffer</code></h2>
+<div class="outline-text-2" id="text-5">
+<p>
+初始化时，主要有如下几个步骤
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct sk_buff *pOSPkt;
+
+pOSPkt = RTPKT_TO_OSPKT(pRxPacket);
+
+pOSPkt-&gt;dev = pNetDev;
+pOSPkt-&gt;data = pData;
+pOSPkt-&gt;len = DataSize;
+skb_set_tail_pointer(pOSPkt, pOSPkt-&gt;len);
+</pre>
+</div>
+</div>
+</div>
+</div>
