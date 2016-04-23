@@ -1,0 +1,482 @@
+---
+layout: post
+date: 2016-04-23
+author: 山庄来客
+update: 2016-04-23
+categories: wifi
+---
+<div id="content">
+<h1 class="title">WPS学习笔记</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">Architecture</a>
+<ul>
+<li><a href="#sec-1-1">概述</a></li>
+<li><a href="#sec-1-2">Registration Protocol</a>
+<ul>
+<li><a href="#sec-1-2-1">Timeout处理</a></li>
+<li><a href="#sec-1-2-2">EAP Transport of Registration Protocol</a></li>
+</ul>
+</li>
+<li><a href="#sec-1-3">消息</a>
+<ul>
+<li><a href="#sec-1-3-1">TLV</a></li>
+<li><a href="#sec-1-3-2">管理帧</a></li>
+<li><a href="#sec-1-3-3">消息类型</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-2">In-band Setup Using a Standalone AP/Registrar</a>
+<ul>
+<li><a href="#sec-2-1">Setup Steps</a></li>
+<li><a href="#sec-2-2">P2P EAP WSC交互过程</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">Architecture</h2>
+<div class="outline-text-2" id="text-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016011401.png" alt="2016011401.png" />
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-1" class="outline-3">
+<h3 id="sec-1-1">概述</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+Wi-Fi Simple Configuration 定义了一些新的802.11 IE。 这些IE包含在
+Beacon，Probe Request和Probe Response帧中 。
+这些IE的目的主要是告知其他设备执行WSC操作的能力。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-2" class="outline-3">
+<h3 id="sec-1-2">Registration Protocol</h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+协议主要有如下一些目的：
+</p>
+<ol class="org-ol">
+<li>解决基本的连接性问题。
+</li>
+<li>提供Enrollee和Registar之间的相互标识信息，启用私密配置功能。
+</li>
+<li>安全地将WLAN设置和其他的配置信息从Registar传递到Enrollee。
+</li>
+<li>建立每个设备的角色（AP，Registar和Enrollee）
+</li>
+<li>建立Extended Master Session Key EMSK，用于保护更多的应用相关的配
+置功能。
+</li>
+</ol>
+
+<p>
+协议工作于两个阶段：
+</p>
+<ol class="org-ol">
+<li>discovery phase
+交互Registar和Enrollee之间的描述性信息。
+目的主要是能发现周围的Registrar设备，使自己能被Registar发现。
+STA enrollee会先发送一个M1消息请求关联到Registar。
+</li>
+
+<li>第二阶段
+该阶段会到达Credential provisioning， 在M2，M2D，M8
+消息结束。  
+<ul class="org-ul">
+<li>M2D： Registar不能认证Enrollee。  
+</li>
+<li>M2： 只针对NFC等out of band传输的情况。
+</li>
+<li>M8: 在M8中，会携带WLAN Credentials给Enrollee。
+</li>
+</ul>
+</li>
+</ol>
+</div>
+
+<div id="outline-container-sec-1-2-1" class="outline-4">
+<h4 id="sec-1-2-1">Timeout处理</h4>
+<div class="outline-text-4" id="text-1-2-1">
+<p>
+Recommended timeout values are: retransmission timeout = 5
+seconds, individual message processing timeout = 15 seconds,
+overall timeout for the entire protocol to complete = 2 minutes.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-2-2" class="outline-4">
+<h4 id="sec-1-2-2">EAP Transport of Registration Protocol</h4>
+<div class="outline-text-4" id="text-1-2-2">
+<p>
+WSC使用802.1X和EAP来传输带内注册协议消息，属性值以大端顺序传输。协
+议映射到EAP的某个客制的方法中。 
+WSC不要求AP支持RADIUS，网络中也不需要包含一个认证服务器。
+</p>
+<ol class="org-ol">
+<li>Enrollees using Wi-Fi Simple Configuration are not granted
+direct access to the WLAN through the Wi-Fi Simple
+Configuration custom EAP method. The EAP method is used to
+configure the Enrollee with a Credential that can be used
+subsequently with whatever access method is supported by that
+WLAN. (注意EAP method与Access Method supported by the WLAN)
+
+<p>
+如果AP只支持WPA2-Personal，则Enrollee只通过802.11X过程获取PSK，
+然后解除关联，并使用获取的PSK重新连接网络。 
+如果AP支持802.1X认证，则Enrollee会首先运行WSC EAP的方法获取共享
+的Credential，然后使用该密钥通过其他的EAP方法与网络重新连接。
+</p>
+</li>
+
+<li>EAP message format
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042103.png" alt="2016042103.png" />
+</p>
+</div>
+</li>
+
+<li>EAP State Machine for Enrollee Registration
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042104.png" alt="2016042104.png" />
+</p>
+</div>
+</li>
+
+<li>EAP State Machine for Adding an External Registrar
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042105.png" alt="2016042105.png" />
+</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-sec-1-3" class="outline-3">
+<h3 id="sec-1-3">消息</h3>
+<div class="outline-text-3" id="text-1-3">
+<p>
+Registration Protocol消息通常封装在其他的消息类型中，如EAP或UPnP。
+</p>
+</div>
+
+<div id="outline-container-sec-1-3-1" class="outline-4">
+<h4 id="sec-1-3-1">TLV</h4>
+<div class="outline-text-4" id="text-1-3-1">
+<p>
+大部分WSC属性是简单的数据结构，但是有些是嵌套的数据结构，本身包含
+其他的TLV属性。 
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042101.png" alt="2016042101.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-3-2" class="outline-4">
+<h4 id="sec-1-3-2">管理帧</h4>
+<div class="outline-text-4" id="text-1-3-2">
+</div><ul class="org-ul"><li><a id="sec-1-3-2-1" name="sec-1-3-2-1"></a>管理帧格式<br  /><div class="outline-text-5" id="text-1-3-2-1">
+<p>
+WSC Device Discovery是通过使用包含在Beacon，Probe Request和Probe
+Response中的IE信息来完成的。WSC的IE信息格式遵循IEEE 802.11的格式，
+如下图所示 ：
+<img src="/images/2016/2016031401.png" alt="2016031401.png" />
+</p>
+</div>
+</li>
+
+
+<li><a id="sec-1-3-2-2" name="sec-1-3-2-2"></a>要点提要<br  /><div class="outline-text-5" id="text-1-3-2-2">
+<ol class="org-ol">
+<li>AP必须在Beacon和Probe Response帧中提供WSC IE信息，STA则必须在
+Probe Request帧中提供WSC IE信息，以表明其支持WSC。
+</li>
+
+<li>STA要想使用EAP-WSC方法与AP进行连接，必须在(re)association
+request中包含一个WSC IE信息。
+</li>
+
+<li>在WSC关联过程中， Capability IE中的Privacy域，RSN IE和WPA IE都
+不相关，STA和AP都应该忽略。
+</li>
+
+<li>如果(re)association request中包含WSC IE，AP必须与STA执行
+EAP-WSC过程，而不能使用其他的安全握手协议。
+</li>
+
+<li>成功关联后，STA会发送一个EAPOL-Start数据包给AP，并等待AP回复
+EAP-Request/Identity。 如果(re)association request中包含一个
+WSC IE信息，并且WSC IE的版本在2.0以后，则AP也可以在收到
+EAPOL-Start之前直接向AP发送EAP-Request/Identiry。 当STA收到此
+包后，它会响应一个EAP-Response-Identity来表明它将成功Enrollee
+或Registar。
+</li>
+
+<li>为了与1.0之前的版本兼容，启用WPA2-Personal网络，且支持WSC的AP
+也要允许与这样的STA进行EAP-WSC关联交互：
+<ul class="org-ul">
+<li>在Associate Request帧中不包含RSN IE或WPA IE，同时也不包含WSC
+IE。
+</li>
+
+<li>与这种STA进行EAP-WSC交互时，AP必须等待STA发送EAPOL-Start交互
+帧,才允许进行之后的WAP-WSC交互过程。
+</li>
+</ul>
+</li>
+
+<li>WSC的Element ID值为221， OUI的值为 0x 00 50 F2 04
+</li>
+</ol>
+</div>
+</li></ul>
+</div>
+
+<div id="outline-container-sec-1-3-3" class="outline-4">
+<h4 id="sec-1-3-3">消息类型</h4>
+<div class="outline-text-4" id="text-1-3-3">
+
+<div class="figure">
+<p><img src="/images/2016/2016042102.png" alt="2016042102.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">In-band Setup Using a Standalone AP/Registrar</h2>
+<div class="outline-text-2" id="text-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016011402.png" alt="2016011402.png" />
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1">Setup Steps</h3>
+<div class="outline-text-3" id="text-2-1">
+<ol class="org-ol">
+<li>The Enrollee sends its Discovery data in a probe request to a
+Wi-Fi Simple Configuration AP. The AP or wireless Registrar
+responds with its own Discovery data in the probe response.
+</li>
+<li>The user is prompted to enter the Enrollee’s device password
+into the AP/Registrar using a keypad interface or an out-of-band
+channel.
+</li>
+<li>The Enrollee connects and initiates 802.1X using the identity
+“WFASimpleConfig-Enrollee-1-0”.
+</li>
+<li>The Enrollee and Registrar exchange messages M1-M8 to provision
+the Enrollee.
+</li>
+<li>The Enrollee disassociates and reconnects, using its new WLAN
+authentication Credential.
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2">P2P EAP WSC交互过程</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+P2P GO协商成功之后 ，作为GC，会调用 <code>wpas_start_wps_enrollee</code> 开始WPS
+协商过程，以获取GO提供的PMK。 
+如果WPS方法使用PBC方式，则直接进入 <code>wpas_wps_start_pbc</code> 
+在该函数中，会添加一个新网络，并设置一些参数：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">key_mgmt  WPS
+eap  WSC
+identity  "WFA-SimpleConfig-Enrollee-1-0"
+phase1  "pbc=1"
+</pre>
+</div>
+
+<p>
+然后扫描特定的SSID，即GO创建的SSID。
+</p>
+
+<p>
+在函数 <code>wpas_start_assoc_cb</code> 会向GO发出Association Request。 
+之后，会调用：
+</p>
+<ol class="org-ol">
+<li><code>wpa_supplicant_rsn_supp_set_config</code>
+      设置 <code>rsn_supp_config</code>
+</li>
+<li><code>wpa_supplicant_initiate_eapol</code>
+      配置EAPOL状态机。
+</li>
+</ol>
+
+<p>
+关联成功后， 在函数 <code>wpa_supplicant_event_assoc</code> ，首先会调用
+<code>wpa_sm_notify_assoc</code> 通知WPA状态机，当前网络已经连接上。 
+调用 <code>eapol_sm_notify_portEnabled</code> ，发生如下变化：
+<code>SUPP_PAE</code>
+进入 <code>CONNECTING</code>, 启用timer, 1秒钟执行一次，之后进入 <code>IDLE</code>
+<code>EAP</code>
+进入 <code>INITIALIZE</code> ，完成初始化进入 <code>IDLE</code> 。
+</p>
+
+<p>
+设置等待对方一第一包EAPOL Packet的超时时间为10秒。
+</p>
+
+<p>
+1秒钟后，Enrolle会发送 <code>EAPOL-START</code> ,使用的函数是：
+<code>wpa_supplicant_eapol_send</code> 。
+</p>
+
+<p>
+接收EAPOL Packet的代码如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">drv-&gt;eapol_sock = socket(PF_PACKET, SOCK_DGRAM, htons(ETH_P_PAE));
+if (drv-&gt;eapol_sock &lt; 0) {
+        wpa_printf(MSG_ERROR, "nl80211: socket(PF_PACKET, SOCK_DGRAM, ETH_P_PAE) failed: %s",
+                   strerror(errno));
+        goto failed;
+}
+
+if (eloop_register_read_sock(drv-&gt;eapol_sock, handle_eapol, drv, NULL))
+{
+        wpa_printf(MSG_INFO, "nl80211: Could not register read socket for eapol");
+        goto failed;
+}
+</pre>
+</div>
+
+<p>
+负责处理的函数是 <code>handle_eapol</code> 。
+</p>
+
+<p>
+现在观察一下 <code>PAE_BE</code> 状态机与 <code>EAP</code> 状态机的状态变化：
+</p>
+
+<p>
+<code>PAE_BE</code> 为1号状态机， <code>EAP</code> 为2号状态机
+</p>
+
+<ol class="org-ol">
+<li>准备发送 <code>EAPOL-START</code> 阶段
+从 <code>IDLE</code> 进入 <code>CONNECTING</code> 
+发送 txStart
+</li>
+
+<li>收到 <code>EAPOL-Identity</code> 
+<code>SUPP_PAE</code> 进入 <code>RESTART</code> 状态
+<code>EAP</code> 状态机进入 <code>INITIALIZE</code> 进入实始化，之后进入 <code>IDLE</code> 。
+之后， <code>SUPP_PAE</code> 进入状态 <code>AUTHENTICATING</code> 后，进行一些变量设置后，
+进入 <code>REQUEST</code> 状态. 
+<code>EAP</code> 进入 <code>RECEIVED</code> 状态，解析EAP Request Packet后，进入
+<code>IDENTITY</code> 状态。 处理完后，随后进入 <code>SEND_RESPONSE</code> ，随后进
+入 <code>IDLE</code> 。
+</li>
+
+<li>发送 <code>EAPOL-Identity</code> 的响应包
+<code>SUPP_BE</code> 进入状态 <code>RESPONSE</code> ，发送成功后，进入 <code>RECEIVE</code>
+</li>
+
+<li>接收 <code>Start</code> EAP Response帧中。
+<code>SUPP_BE</code> 进入 <code>REQUEST</code>
+<code>EAP</code> 进入状态 <code>RECEIVED</code> ， 解析数据包后，进入 <code>GET_METHOD</code> . 
+比如Methods为（WSC）， 接受请求的方法后，会调用对应方法的初始化函数
+。
+之后进入 <code>METHOD</code> , 调用EAP方法的处理函数 。
+处理完后，进入 <code>SEND_RESPONSE</code> ， 随后进入 <code>IDLE</code> 。 
+<code>SUPP_BE</code> 进入状态 <code>RESPONSE</code> 。
+</li>
+
+<li>发送 <code>M1</code> 
+      当发送完 M1  packet后， <code>SUPP_BE</code> 进入 <code>RECEIVE</code> 状态，
+</li>
+
+<li>接收 <code>M2</code>
+<code>SUPP_BE</code> 进入 <code>REQUEST</code> 
+<code>EAP</code> 进入 <code>RECEIVED</code> ，解析数据包后，进入 <code>METHOD</code> 状态 ，并调用其
+消息处理函数 。处理完后， <code>EAP</code> 进入 <code>SEND_RESPONSE</code> , 随后进入
+<code>IDLE</code> 。 <code>SUPP_BE</code> 进入状态 <code>RESPONSE</code> .
+</li>
+
+<li>发送 <code>M3</code>
+      发送后， <code>SUPP_BE</code> 进入 <code>RECEIVE</code>
+</li>
+
+<li>接收 <code>M4</code> 
+收到数据后， <code>SUPP_BE</code> 进入 <code>REQUEST</code> 
+<code>EAP</code> 进入 <code>RECEIVED</code> 状态，解析数据包后， 进入 <code>METHOD</code> 状态。 并
+调用方法的处理函数。处理完后， <code>EAP</code> 进入 <code>SEND_RESPONSE</code> , 随后进入
+<code>IDLE</code> 。 <code>SUPP_BE</code> 进入状态 <code>RESPONSE</code> .
+</li>
+
+<li>发送 <code>M5</code>
+      发送后， <code>SUPP_BE</code> 进入 <code>RECEIVE</code>
+</li>
+
+<li>接收 <code>M6</code> 
+收到数据后， <code>SUPP_BE</code> 进入 <code>REQUEST</code> 
+<code>EAP</code> 进入 <code>RECEIVED</code> 状态，解析数据包后， 进入 <code>METHOD</code> 状态。 并
+调用方法的处理函数 。处理完后， <code>EAP</code> 进入 <code>SEND_RESPONSE</code> , 随后进入
+<code>IDLE</code> 。 <code>SUPP_BE</code> 进入状态 <code>RESPONSE</code> .
+</li>
+
+<li>发送 <code>M7</code>
+       发送后， <code>SUPP_BE</code> 进入 <code>RECEIVE</code>
+</li>
+
+<li>接收 <code>M8</code>
+收到数据后， <code>SUPP_BE</code> 进入 <code>REQUEST</code> 
+<code>EAP</code> 进入 <code>RECEIVED</code> 状态，解析数据包后， 进入 <code>METHOD</code> 状态。 并
+调用方法的处理函数 。处理完后， <code>EAP</code> 进入 <code>SEND_RESPONSE</code> , 随后进入
+<code>IDLE</code> 。 <code>SUPP_BE</code> 进入状态 <code>RESPONSE</code> .
+这一步收到了Credentials信息。
+</li>
+
+<li>发送 <code>WSC_Done</code>
+       发送后， <code>SUPP_BE</code> 进入 <code>RECEIVE</code>
+</li>
+
+<li>接收 <code>EAP-Failure</code>
+       收到数据后， <code>SUPP_BE</code> 进入 <code>REQUEST</code> 
+       <code>SUPP_PAE</code> 进入 <code>HELD</code> 状态，随后进入 <code>RECEIVE</code> 状态，随后进入 <code>FAIL</code>
+       状态，随后进入 <code>IDLE</code>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>

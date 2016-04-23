@@ -1,0 +1,341 @@
+---
+layout: post
+date: 2016-04-23
+author: 山庄来客
+update: 2016-04-23
+categories: wifi
+---
+<div id="content">
+<h1 class="title">802.1X &#x2013; Port-Based Network Access Control</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">介绍</a></li>
+<li><a href="#sec-2">常用术语</a>
+<ul>
+<li><a href="#sec-2-1">Port(Network Access Port)</a></li>
+<li><a href="#sec-2-2">port access entity(PAE)</a></li>
+</ul>
+</li>
+<li><a href="#sec-3">基于端口访问控制操作的原则</a>
+<ul>
+<li><a href="#sec-3-1">端口访问控制操作的目的</a></li>
+<li><a href="#sec-3-2">端口访问控制操作的范围</a></li>
+<li><a href="#sec-3-3">系统、端口和系统角色</a></li>
+<li><a href="#sec-3-4">受控和非受控访问</a></li>
+<li><a href="#sec-3-5">接收和传输控制</a></li>
+<li><a href="#sec-3-6">端口访问实体(Port Access Entity)</a></li>
+</ul>
+</li>
+<li><a href="#sec-4">EAPOL</a>
+<ul>
+<li><a href="#sec-4-1">EAPOL MPDU格式 for use with IEEE 802.3/Ethernet</a></li>
+<li><a href="#sec-4-2">EAPOL MPDU格式 for 802.2 LLC</a>
+<ul>
+<li><a href="#sec-4-2-1">SNAP-encoded Ethernet Type</a></li>
+<li><a href="#sec-4-2-2">Protocol version</a></li>
+<li><a href="#sec-4-2-3">Packet Type</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-5">端口访问控制协议</a>
+<ul>
+<li><a href="#sec-5-1">协议操作</a></li>
+<li><a href="#sec-5-2">状态机</a>
+<ul>
+<li><a href="#sec-5-2-1">Supplicant state machines</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-6">端口访问控制的管理</a></li>
+<li><a href="#sec-7">管理协议</a></li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">介绍</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+本协议定义了一种基于端口的网络访问控制机制，使用IEEE 802.11局域网基
+础介绍的物理特性，提供一种认证和授权连接到某个局域网端口的设备，网络
+与设备之间具有点到点连接的特性，一旦认证失败，将会阻止设备通过该端口
+访问网络。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">常用术语</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1">Port(Network Access Port)</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+A point of attachment, can be physical or logical. 
+Physical: a physical LAN segment.
+Logical: an 802.11 IEEE association between a station and access
+point. 
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2">port access entity(PAE)</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+The Protocol entity associated with a Port. It can support the
+Protocol functionality associated with the Authenticator, the
+Supplicant, or both. 
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">基于端口访问控制操作的原则</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+本节主要讨论基于端口访问控制的架构框架以及访问控制函数与设备的操作之
+间的关系。
+</p>
+</div>
+
+<div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1">端口访问控制操作的目的</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+端口访问控制为系统的功能提到了一种可选的扩展功能：提供了一种方法来
+阻止未授权的Supplicants来访问系统提供的服务，同时也阻止某个
+Supplicant试图访问一个未授权的系统。端口访问控制同时也为Supplicant
+提供了一种方法来阻止未授权的系统连接它。
+</p>
+
+<p>
+系统通过未个未授权的端口来控制访问。在未授权的状态下，对该端口的使
+用是受限的，与之关联的参数是 <code>OperControlledDirections</code> 。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2">端口访问控制操作的范围</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+端口访问控制操作假定: 操作的端口为单一的Supplicant和单一的Authenticator提供了一个
+点到点连接。这样，授权的决定可以以端口为基准做出。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3-3" class="outline-3">
+<h3 id="sec-3-3">系统、端口和系统角色</h3>
+<div class="outline-text-3" id="text-3-3">
+<p>
+连接到一个LAN的设备称之为系统，而与LAN之间的一个或多个连接点，称之
+为端口。端口或与之关联的PAE可以根据情况在某个访问控制交互中充当如下
+两个角色之一：
+</p>
+<ol class="org-ol">
+<li>Authenticator
+</li>
+<li>Supplicant
+</li>
+<li>Authentication Server (AS)
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-3-4" class="outline-3">
+<h3 id="sec-3-4">受控和非受控访问</h3>
+<div class="outline-text-3" id="text-3-4">
+
+<div class="figure">
+<p><img src="/images/2016/2016040801.png" alt="2016040801.png" />
+</p>
+</div>
+
+<p>
+图中的Attachment Point可以是物理端口，与可以是逻辑端口。
+</p>
+
+<p>
+与受控端口相关的状态参数是： <code>AuthControlledPortStatus</code>
+<img src="/images/2016/2016040802.png" alt="2016040802.png" />
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3-5" class="outline-3">
+<h3 id="sec-3-5">接收和传输控制</h3>
+<div class="outline-text-3" id="text-3-5">
+<p>
+有两个变量控制了受控的端口认证的数据传输方向 
+<code>AdminControlledDirections</code> , <code>OperationalControlledDirections</code> 。
+</p>
+
+<ol class="org-ol">
+<li><code>AdminControlledDirections=Both</code>
+通过受控端口的进入或出来的数据传输都需要进行认证。这种情况下　
+<code>OperationalControlledDirections</code> 的值也必须设置为Both。 
+</li>
+<li><code>AdminControlledDirections=In</code> 
+这种情况下，只对进入的数据传输进行认证。
+<code>OperationalControlledDirections</code> 默认为In。 根据情况值也会发生
+改变。
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-3-6" class="outline-3">
+<h3 id="sec-3-6">端口访问实体(Port Access Entity)</h3>
+<div class="outline-text-3" id="text-3-6">
+<p>
+PAE执行与端口访问控制协议相关的算法和协议。
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4">EAPOL</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+EAP Packets exchanged between Supplicant PAE and Authenticator PAE. 
+EAP over LANs(EAPOL): the encapsulation Techniques that shall be
+used to carry EAP packets between Supplicant PAEs and Authenticator
+PAEs in a LAN environment. 
+</p>
+</div>
+<div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1">EAPOL MPDU格式 for use with IEEE 802.3/Ethernet</h3>
+<div class="outline-text-3" id="text-4-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016040803.png" alt="2016040803.png" />
+</p>
+</div>
+
+<p>
+PAE Ethernet Type Value: 0x888E
+PAE Group Address: <code>01-80-C2-00-00-03</code>
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2">EAPOL MPDU格式 for 802.2 LLC</h3>
+<div class="outline-text-3" id="text-4-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016040804.png" alt="2016040804.png" />
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-4-2-1" class="outline-4">
+<h4 id="sec-4-2-1">SNAP-encoded Ethernet Type</h4>
+<div class="outline-text-4" id="text-4-2-1">
+<p>
+1~3字节是标准的SNAP头部，值为： AA-AA-03
+4~6字节是SNAP协议标识（PID），值为： 00-00-00
+7~8字节为PAE Ethernet Type。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-4-2-2" class="outline-4">
+<h4 id="sec-4-2-2">Protocol version</h4>
+<div class="outline-text-4" id="text-4-2-2">
+<p>
+EAPOL协议的版本号，一个字节， 值为 0000 0002
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-4-2-3" class="outline-4">
+<h4 id="sec-4-2-3">Packet Type</h4>
+<div class="outline-text-4" id="text-4-2-3">
+
+<div class="figure">
+<p><img src="/images/2016/2016040805.png" alt="2016040805.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5">端口访问控制协议</h2>
+<div class="outline-text-2" id="text-5">
+</div><div id="outline-container-sec-5-1" class="outline-3">
+<h3 id="sec-5-1">协议操作</h3>
+<div class="outline-text-3" id="text-5-1">
+<p>
+认证过程中的操作利用EAP作为Supplicant与Authenticator Server之间传递
+认证信息的方式。EAP是一种支持多种认证机制的通用协议。 
+</p>
+
+<p>
+本标准中的方法就是要定义一种封装格式，允许EAP Message直接地通过LAN
+MAC服务来携带传输。这种封装格式，称为EAPoL，它用于Supplicant PAE与
+Authenticator PAE之间的所有通信过程。 
+</p>
+
+<p>
+每个PAE由两部分组成： 一组PACP状态机以及状态机通信所依赖的Higher
+Layer。 对于Supplicant PAE， Higher Layer是由EAP功能模块组成，而对于
+Authenticator PAE，Higher Layer则是EAP与AAA功能的组合。
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016041301.png" alt="2016041301.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5-2" class="outline-3">
+<h3 id="sec-5-2">状态机</h3>
+<div class="outline-text-3" id="text-5-2">
+</div><div id="outline-container-sec-5-2-1" class="outline-4">
+<h4 id="sec-5-2-1">Supplicant state machines</h4>
+<div class="outline-text-4" id="text-5-2-1">
+</div><ul class="org-ul"><li><a id="sec-5-2-1-1" name="sec-5-2-1-1"></a>Supplicant PAE state machine<br  /></li>
+
+<li><a id="sec-5-2-1-2" name="sec-5-2-1-2"></a>Key Receive state machine<br  /></li>
+
+<li><a id="sec-5-2-1-3" name="sec-5-2-1-3"></a>Supplicant Backend state machine<br  /></li>
+
+<li><a id="sec-5-2-1-4" name="sec-5-2-1-4"></a>Supplicant Authenticator state machines<br  /></li>
+
+<li><a id="sec-5-2-1-5" name="sec-5-2-1-5"></a>Authenticator PAE(Port Access Entity) state machine<br  /></li>
+
+<li><a id="sec-5-2-1-6" name="sec-5-2-1-6"></a>Backend Authentication state machine<br  /></li>
+
+<li><a id="sec-5-2-1-7" name="sec-5-2-1-7"></a>Reauthentication Timer state machine<br  /></li>
+
+<li><a id="sec-5-2-1-8" name="sec-5-2-1-8"></a>Authenticator Key Transmit state machine<br  /></li>
+
+<li><a id="sec-5-2-1-9" name="sec-5-2-1-9"></a>Key Receive state machine<br  /></li>
+
+<li><a id="sec-5-2-1-10" name="sec-5-2-1-10"></a>Controlled Directions state machine<br  /></li></ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6">端口访问控制的管理</h2>
+</div>
+
+<div id="outline-container-sec-7" class="outline-2">
+<h2 id="sec-7">管理协议</h2>
+</div>
+</div>

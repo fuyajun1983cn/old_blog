@@ -1,0 +1,319 @@
+---
+layout: post
+date: 2016-04-23
+author: 山庄来客
+update: 2016-04-23
+categories: wifi
+---
+<div id="content">
+<h1 class="title">libpcap编程小结</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">概述</a></li>
+<li><a href="#sec-2">libpcap编程指南</a>
+<ul>
+<li><a href="#sec-2-1">使用libpcap进行基本编程</a>
+<ul>
+<li><a href="#sec-2-1-1">一个完整的例子</a></li>
+<li><a href="#sec-2-1-2">基本步骤</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-2">更多的小例子</a>
+<ul>
+<li><a href="#sec-2-2-1">获取网络设备的一些信息，如网络地址和掩码</a></li>
+<li><a href="#sec-2-2-2">分析Sniff到的数据包</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-3">参考链接</a></li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">概述</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+libpcap是与Packet Sniffer相关的一个库，大名鼎鼎的tcpdump就用到了
+libpcap库, 属于链路层的接口。 
+</p>
+
+<p>
+学习这个库的主要目的只是简单了解一下Packet Sniffer的过程, 主要想通过
+这个库来了解一些协议层的数据包结构，所以本文仅仅是为了满足个人的好
+奇之心而对一些资料进行简单汇总，供个人参考备查而已。 
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">libpcap编程指南</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1">使用libpcap进行基本编程</h3>
+<div class="outline-text-3" id="text-2-1">
+</div><div id="outline-container-sec-2-1-1" class="outline-4">
+<h4 id="sec-2-1-1">一个完整的例子</h4>
+<div class="outline-text-4" id="text-2-1-1">
+<p>
+首先，上一个完整的程序代码，然后分析一下实现一个简单的Packet
+Sniffer的主要步骤。 
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;pcap.h&gt;
+#include &lt;time.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+
+void getPacket(u_char * arg, const struct pcap_pkthdr * pkthdr, const u_char * packet)
+{
+  int * id = (int *)arg;
+
+  printf("id: %d\n", ++(*id));
+  printf("Packet length: %d\n", pkthdr-&gt;len);
+  printf("Number of bytes: %d\n", pkthdr-&gt;caplen);
+  printf("Recieved time: %s", ctime((const time_t *)&amp;pkthdr-&gt;ts.tv_sec)); 
+
+  int i;
+  for(i=0; i&lt;pkthdr-&gt;len; ++i)
+  {
+    printf(" %02x", packet[i]);
+    if( (i + 1) % 16 == 0 )
+    {
+      printf("\n");
+    }
+  }
+
+  printf("\n\n");
+}
+
+int main()
+{
+  char errBuf[PCAP_ERRBUF_SIZE], * devStr;
+
+  /* get a device */
+  devStr = pcap_lookupdev(errBuf);
+
+  if(devStr)
+  {
+    printf("success: device: %s\n", devStr);
+  }
+  else
+  {
+    printf("error: %s\n", errBuf);
+    exit(1);
+  }
+
+  /* open a device, wait until a packet arrives */
+  pcap_t * device = pcap_open_live(devStr, 65535, 1, 0, errBuf);
+
+  if(!device)
+  {
+    printf("error: pcap_open_live(): %s\n", errBuf);
+    exit(1);
+  }
+
+  /* construct a filter */
+  struct bpf_program filter;
+  pcap_compile(device, &amp;filter, "dst port 80", 1, 0);
+  pcap_setfilter(device, &amp;filter);
+
+  /* wait loop forever */
+  int id = 0;
+  pcap_loop(device, -1, getPacket, (u_char*)&amp;id);
+
+  pcap_close(device);
+
+  return 0;
+}
+</pre>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-sec-2-1-2" class="outline-4">
+<h4 id="sec-2-1-2">基本步骤</h4>
+<div class="outline-text-4" id="text-2-1-2">
+<p>
+从上述代码，可以看到，实现一个基本的Packet Sniffer，基本的步骤如下：
+</p>
+<ol class="org-ol">
+<li>决定要Sniff的接口，如eth0或其他，可以显式地指定接口名，也可以通
+过libpcap库的接口返回一个可用的接口， 即调用 <code>pcap_lookupdev</code>
+</li>
+<li>初始化libpcap库， 告诉libpcap具体要Sniff哪个设备，可以同时Sniff
+多个设备， 使用接口 <code>pcap_open_live</code>
+</li>
+<li>设置一个过滤规则，即可以选择只接收符合某种条件的数据包。相关函
+数有 <code>pcap_compile</code> , <code>pcap_setfilter</code> 。
+</li>
+<li>最后，进入主循环，在该循环中，不停地监听接收到的数据包，一旦有
+数据包到达，会交给函数去处理。 相关函数有： <code>pcap_next</code> (只读一
+次) , <code>pcap_loop</code> (循环处理)
+</li>
+<li>Sniff结束后，关闭相应的句柄。
+</li>
+</ol>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2">更多的小例子</h3>
+<div class="outline-text-3" id="text-2-2">
+</div><div id="outline-container-sec-2-2-1" class="outline-4">
+<h4 id="sec-2-2-1">获取网络设备的一些信息，如网络地址和掩码</h4>
+<div class="outline-text-4" id="text-2-2-1">
+<div class="org-src-container">
+
+<pre class="src src-c">/* ldev.c
+Martin Casado
+To compile:
+&gt;gcc ldev.c -lpcap
+Looks for an interface, and lists the network ip
+and mask associated with that interface.
+*/
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;pcap.h&gt; /* GIMME a libpcap plz! */
+#include &lt;errno.h&gt;
+#include &lt;sys/socket.h&gt;
+#include &lt;netinet/in.h&gt;
+#include &lt;arpa/inet.h&gt;
+int main(int argc, char **argv)
+{
+  char *dev; /* name of the device to use */
+  char *net; /* dot notation of the network address */
+  char *mask;/* dot notation of the network mask */
+  int ret; /* return code */
+  char errbuf[PCAP_ERRBUF_SIZE];
+  bpf_u_int32 netp; /* ip */
+  bpf_u_int32 maskp;/* subnet mask */
+  struct in_addr addr;
+  /* ask pcap to find a valid device for use to sniff on */
+  dev = pcap_lookupdev(errbuf);
+  /* error checking */
+  if(dev == NULL)
+    {
+      printf("%s\n",errbuf);
+      exit(1);
+    }
+  /* print out device name */
+  printf("DEV: %s\n",dev);
+  /* ask pcap for the network address and mask of the device */
+  ret = pcap_lookupnet(dev,&amp;netp,&amp;maskp,errbuf);
+  if(ret == -1)
+    {
+      printf("%s\n",errbuf);
+      exit(1);
+    }
+  /* get the network address in a human readable form */
+  addr.s_addr = netp;
+  net = inet_ntoa(addr);
+  if(net == NULL)/* thanks Scott :-P */
+    {
+      perror("inet_ntoa");
+      exit(1);
+    }
+  printf("NET: %s\n",net);
+  /* do the same as above for the device's mask */
+  addr.s_addr = maskp;
+  mask = inet_ntoa(addr);
+  if(mask == NULL)
+    {
+      perror("inet_ntoa");
+      exit(1);
+    }
+  printf("MASK: %s\n",mask);
+  return 0;
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2-2" class="outline-4">
+<h4 id="sec-2-2-2">分析Sniff到的数据包</h4>
+<div class="outline-text-4" id="text-2-2-2">
+<p>
+<code>pcap_loop</code> 有定义回调函数，当收到数据后，会调用相应的回调函数，我
+们对数据包的解析也在回调函数中进行。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">u_int16_t handle_ethernet
+(u_char *args,const struct pcap_pkthdr* pkthdr,const u_char*
+ packet);
+/* looking at ethernet headers */
+void my_callback(u_char *args,const struct pcap_pkthdr* pkthdr,const u_char*
+                 packet)
+{
+  u_int16_t type = handle_ethernet(args,pkthdr,packet);
+  if(type == ETHERTYPE_IP)
+    {/* handle IP packet */
+    }else if(type == ETHERTYPE_ARP)
+    {/* handle arp packet */
+    }
+  else if(type == ETHERTYPE_REVARP)
+    {/* handle reverse arp packet */
+    }/* ignorw */
+}
+
+u_int16_t handle_ethernet
+(u_char *args,const struct pcap_pkthdr* pkthdr,const u_char*
+ packet)
+{
+  struct ether_header *eptr; /* net/ethernet.h */
+  /* lets start with the ether header... */
+  eptr = (struct ether_header *) packet;
+  fprintf(stdout,"ethernet header source: %s"
+          ,ether_ntoa(eptr-&gt;ether_shost));
+  fprintf(stdout," destination: %s "
+          ,ether_ntoa(eptr-&gt;ether_dhost));
+  /* check to see if we have an ip packet */
+  if (ntohs (eptr-&gt;ether_type) == ETHERTYPE_IP)
+    {
+      fprintf(stdout,"(IP)");
+    }else if (ntohs (eptr-&gt;ether_type) == ETHERTYPE_ARP)
+    {
+      fprintf(stdout,"(ARP)");
+    }else if (ntohs (eptr-&gt;ether_type) == ETHERTYPE_REVARP)
+    {
+      fprintf(stdout,"(RARP)");
+    }else {
+    fprintf(stdout,"(?)");
+    exit(1);
+  }
+  fprintf(stdout,"\n");
+  return eptr-&gt;ether_type;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">参考链接</h2>
+<div class="outline-text-2" id="text-3">
+<ol class="org-ol">
+<li><a href="http://www.tcpdump.org/pcap.html">http://www.tcpdump.org/pcap.html</a>
+</li>
+<li><a href="http://eecs.wsu.edu/~sshaikot/docs/lbpcap/libpcap-tutorial.pdf">http://eecs.wsu.edu/~sshaikot/docs/lbpcap/libpcap-tutorial.pdf</a>
+</li>
+<li><a href="http://recursos.aldabaknocking.com/libpcapHakin9LuisMartinGarcia.pdf">http://recursos.aldabaknocking.com/libpcapHakin9LuisMartinGarcia.pdf</a>
+</li>
+<li><a href="http://blog.chinaunix.net/uid-21556133-id-120228.html">http://blog.chinaunix.net/uid-21556133-id-120228.html</a>
+</li>
+</ol>
+</div>
+</div>
+</div>
