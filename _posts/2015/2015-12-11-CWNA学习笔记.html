@@ -2,7 +2,7 @@
 layout: post
 date: 2015-12-11
 author: 山庄来客
-update: 2016-04-23
+update: 2016-05-02
 categories: wifi
 ---
 <div id="content">
@@ -11,423 +11,462 @@ categories: wifi
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#sec-1">第一章 无线标准、组织和基础概述</a>
+<li><a href="#sec-1">内容导读</a></li>
+<li><a href="#sec-2">第一章 无线标准、组织和基础概述</a>
 <ul>
-<li><a href="#sec-1-1">要点记录</a>
+<li><a href="#sec-2-1">要点记录</a>
 <ul>
-<li><a href="#sec-1-1-1">无线设备受管制的地方</a></li>
-<li><a href="#sec-1-1-2">一些机构名称</a></li>
-<li><a href="#sec-1-1-3">无线网络使用受管制的领域</a></li>
-<li><a href="#sec-1-1-4">5代WiFi技术</a></li>
-<li><a href="#sec-1-1-5">网络架构</a></li>
-<li><a href="#sec-1-1-6">通信基础</a></li>
-<li><a href="#sec-1-1-7">WiFi学习资源</a></li>
+<li><a href="#sec-2-1-1">无线设备受管制的地方</a></li>
+<li><a href="#sec-2-1-2">一些机构名称</a></li>
+<li><a href="#sec-2-1-3">无线网络使用受管制的领域</a></li>
+<li><a href="#sec-2-1-4">5代WiFi技术</a></li>
+<li><a href="#sec-2-1-5">网络架构</a></li>
+<li><a href="#sec-2-1-6">通信基础</a></li>
+<li><a href="#sec-2-1-7">WiFi学习资源</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#sec-2">第二章 无线射频基础</a>
+<li><a href="#sec-3">第二章 无线射频基础</a>
 <ul>
-<li><a href="#sec-2-1">射频(Radio Frequency, RF)信号的定义</a></li>
-<li><a href="#sec-2-2">射频的特征</a></li>
-<li><a href="#sec-2-3">射频的行为</a></li>
+<li><a href="#sec-3-1">射频(Radio Frequency, RF)信号的定义</a></li>
+<li><a href="#sec-3-2">射频的特征</a></li>
+<li><a href="#sec-3-3">射频的行为</a></li>
 </ul>
 </li>
-<li><a href="#sec-3">第三章 无线射频组件、测量与数学原理</a>
+<li><a href="#sec-4">第三章 无线射频组件、测量与数学原理</a>
 <ul>
-<li><a href="#sec-3-1">RF通信的组件</a>
+<li><a href="#sec-4-1">RF通信的组件</a>
 <ul>
-<li><a href="#sec-3-1-1">Transmitter(发射机)</a></li>
-<li><a href="#sec-3-1-2">Antenna(天线)</a></li>
-<li><a href="#sec-3-1-3">Receiver(接收器)</a></li>
-<li><a href="#sec-3-1-4">Intentional Radiator</a></li>
-<li><a href="#sec-3-1-5">Equivalent Isotropically Radiated Power</a></li>
-<li><a href="#sec-3-1-6">Units of Power and Comparison</a></li>
+<li><a href="#sec-4-1-1">Transmitter(发射机)</a></li>
+<li><a href="#sec-4-1-2">Antenna(天线)</a></li>
+<li><a href="#sec-4-1-3">Receiver(接收器)</a></li>
+<li><a href="#sec-4-1-4">Intentional Radiator</a></li>
+<li><a href="#sec-4-1-5">Equivalent Isotropically Radiated Power</a></li>
+<li><a href="#sec-4-1-6">Units of Power and Comparison</a></li>
 </ul>
 </li>
-<li><a href="#sec-3-2">RF Mathematics</a>
+<li><a href="#sec-4-2">RF Mathematics</a>
 <ul>
-<li><a href="#sec-3-2-1">Rule of 10s and 3s</a></li>
+<li><a href="#sec-4-2-1">Rule of 10s and 3s</a></li>
 </ul>
 </li>
-<li><a href="#sec-3-3">Noise Floor</a></li>
-<li><a href="#sec-3-4">信噪比(SNR)</a></li>
-<li><a href="#sec-3-5">接收到的信号强度指示(RSSI)</a></li>
-<li><a href="#sec-3-6">Link budget</a></li>
-<li><a href="#sec-3-7">Fade margin/system operating margin</a></li>
+<li><a href="#sec-4-3">Noise Floor</a></li>
+<li><a href="#sec-4-4">信噪比(SNR)</a></li>
+<li><a href="#sec-4-5">接收到的信号强度指示(RSSI)</a></li>
+<li><a href="#sec-4-6">Link budget</a></li>
+<li><a href="#sec-4-7">Fade margin/system operating margin</a></li>
 </ul>
 </li>
-<li><a href="#sec-4">第五章 IEEE 802.11 标准</a>
+<li><a href="#sec-5">第五章 IEEE 802.11 标准</a>
 <ul>
-<li><a href="#sec-4-1">Original IEEE 802.11 standard</a></li>
-<li><a href="#sec-4-2">IEEE 802.11-2007 ratified amendments</a>
+<li><a href="#sec-5-1">Original IEEE 802.11 standard</a></li>
+<li><a href="#sec-5-2">IEEE 802.11-2007 ratified amendments</a>
 <ul>
-<li><a href="#sec-4-2-1">802.11b-1999</a></li>
-<li><a href="#sec-4-2-2">802.11a-1999</a></li>
-<li><a href="#sec-4-2-3">802.11g-2003</a></li>
-<li><a href="#sec-4-2-4">802.11d-2001</a></li>
-<li><a href="#sec-4-2-5">802.11h-2003</a></li>
-<li><a href="#sec-4-2-6">802.11i-2004</a></li>
-<li><a href="#sec-4-2-7">802.11j-2004</a></li>
-<li><a href="#sec-4-2-8">802.11e-2005</a></li>
+<li><a href="#sec-5-2-1">802.11b-1999</a></li>
+<li><a href="#sec-5-2-2">802.11a-1999</a></li>
+<li><a href="#sec-5-2-3">802.11g-2003</a></li>
+<li><a href="#sec-5-2-4">802.11d-2001</a></li>
+<li><a href="#sec-5-2-5">802.11h-2003</a></li>
+<li><a href="#sec-5-2-6">802.11i-2004</a></li>
+<li><a href="#sec-5-2-7">802.11j-2004</a></li>
+<li><a href="#sec-5-2-8">802.11e-2005</a></li>
 </ul>
 </li>
-<li><a href="#sec-4-3">IEEE 802.11-2012 ratified amendments</a>
+<li><a href="#sec-5-3">IEEE 802.11-2012 ratified amendments</a>
 <ul>
-<li><a href="#sec-4-3-1">802.11r-2008</a></li>
-<li><a href="#sec-4-3-2">802.11k-2008</a></li>
-<li><a href="#sec-4-3-3">802.11y-2008</a></li>
-<li><a href="#sec-4-3-4">802.11w-2009</a></li>
-<li><a href="#sec-4-3-5">802.11n-2009</a></li>
-<li><a href="#sec-4-3-6">802.11p-2010</a></li>
-<li><a href="#sec-4-3-7">802.11z-2010</a></li>
-<li><a href="#sec-4-3-8">802.11u-2011</a></li>
-<li><a href="#sec-4-3-9">802.11v-2011</a></li>
-<li><a href="#sec-4-3-10">802.11s-2011</a></li>
+<li><a href="#sec-5-3-1">802.11r-2008</a></li>
+<li><a href="#sec-5-3-2">802.11k-2008</a></li>
+<li><a href="#sec-5-3-3">802.11y-2008</a></li>
+<li><a href="#sec-5-3-4">802.11w-2009</a></li>
+<li><a href="#sec-5-3-5">802.11n-2009</a></li>
+<li><a href="#sec-5-3-6">802.11p-2010</a></li>
+<li><a href="#sec-5-3-7">802.11z-2010</a></li>
+<li><a href="#sec-5-3-8">802.11u-2011</a></li>
+<li><a href="#sec-5-3-9">802.11v-2011</a></li>
+<li><a href="#sec-5-3-10">802.11s-2011</a></li>
 </ul>
 </li>
-<li><a href="#sec-4-4">Post-2012 ratified amendments</a>
+<li><a href="#sec-5-4">Post-2012 ratified amendments</a>
 <ul>
-<li><a href="#sec-4-4-1">02.11ae-2012</a></li>
-<li><a href="#sec-4-4-2">802.11aa-2012</a></li>
-<li><a href="#sec-4-4-3">802.11ad-2012</a></li>
-<li><a href="#sec-4-4-4">802.11ac-2013</a></li>
-<li><a href="#sec-4-4-5">802.11af-2014</a></li>
+<li><a href="#sec-5-4-1">02.11ae-2012</a></li>
+<li><a href="#sec-5-4-2">802.11aa-2012</a></li>
+<li><a href="#sec-5-4-3">802.11ad-2012</a></li>
+<li><a href="#sec-5-4-4">802.11ac-2013</a></li>
+<li><a href="#sec-5-4-5">802.11af-2014</a></li>
 </ul>
 </li>
-<li><a href="#sec-4-5">IEEE 802.11 draft amendments</a>
+<li><a href="#sec-5-5">IEEE 802.11 draft amendments</a>
 <ul>
-<li><a href="#sec-4-5-1">802.11ah</a></li>
-<li><a href="#sec-4-5-2">802.11ai</a></li>
-<li><a href="#sec-4-5-3">802.11aj</a></li>
-<li><a href="#sec-4-5-4">802.11ak</a></li>
-<li><a href="#sec-4-5-5">802.11aq</a></li>
+<li><a href="#sec-5-5-1">802.11ah</a></li>
+<li><a href="#sec-5-5-2">802.11ai</a></li>
+<li><a href="#sec-5-5-3">802.11aj</a></li>
+<li><a href="#sec-5-5-4">802.11ak</a></li>
+<li><a href="#sec-5-5-5">802.11aq</a></li>
 </ul>
 </li>
-<li><a href="#sec-4-6">Review Questions:</a></li>
+<li><a href="#sec-5-6">Review Questions:</a></li>
 </ul>
 </li>
-<li><a href="#sec-5">第六章 无线网络与扩频技术</a>
+<li><a href="#sec-6">第六章 无线网络与扩频技术</a>
 <ul>
-<li><a href="#sec-5-1">Industrial, Scientific, and Medical Bands</a></li>
-<li><a href="#sec-5-2">Unlicensed National Information Infrastructure Bands</a>
+<li><a href="#sec-6-1">Industrial, Scientific, and Medical Bands</a></li>
+<li><a href="#sec-6-2">Unlicensed National Information Infrastructure Bands</a>
 <ul>
-<li><a href="#sec-5-2-1">U-NII-1 (Lower Band)</a></li>
-<li><a href="#sec-5-2-2">U-NII-2 (Middle Band)</a></li>
-<li><a href="#sec-5-2-3">U-NII-2 Extended</a></li>
-<li><a href="#sec-5-2-4">U-NII-3 (Upper Band)</a></li>
-<li><a href="#sec-5-2-5">Future U-NII Bands</a></li>
+<li><a href="#sec-6-2-1">U-NII-1 (Lower Band)</a></li>
+<li><a href="#sec-6-2-2">U-NII-2 (Middle Band)</a></li>
+<li><a href="#sec-6-2-3">U-NII-2 Extended</a></li>
+<li><a href="#sec-6-2-4">U-NII-3 (Upper Band)</a></li>
+<li><a href="#sec-6-2-5">Future U-NII Bands</a></li>
 </ul>
 </li>
-<li><a href="#sec-5-3">Narrowband and Spread Spectrum</a></li>
-<li><a href="#sec-5-4">Multipath Interference</a></li>
-<li><a href="#sec-5-5">Frequency Hopping Spread Spectrum</a>
+<li><a href="#sec-6-3">Narrowband and Spread Spectrum</a></li>
+<li><a href="#sec-6-4">Multipath Interference</a></li>
+<li><a href="#sec-6-5">Frequency Hopping Spread Spectrum</a>
 <ul>
-<li><a href="#sec-5-5-1">Hopping Sequence</a></li>
-<li><a href="#sec-5-5-2">Dwell Time</a></li>
-<li><a href="#sec-5-5-3">Hop Time</a></li>
-<li><a href="#sec-5-5-4">Modulation</a></li>
+<li><a href="#sec-6-5-1">Hopping Sequence</a></li>
+<li><a href="#sec-6-5-2">Dwell Time</a></li>
+<li><a href="#sec-6-5-3">Hop Time</a></li>
+<li><a href="#sec-6-5-4">Modulation</a></li>
 </ul>
 </li>
-<li><a href="#sec-5-6">Direct Sequence Spread Spectrum</a>
+<li><a href="#sec-6-6">Direct Sequence Spread Spectrum</a>
 <ul>
-<li><a href="#sec-5-6-1">DSSS Data Encoding</a></li>
-<li><a href="#sec-5-6-2">Modulation</a></li>
-<li><a href="#sec-5-6-3">Packet Binary Convolutional Code</a></li>
-<li><a href="#sec-5-6-4">Orthogonal Frequency Division Multiplexing</a></li>
+<li><a href="#sec-6-6-1">DSSS Data Encoding</a></li>
+<li><a href="#sec-6-6-2">Modulation</a></li>
+<li><a href="#sec-6-6-3">Packet Binary Convolutional Code</a></li>
+<li><a href="#sec-6-6-4">Orthogonal Frequency Division Multiplexing</a></li>
 </ul>
 </li>
-<li><a href="#sec-5-7">Throughput vs. Bandwidth</a></li>
+<li><a href="#sec-6-7">Throughput vs. Bandwidth</a></li>
 </ul>
 </li>
-<li><a href="#sec-6">第七章 无线局域网拓扑结构</a>
+<li><a href="#sec-7">第七章 无线局域网拓扑结构</a>
 <ul>
-<li><a href="#sec-6-1">Wireless networking topologies</a></li>
-<li><a href="#sec-6-2">802.11 topologies</a></li>
-<li><a href="#sec-6-3">802.11 configuration modes</a>
+<li><a href="#sec-7-1">Wireless networking topologies</a></li>
+<li><a href="#sec-7-2">802.11 topologies</a></li>
+<li><a href="#sec-7-3">802.11 configuration modes</a>
 <ul>
-<li><a href="#sec-6-3-1">Wireless wide area network (WWAN)</a></li>
-<li><a href="#sec-6-3-2">Wireless Metropolitan Area Network (WMAN)</a></li>
-<li><a href="#sec-6-3-3">Wireless Personal Area Network (WPAN)</a></li>
-<li><a href="#sec-6-3-4">Wireless Local Area Network (WLAN)</a></li>
+<li><a href="#sec-7-3-1">Wireless wide area network (WWAN)</a></li>
+<li><a href="#sec-7-3-2">Wireless Metropolitan Area Network (WMAN)</a></li>
+<li><a href="#sec-7-3-3">Wireless Personal Area Network (WPAN)</a></li>
+<li><a href="#sec-7-3-4">Wireless Local Area Network (WLAN)</a></li>
 </ul>
 </li>
-<li><a href="#sec-6-4">802.11 Topologies</a>
+<li><a href="#sec-7-4">802.11 Topologies</a>
 <ul>
-<li><a href="#sec-6-4-1">Access Point</a></li>
-<li><a href="#sec-6-4-2">Client Station</a></li>
-<li><a href="#sec-6-4-3">Integration Service</a></li>
-<li><a href="#sec-6-4-4">Distribution System</a></li>
-<li><a href="#sec-6-4-5">Wireless Distribution System</a></li>
-<li><a href="#sec-6-4-6">Service Set Identifier</a></li>
-<li><a href="#sec-6-4-7">Basic Service Set</a></li>
-<li><a href="#sec-6-4-8">Basic Service Set Identifier</a></li>
-<li><a href="#sec-6-4-9">Basic Service Area</a></li>
-<li><a href="#sec-6-4-10">Extended Service Set</a></li>
-<li><a href="#sec-6-4-11">Independent Basic Service Set</a></li>
-<li><a href="#sec-6-4-12">Mesh Basic Service Set</a></li>
-<li><a href="#sec-6-4-13">QoS Basic Service Set</a></li>
+<li><a href="#sec-7-4-1">Access Point</a></li>
+<li><a href="#sec-7-4-2">Client Station</a></li>
+<li><a href="#sec-7-4-3">Integration Service</a></li>
+<li><a href="#sec-7-4-4">Distribution System</a></li>
+<li><a href="#sec-7-4-5">Wireless Distribution System</a></li>
+<li><a href="#sec-7-4-6">Service Set Identifier</a></li>
+<li><a href="#sec-7-4-7">Basic Service Set</a></li>
+<li><a href="#sec-7-4-8">Basic Service Set Identifier</a></li>
+<li><a href="#sec-7-4-9">Basic Service Area</a></li>
+<li><a href="#sec-7-4-10">Extended Service Set</a></li>
+<li><a href="#sec-7-4-11">Independent Basic Service Set</a></li>
+<li><a href="#sec-7-4-12">Mesh Basic Service Set</a></li>
+<li><a href="#sec-7-4-13">QoS Basic Service Set</a></li>
 </ul>
 </li>
-<li><a href="#sec-6-5">802.11 Configuration Modes</a>
+<li><a href="#sec-7-5">802.11 Configuration Modes</a>
 <ul>
-<li><a href="#sec-6-5-1">Access Point Modes</a></li>
-<li><a href="#sec-6-5-2">Client Station Modes</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#sec-7">第八章 802.11媒介访问</a>
-<ul>
-<li><a href="#sec-7-1">CSMA/CA vs. CSMA/CD</a></li>
-<li><a href="#sec-7-2">Collision Detection</a></li>
-<li><a href="#sec-7-3">Distributed Coordination Function</a>
-<ul>
-<li><a href="#sec-7-3-1">Interframe Space (IFS)</a></li>
-<li><a href="#sec-7-3-2">Duration/ID Field</a></li>
-<li><a href="#sec-7-3-3">Carrier Sense</a></li>
-<li><a href="#sec-7-3-4">Random Backoff Timer</a></li>
-</ul>
-</li>
-<li><a href="#sec-7-4">Point Coordination Function</a></li>
-<li><a href="#sec-7-5">Hybrid Coordination Function</a></li>
-<li><a href="#sec-7-6">Block Acknowledgment</a></li>
-<li><a href="#sec-7-7">Wi-Fi Multimedia</a></li>
-<li><a href="#sec-7-8">Airtime Fairness</a></li>
-</ul>
-</li>
-<li><a href="#sec-8">第九章 802.11 MAC 架构</a>
-<ul>
-<li><a href="#sec-8-1">Data-Link Layer</a>
-<ul>
-<li><a href="#sec-8-1-1">MAC Service Data Unit</a></li>
-<li><a href="#sec-8-1-2">MAC Protocol Data Unit</a></li>
-</ul>
-</li>
-<li><a href="#sec-8-2">Physical Layer</a>
-<ul>
-<li><a href="#sec-8-2-1">PLCP Service Data Unit</a></li>
-<li><a href="#sec-8-2-2">PLCP Protocol Data Unit</a></li>
-</ul>
-</li>
-<li><a href="#sec-8-3">802.11 and 802.3 Interoperability</a></li>
-<li><a href="#sec-8-4">Three 802.11 Frame Types</a>
-<ul>
-<li><a href="#sec-8-4-1">Management Frames</a></li>
-<li><a href="#sec-8-4-2">Control Frames</a></li>
-<li><a href="#sec-8-4-3">Data Frames</a></li>
-</ul>
-</li>
-<li><a href="#sec-8-5">Beacon Management Frame</a></li>
-<li><a href="#sec-8-6">Authentication</a></li>
-<li><a href="#sec-8-7">Association</a>
-<ul>
-<li><a href="#sec-8-7-1">Authentication and Association States</a></li>
-<li><a href="#sec-8-7-2">Basic and Supported Rates</a></li>
-<li><a href="#sec-8-7-3">Roaming</a></li>
-<li><a href="#sec-8-7-4">Reassociation</a></li>
-<li><a href="#sec-8-7-5">Disassociation</a></li>
-<li><a href="#sec-8-7-6">Deauthentication</a></li>
-</ul>
-</li>
-<li><a href="#sec-8-8">ACK Frame</a></li>
-<li><a href="#sec-8-9">Fragmentation</a></li>
-<li><a href="#sec-8-10">Protection Mechanism</a>
-<ul>
-<li><a href="#sec-8-10-1">RTS/CTS</a></li>
-<li><a href="#sec-8-10-2">CTS-to-Self</a></li>
-</ul>
-</li>
-<li><a href="#sec-8-11">Data Frames</a></li>
-<li><a href="#sec-8-12">Power Management</a>
-<ul>
-<li><a href="#sec-8-12-1">Active Mode</a></li>
-<li><a href="#sec-8-12-2">Power Save Mode</a></li>
-<li><a href="#sec-8-12-3">Traffic Indication Map</a></li>
-<li><a href="#sec-8-12-4">Delivery Traffic Indication Message</a></li>
-<li><a href="#sec-8-12-5">Announcement Traffic Indication Message</a></li>
-<li><a href="#sec-8-12-6">WMM Power Save and U-APSD</a></li>
-<li><a href="#sec-8-12-7">802.11n Power Management</a></li>
+<li><a href="#sec-7-5-1">Access Point Modes</a></li>
+<li><a href="#sec-7-5-2">Client Station Modes</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#sec-9">第十章 WLAN 架构</a>
+<li><a href="#sec-8">第八章 802.11媒介访问</a>
 <ul>
-<li><a href="#sec-9-1">Wireless LAN client devices</a>
+<li><a href="#sec-8-1">CSMA/CA vs. CSMA/CD</a></li>
+<li><a href="#sec-8-2">Collision Detection</a></li>
+<li><a href="#sec-8-3">Distributed Coordination Function</a>
 <ul>
-<li><a href="#sec-9-1-1">802.11 Radio form factors</a></li>
-<li><a href="#sec-9-1-2">802.11 Radio chipsets</a></li>
-<li><a href="#sec-9-1-3">Client utilities</a></li>
-<li><a href="#sec-9-1-4">Management, control and data planes</a></li>
+<li><a href="#sec-8-3-1">Interframe Space (IFS)</a></li>
+<li><a href="#sec-8-3-2">Duration/ID Field</a></li>
+<li><a href="#sec-8-3-3">Carrier Sense</a></li>
+<li><a href="#sec-8-3-4">Random Backoff Timer</a></li>
 </ul>
 </li>
-<li><a href="#sec-9-2">WLAN architecture</a>
-<ul>
-<li><a href="#sec-9-2-1">Autonomous WLAN architecture</a></li>
-<li><a href="#sec-9-2-2">Centralized network management systems</a></li>
-<li><a href="#sec-9-2-3">Cloud networking</a></li>
-<li><a href="#sec-9-2-4">Centralized WLAN architecture</a></li>
-<li><a href="#sec-9-2-5">Distributed WLAN architecture</a></li>
-<li><a href="#sec-9-2-6">Unified WLAN architecture</a></li>
-<li><a href="#sec-9-2-7">Hybrid architecture</a></li>
+<li><a href="#sec-8-4">Point Coordination Function</a></li>
+<li><a href="#sec-8-5">Hybrid Coordination Function</a></li>
+<li><a href="#sec-8-6">Block Acknowledgment</a></li>
+<li><a href="#sec-8-7">Wi-Fi Multimedia</a></li>
+<li><a href="#sec-8-8">Airtime Fairness</a></li>
 </ul>
 </li>
-<li><a href="#sec-9-3">Specialty WLAN infrastructure</a>
+<li><a href="#sec-9">第九章 802.11 MAC 架构</a>
 <ul>
-<li><a href="#sec-9-3-1">Wireless workgroup bridge</a></li>
-<li><a href="#sec-9-3-2">Wireless LAN bridges</a></li>
-<li><a href="#sec-9-3-3">Enterprise WLAN router</a></li>
-<li><a href="#sec-9-3-4">Wireless LAN mesh access points</a></li>
-<li><a href="#sec-9-3-5">WLAN array</a></li>
-<li><a href="#sec-9-3-6">Virtual AP system</a></li>
-<li><a href="#sec-9-3-7">Real-time location systems</a></li>
-<li><a href="#sec-9-3-8">VoWiFi</a></li>
+<li><a href="#sec-9-1">Data-Link Layer</a>
+<ul>
+<li><a href="#sec-9-1-1">MAC Service Data Unit</a></li>
+<li><a href="#sec-9-1-2">MAC Protocol Data Unit</a></li>
 </ul>
 </li>
+<li><a href="#sec-9-2">Physical Layer</a>
+<ul>
+<li><a href="#sec-9-2-1">PLCP Service Data Unit</a></li>
+<li><a href="#sec-9-2-2">PLCP Protocol Data Unit</a></li>
 </ul>
 </li>
-<li><a href="#sec-10">第十二章 WLAN 问题处理与设计</a>
+<li><a href="#sec-9-3">802.11 and 802.3 Interoperability</a></li>
+<li><a href="#sec-9-4">Three 802.11 Frame Types</a>
 <ul>
-<li><a href="#sec-10-1">Layer 2重传</a></li>
-<li><a href="#sec-10-2">RF干涉</a>
-<ul>
-<li><a href="#sec-10-2-1">窄波干涉</a></li>
-<li><a href="#sec-10-2-2">宽波干涉</a></li>
-<li><a href="#sec-10-2-3">全波段干涉</a></li>
-<li><a href="#sec-10-2-4">Adjacent Channel Interference</a></li>
-<li><a href="#sec-10-2-5">Low SNR</a></li>
-<li><a href="#sec-10-2-6">功率设置不匹配</a></li>
-<li><a href="#sec-10-2-7">Near/Far</a></li>
-<li><a href="#sec-10-2-8">隐藏结点问题</a></li>
+<li><a href="#sec-9-4-1">Management Frames</a></li>
+<li><a href="#sec-9-4-2">Control Frames</a></li>
+<li><a href="#sec-9-4-3">Data Frames</a></li>
 </ul>
 </li>
-<li><a href="#sec-10-3">802.11覆盖范围的考量</a>
+<li><a href="#sec-9-5">Beacon Management Frame</a></li>
+<li><a href="#sec-9-6">Authentication</a></li>
+<li><a href="#sec-9-7">Association</a>
 <ul>
-<li><a href="#sec-10-3-1">动态速率调整</a></li>
-<li><a href="#sec-10-3-2">Roaming</a></li>
-<li><a href="#sec-10-3-3"><code>Co-channel</code> Interference</a></li>
+<li><a href="#sec-9-7-1">Authentication and Association States</a></li>
+<li><a href="#sec-9-7-2">Basic and Supported Rates</a></li>
+<li><a href="#sec-9-7-3">Roaming</a></li>
+<li><a href="#sec-9-7-4">Reassociation</a></li>
+<li><a href="#sec-9-7-5">Disassociation</a></li>
+<li><a href="#sec-9-7-6">Deauthentication</a></li>
 </ul>
 </li>
-<li><a href="#sec-10-4">Performance</a></li>
+<li><a href="#sec-9-8">ACK Frame</a></li>
+<li><a href="#sec-9-9">Fragmentation</a></li>
+<li><a href="#sec-9-10">Protection Mechanism</a>
+<ul>
+<li><a href="#sec-9-10-1">RTS/CTS</a></li>
+<li><a href="#sec-9-10-2">CTS-to-Self</a></li>
 </ul>
 </li>
-<li><a href="#sec-11">第十三章 802.11网络安全架构</a>
+<li><a href="#sec-9-11">Data Frames</a></li>
+<li><a href="#sec-9-12">Power Management</a>
 <ul>
-<li><a href="#sec-11-1">802.11 security basics</a>
-<ul>
-<li><a href="#sec-11-1-1">Data privacy and integrity</a></li>
-<li><a href="#sec-11-1-2">Authentication, authorization, and accounting (AAA)</a></li>
-<li><a href="#sec-11-1-3">Segmentation</a></li>
-<li><a href="#sec-11-1-4">Monitoring and policy</a></li>
-</ul>
-</li>
-<li><a href="#sec-11-2">Legacy 802.11 security</a>
-<ul>
-<li><a href="#sec-11-2-1">Legacy authentication</a></li>
-<li><a href="#sec-11-2-2">Static WEP encryption</a></li>
-<li><a href="#sec-11-2-3">MAC filters</a></li>
-<li><a href="#sec-11-2-4">SSID cloaking(隐藏SSID)</a></li>
-</ul>
-</li>
-<li><a href="#sec-11-3">Robust security</a>
-<ul>
-<li><a href="#sec-11-3-1">Robust security network (RSN)</a></li>
-<li><a href="#sec-11-3-2">Authentication and authorization</a></li>
-<li><a href="#sec-11-3-3">PSK authentication</a></li>
-<li><a href="#sec-11-3-4">Proprietary PSK authentication</a></li>
-<li><a href="#sec-11-3-5">802.1X/EAP framework</a></li>
-<li><a href="#sec-11-3-6">Dynamic encryption-key generation</a></li>
-<li><a href="#sec-11-3-7">4-Way Handshake</a></li>
-<li><a href="#sec-11-3-8">WPA/WPA2-Personal</a></li>
-<li><a href="#sec-11-3-9">TKIP encryption</a></li>
-<li><a href="#sec-11-3-10">CCMP encryption</a></li>
-</ul>
-</li>
-<li><a href="#sec-11-4">Traffic segmentation</a>
-<ul>
-<li><a href="#sec-11-4-1">VLANs</a></li>
-<li><a href="#sec-11-4-2">RBAC</a></li>
-</ul>
-</li>
-<li><a href="#sec-11-5">Infrastructure security</a>
-<ul>
-<li><a href="#sec-11-5-1">Physical security</a></li>
-<li><a href="#sec-11-5-2">Interface security</a></li>
-</ul>
-</li>
-<li><a href="#sec-11-6">VPN wireless security</a>
-<ul>
-<li><a href="#sec-11-6-1">Layer 3 VPNs</a></li>
-<li><a href="#sec-11-6-2">SSL VPN</a></li>
-<li><a href="#sec-11-6-3">VPN deployment</a></li>
-<li><a href="#sec-11-6-4">Guest WLAN security</a></li>
-<li><a href="#sec-11-6-5">Captive portal</a></li>
+<li><a href="#sec-9-12-1">Active Mode</a></li>
+<li><a href="#sec-9-12-2">Power Save Mode</a></li>
+<li><a href="#sec-9-12-3">Traffic Indication Map</a></li>
+<li><a href="#sec-9-12-4">Delivery Traffic Indication Message</a></li>
+<li><a href="#sec-9-12-5">Announcement Traffic Indication Message</a></li>
+<li><a href="#sec-9-12-6">WMM Power Save and U-APSD</a></li>
+<li><a href="#sec-9-12-7">802.11n Power Management</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#sec-12">第十六章 Site Survey Systems and Devices</a></li>
-<li><a href="#sec-13">第十八章 802.11n</a>
+<li><a href="#sec-10">第十章 WLAN 架构</a>
 <ul>
-<li><a href="#sec-13-1">802.11n-2009 amendment</a></li>
-<li><a href="#sec-13-2">Wi-Fi Alliance certification</a></li>
-<li><a href="#sec-13-3">MIMO</a>
+<li><a href="#sec-10-1">Wireless LAN client devices</a>
 <ul>
-<li><a href="#sec-13-3-1">Radio chains</a></li>
-<li><a href="#sec-13-3-2">Spatial multiplexing (SM)</a></li>
-<li><a href="#sec-13-3-3">MIMO diversity</a></li>
-<li><a href="#sec-13-3-4">Space-time block coding (STBC)</a></li>
-<li><a href="#sec-13-3-5">Cyclic shift diversity (CSD)</a></li>
-<li><a href="#sec-13-3-6">Transmit beamforming (TxBF)</a></li>
+<li><a href="#sec-10-1-1">802.11 Radio form factors</a></li>
+<li><a href="#sec-10-1-2">802.11 Radio chipsets</a></li>
+<li><a href="#sec-10-1-3">Client utilities</a></li>
+<li><a href="#sec-10-1-4">Management, control and data planes</a></li>
 </ul>
 </li>
-<li><a href="#sec-13-4">HT channels</a>
+<li><a href="#sec-10-2">WLAN architecture</a>
 <ul>
-<li><a href="#sec-13-4-1">20 MHz non-HT and HT channels</a></li>
-<li><a href="#sec-13-4-2">40 MHz channels</a></li>
-<li><a href="#sec-13-4-3">40 MHz Intolerant</a></li>
-<li><a href="#sec-13-4-4">Guard interval (GI)</a></li>
-<li><a href="#sec-13-4-5">Modulation and coding scheme (MCS)</a></li>
-<li><a href="#sec-13-4-6">HT PHY</a></li>
-<li><a href="#sec-13-4-7">Non-HT legacy</a></li>
-<li><a href="#sec-13-4-8">HT Mixed</a></li>
-<li><a href="#sec-13-4-9">HT Greenfield</a></li>
+<li><a href="#sec-10-2-1">Autonomous WLAN architecture</a></li>
+<li><a href="#sec-10-2-2">Centralized network management systems</a></li>
+<li><a href="#sec-10-2-3">Cloud networking</a></li>
+<li><a href="#sec-10-2-4">Centralized WLAN architecture</a></li>
+<li><a href="#sec-10-2-5">Distributed WLAN architecture</a></li>
+<li><a href="#sec-10-2-6">Unified WLAN architecture</a></li>
+<li><a href="#sec-10-2-7">Hybrid architecture</a></li>
 </ul>
 </li>
-<li><a href="#sec-13-5">HT MAC</a>
+<li><a href="#sec-10-3">Specialty WLAN infrastructure</a>
 <ul>
-<li><a href="#sec-13-5-1">A-MSDU</a></li>
-<li><a href="#sec-13-5-2">A-MPDU</a></li>
-<li><a href="#sec-13-5-3">Block Acknowledgment</a></li>
-<li><a href="#sec-13-5-4">RIFS</a></li>
-<li><a href="#sec-13-5-5">HT power management</a></li>
-</ul>
-</li>
-<li><a href="#sec-13-6">HT operation</a>
-<ul>
-<li><a href="#sec-13-6-1">20/40 channel operation</a></li>
-<li><a href="#sec-13-6-2">HT protection modes (0–3)</a></li>
-<li><a href="#sec-13-6-3">RTS/CTS and CTS-to-self</a></li>
+<li><a href="#sec-10-3-1">Wireless workgroup bridge</a></li>
+<li><a href="#sec-10-3-2">Wireless LAN bridges</a></li>
+<li><a href="#sec-10-3-3">Enterprise WLAN router</a></li>
+<li><a href="#sec-10-3-4">Wireless LAN mesh access points</a></li>
+<li><a href="#sec-10-3-5">WLAN array</a></li>
+<li><a href="#sec-10-3-6">Virtual AP system</a></li>
+<li><a href="#sec-10-3-7">Real-time location systems</a></li>
+<li><a href="#sec-10-3-8">VoWiFi</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#sec-14">第十九章 VHT &amp; 802.11ac</a></li>
+<li><a href="#sec-11">第十二章 WLAN 问题处理与设计</a>
+<ul>
+<li><a href="#sec-11-1">Layer 2重传</a></li>
+<li><a href="#sec-11-2">RF干涉</a>
+<ul>
+<li><a href="#sec-11-2-1">窄波干涉</a></li>
+<li><a href="#sec-11-2-2">宽波干涉</a></li>
+<li><a href="#sec-11-2-3">全波段干涉</a></li>
+<li><a href="#sec-11-2-4">Adjacent Channel Interference</a></li>
+<li><a href="#sec-11-2-5">Low SNR</a></li>
+<li><a href="#sec-11-2-6">功率设置不匹配</a></li>
+<li><a href="#sec-11-2-7">Near/Far</a></li>
+<li><a href="#sec-11-2-8">隐藏结点问题</a></li>
+</ul>
+</li>
+<li><a href="#sec-11-3">802.11覆盖范围的考量</a>
+<ul>
+<li><a href="#sec-11-3-1">动态速率调整</a></li>
+<li><a href="#sec-11-3-2">Roaming</a></li>
+<li><a href="#sec-11-3-3"><code>Co-channel</code> Interference</a></li>
+</ul>
+</li>
+<li><a href="#sec-11-4">Performance</a></li>
+</ul>
+</li>
+<li><a href="#sec-12">第十三章 802.11网络安全架构</a>
+<ul>
+<li><a href="#sec-12-1">802.11 security basics</a>
+<ul>
+<li><a href="#sec-12-1-1">Data privacy and integrity</a></li>
+<li><a href="#sec-12-1-2">Authentication, authorization, and accounting (AAA)</a></li>
+<li><a href="#sec-12-1-3">Segmentation</a></li>
+<li><a href="#sec-12-1-4">Monitoring and policy</a></li>
+</ul>
+</li>
+<li><a href="#sec-12-2">Legacy 802.11 security</a>
+<ul>
+<li><a href="#sec-12-2-1">Legacy authentication</a></li>
+<li><a href="#sec-12-2-2">Static WEP encryption</a></li>
+<li><a href="#sec-12-2-3">MAC filters</a></li>
+<li><a href="#sec-12-2-4">SSID cloaking(隐藏SSID)</a></li>
+</ul>
+</li>
+<li><a href="#sec-12-3">Robust security</a>
+<ul>
+<li><a href="#sec-12-3-1">Robust security network (RSN)</a></li>
+<li><a href="#sec-12-3-2">Authentication and authorization</a></li>
+<li><a href="#sec-12-3-3">PSK authentication</a></li>
+<li><a href="#sec-12-3-4">Proprietary PSK authentication</a></li>
+<li><a href="#sec-12-3-5">802.1X/EAP framework</a></li>
+<li><a href="#sec-12-3-6">Dynamic encryption-key generation</a></li>
+<li><a href="#sec-12-3-7">4-Way Handshake</a></li>
+<li><a href="#sec-12-3-8">WPA/WPA2-Personal</a></li>
+<li><a href="#sec-12-3-9">TKIP encryption</a></li>
+<li><a href="#sec-12-3-10">CCMP encryption</a></li>
+</ul>
+</li>
+<li><a href="#sec-12-4">Traffic segmentation</a>
+<ul>
+<li><a href="#sec-12-4-1">VLANs</a></li>
+<li><a href="#sec-12-4-2">RBAC</a></li>
+</ul>
+</li>
+<li><a href="#sec-12-5">Infrastructure security</a>
+<ul>
+<li><a href="#sec-12-5-1">Physical security</a></li>
+<li><a href="#sec-12-5-2">Interface security</a></li>
+</ul>
+</li>
+<li><a href="#sec-12-6">VPN wireless security</a>
+<ul>
+<li><a href="#sec-12-6-1">Layer 3 VPNs</a></li>
+<li><a href="#sec-12-6-2">SSL VPN</a></li>
+<li><a href="#sec-12-6-3">VPN deployment</a></li>
+<li><a href="#sec-12-6-4">Guest WLAN security</a></li>
+<li><a href="#sec-12-6-5">Captive portal</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-13">第十六章 Site Survey Systems and Devices</a></li>
+<li><a href="#sec-14">第十八章 802.11n</a>
+<ul>
+<li><a href="#sec-14-1">802.11n-2009 amendment</a></li>
+<li><a href="#sec-14-2">Wi-Fi Alliance certification</a></li>
+<li><a href="#sec-14-3">MIMO</a>
+<ul>
+<li><a href="#sec-14-3-1">Radio chains</a></li>
+<li><a href="#sec-14-3-2">Spatial multiplexing (SM)</a></li>
+<li><a href="#sec-14-3-3">MIMO diversity</a></li>
+<li><a href="#sec-14-3-4">Space-time block coding (STBC)</a></li>
+<li><a href="#sec-14-3-5">Cyclic shift diversity (CSD)</a></li>
+<li><a href="#sec-14-3-6">Transmit beamforming (TxBF)</a></li>
+</ul>
+</li>
+<li><a href="#sec-14-4">HT channels</a>
+<ul>
+<li><a href="#sec-14-4-1">20 MHz non-HT and HT channels</a></li>
+<li><a href="#sec-14-4-2">40 MHz channels</a></li>
+<li><a href="#sec-14-4-3">40 MHz Intolerant</a></li>
+<li><a href="#sec-14-4-4">Guard interval (GI)</a></li>
+<li><a href="#sec-14-4-5">Modulation and coding scheme (MCS)</a></li>
+<li><a href="#sec-14-4-6">HT PHY</a></li>
+<li><a href="#sec-14-4-7">Non-HT legacy</a></li>
+<li><a href="#sec-14-4-8">HT Mixed</a></li>
+<li><a href="#sec-14-4-9">HT Greenfield</a></li>
+</ul>
+</li>
+<li><a href="#sec-14-5">HT MAC</a>
+<ul>
+<li><a href="#sec-14-5-1">A-MSDU</a></li>
+<li><a href="#sec-14-5-2">A-MPDU</a></li>
+<li><a href="#sec-14-5-3">Block Acknowledgment</a></li>
+<li><a href="#sec-14-5-4">RIFS</a></li>
+<li><a href="#sec-14-5-5">HT power management</a></li>
+</ul>
+</li>
+<li><a href="#sec-14-6">HT operation</a>
+<ul>
+<li><a href="#sec-14-6-1">20/40 channel operation</a></li>
+<li><a href="#sec-14-6-2">HT protection modes (0–3)</a></li>
+<li><a href="#sec-14-6-3">RTS/CTS and CTS-to-self</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-15">第十九章 VHT &amp; 802.11ac</a>
+<ul>
+<li><a href="#sec-15-1">802.11ac 2003修订版</a></li>
+<li><a href="#sec-15-2">5 GHz only</a></li>
+<li><a href="#sec-15-3">20,40,80,160 MHz信道</a></li>
+<li><a href="#sec-15-4">256 QAM modulation</a></li>
+<li><a href="#sec-15-5">Modulation and coding schemes</a></li>
+<li><a href="#sec-15-6">Single User MIMO</a></li>
+<li><a href="#sec-15-7">802.11ac date Rates</a></li>
+<li><a href="#sec-15-8">VHT MAC</a>
+<ul>
+<li><a href="#sec-15-8-1"><code>A-MPDU</code></a></li>
+<li><a href="#sec-15-8-2">RTS/CTS</a></li>
+</ul>
+</li>
+<li><a href="#sec-15-9">Beamforming</a>
+<ul>
+<li><a href="#sec-15-9-1">Explicit Beamforming</a></li>
+<li><a href="#sec-15-9-2">Multiuser MIMO</a></li>
+<li><a href="#sec-15-9-3">Multiuser Beamforming</a></li>
+<li><a href="#sec-15-9-4">Quality of Service</a></li>
+</ul>
+</li>
+<li><a href="#sec-15-10">Infrastructure requirements</a></li>
+<li><a href="#sec-15-11">802.11ac in a SOHO or home</a></li>
+<li><a href="#sec-15-12">WFA certification</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
 
 
 <div id="outline-container-sec-1" class="outline-2">
-<h2 id="sec-1">第一章 无线标准、组织和基础概述</h2>
+<h2 id="sec-1">内容导读</h2>
 <div class="outline-text-2" id="text-1">
-</div><div id="outline-container-sec-1-1" class="outline-3">
-<h3 id="sec-1-1">要点记录</h3>
-<div class="outline-text-3" id="text-1-1">
-</div><div id="outline-container-sec-1-1-1" class="outline-4">
-<h4 id="sec-1-1-1">无线设备受管制的地方</h4>
-<div class="outline-text-4" id="text-1-1-1">
+
+<div class="figure">
+<p><img src="/images/2016/CWNA内容导图.svg" alt="CWNA内容导图.svg" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">第一章 无线标准、组织和基础概述</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1">要点记录</h3>
+<div class="outline-text-3" id="text-2-1">
+</div><div id="outline-container-sec-2-1-1" class="outline-4">
+<h4 id="sec-2-1-1">无线设备受管制的地方</h4>
+<div class="outline-text-4" id="text-2-1-1">
 <ol class="org-ol">
 <li>频率
 </li>
@@ -439,9 +478,9 @@ categories: wifi
 </div>
 </div>
 
-<div id="outline-container-sec-1-1-2" class="outline-4">
-<h4 id="sec-1-1-2">一些机构名称</h4>
-<div class="outline-text-4" id="text-1-1-2">
+<div id="outline-container-sec-2-1-2" class="outline-4">
+<h4 id="sec-2-1-2">一些机构名称</h4>
+<div class="outline-text-4" id="text-2-1-2">
 <ul class="org-ul">
 <li>IEEE
 
@@ -467,9 +506,9 @@ categories: wifi
 </div>
 </div>
 
-<div id="outline-container-sec-1-1-3" class="outline-4">
-<h4 id="sec-1-1-3">无线网络使用受管制的领域</h4>
-<div class="outline-text-4" id="text-1-1-3">
+<div id="outline-container-sec-2-1-3" class="outline-4">
+<h4 id="sec-2-1-3">无线网络使用受管制的领域</h4>
+<div class="outline-text-4" id="text-2-1-3">
 <ul class="org-ul">
 <li>频率
 </li>
@@ -487,9 +526,9 @@ categories: wifi
 </div>
 </div>
 
-<div id="outline-container-sec-1-1-4" class="outline-4">
-<h4 id="sec-1-1-4">5代WiFi技术</h4>
-<div class="outline-text-4" id="text-1-1-4">
+<div id="outline-container-sec-2-1-4" class="outline-4">
+<h4 id="sec-2-1-4">5代WiFi技术</h4>
+<div class="outline-text-4" id="text-2-1-4">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
@@ -542,9 +581,9 @@ categories: wifi
 </div>
 </div>
 
-<div id="outline-container-sec-1-1-5" class="outline-4">
-<h4 id="sec-1-1-5">网络架构</h4>
-<div class="outline-text-4" id="text-1-1-5">
+<div id="outline-container-sec-2-1-5" class="outline-4">
+<h4 id="sec-2-1-5">网络架构</h4>
+<div class="outline-text-4" id="text-2-1-5">
 <ul class="org-ul">
 <li>Core Layer
 
@@ -571,9 +610,9 @@ categories: wifi
 </div>
 </div>
 
-<div id="outline-container-sec-1-1-6" class="outline-4">
-<h4 id="sec-1-1-6">通信基础</h4>
-<div class="outline-text-4" id="text-1-1-6">
+<div id="outline-container-sec-2-1-6" class="outline-4">
+<h4 id="sec-2-1-6">通信基础</h4>
+<div class="outline-text-4" id="text-2-1-6">
 <ul class="org-ul">
 <li>载波信号
 
@@ -613,9 +652,9 @@ categories: wifi
 </div>
 </div>
 
-<div id="outline-container-sec-1-1-7" class="outline-4">
-<h4 id="sec-1-1-7">WiFi学习资源</h4>
-<div class="outline-text-4" id="text-1-1-7">
+<div id="outline-container-sec-2-1-7" class="outline-4">
+<h4 id="sec-2-1-7">WiFi学习资源</h4>
+<div class="outline-text-4" id="text-2-1-7">
 <ul class="org-ul">
 <li><i>WiFi联盟</i>
 </li>
@@ -632,12 +671,12 @@ categories: wifi
 </div>
 
 
-<div id="outline-container-sec-2" class="outline-2">
-<h2 id="sec-2">第二章 无线射频基础</h2>
-<div class="outline-text-2" id="text-2">
-</div><div id="outline-container-sec-2-1" class="outline-3">
-<h3 id="sec-2-1">射频(Radio Frequency, RF)信号的定义</h3>
-<div class="outline-text-3" id="text-2-1">
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">第二章 无线射频基础</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1">射频(Radio Frequency, RF)信号的定义</h3>
+<div class="outline-text-3" id="text-3-1">
 <p>
 物理层的核心是射频传输。
 </p>
@@ -649,9 +688,9 @@ categories: wifi
 </div>
 </div>
 
-<div id="outline-container-sec-2-2" class="outline-3">
-<h3 id="sec-2-2">射频的特征</h3>
-<div class="outline-text-3" id="text-2-2">
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2">射频的特征</h3>
+<div class="outline-text-3" id="text-3-2">
 <p>
 每个射频信号具备如下几个特征：
 </p>
@@ -712,9 +751,9 @@ RF信号的一个非常重要的属性，可描述为信号的强度。振幅会
 </div>
 </div>
 
-<div id="outline-container-sec-2-3" class="outline-3">
-<h3 id="sec-2-3">射频的行为</h3>
-<div class="outline-text-3" id="text-2-3">
+<div id="outline-container-sec-3-3" class="outline-3">
+<h3 id="sec-3-3">射频的行为</h3>
+<div class="outline-text-3" id="text-3-3">
 <ul class="org-ul">
 <li>波传播(Wave propagation)
 
@@ -834,12 +873,12 @@ intersymbol干涉，从而导致数据被破坏以及Layer 2数据重传。
 </div>
 
 
-<div id="outline-container-sec-3" class="outline-2">
-<h2 id="sec-3">第三章 无线射频组件、测量与数学原理</h2>
-<div class="outline-text-2" id="text-3">
-</div><div id="outline-container-sec-3-1" class="outline-3">
-<h3 id="sec-3-1">RF通信的组件</h3>
-<div class="outline-text-3" id="text-3-1">
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4">第三章 无线射频组件、测量与数学原理</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1">RF通信的组件</h3>
+<div class="outline-text-3" id="text-4-1">
 <p>
 data send path:
 Transmitter &#x2013;&gt; Antenna Cable &#x2013;&gt; Intentional radiator(IR) &#x2013;&gt; EIRP
@@ -849,13 +888,13 @@ Transmitter &#x2013;&gt; Antenna Cable &#x2013;&gt; Intentional radiator(IR) &#x
 <div class="figure">
 <p><img src="/images/2015/2015120202.png" alt="2015120202.png" />
 </p>
-<p><span class="figure-number">Figure 1:</span> RF components</p>
+<p><span class="figure-number">Figure 2:</span> RF components</p>
 </div>
 </div>
 
-<div id="outline-container-sec-3-1-1" class="outline-4">
-<h4 id="sec-3-1-1">Transmitter(发射机)</h4>
-<div class="outline-text-4" id="text-3-1-1">
+<div id="outline-container-sec-4-1-1" class="outline-4">
+<h4 id="sec-4-1-1">Transmitter(发射机)</h4>
+<div class="outline-text-4" id="text-4-1-1">
 <p>
 The transmitter is the initial component in the creation of the
 wireless medium. The computer hands the data off to the
@@ -888,9 +927,9 @@ signal.
 </div>
 </div>
 
-<div id="outline-container-sec-3-1-2" class="outline-4">
-<h4 id="sec-3-1-2">Antenna(天线)</h4>
-<div class="outline-text-4" id="text-3-1-2">
+<div id="outline-container-sec-4-1-2" class="outline-4">
+<h4 id="sec-4-1-2">Antenna(天线)</h4>
+<div class="outline-text-4" id="text-4-1-2">
 <p>
 天线提供了两个功能：
 </p>
@@ -926,9 +965,9 @@ radiator要求的天线是有困难的，所以天线本身的结构也会影响
 </div>
 </div>
 
-<div id="outline-container-sec-3-1-3" class="outline-4">
-<h4 id="sec-3-1-3">Receiver(接收器)</h4>
-<div class="outline-text-4" id="text-3-1-3">
+<div id="outline-container-sec-4-1-3" class="outline-4">
+<h4 id="sec-4-1-3">Receiver(接收器)</h4>
+<div class="outline-text-4" id="text-4-1-3">
 <p>
 The receiver is the fi nal component in the wireless medium.The
 receiver takes the carrier signal that is received from the
@@ -937,9 +976,9 @@ antenna and translates the modulated signals into 1s and 0s.
 </div>
 </div>
 
-<div id="outline-container-sec-3-1-4" class="outline-4">
-<h4 id="sec-3-1-4">Intentional Radiator</h4>
-<div class="outline-text-4" id="text-3-1-4">
+<div id="outline-container-sec-4-1-4" class="outline-4">
+<h4 id="sec-4-1-4">Intentional Radiator</h4>
+<div class="outline-text-4" id="text-4-1-4">
 <p>
 定义： a device that intentionally generates and emits radio
 frequency energy by radiation or induction.
@@ -965,9 +1004,9 @@ dBm(decibels relative to 1 milliwatt，伏特分贝)来表示。
 </div>
 </div>
 
-<div id="outline-container-sec-3-1-5" class="outline-4">
-<h4 id="sec-3-1-5">Equivalent Isotropically Radiated Power</h4>
-<div class="outline-text-4" id="text-3-1-5">
+<div id="outline-container-sec-4-1-5" class="outline-4">
+<h4 id="sec-4-1-5">Equivalent Isotropically Radiated Power</h4>
+<div class="outline-text-4" id="text-4-1-5">
 <p>
 Equivalent isotropically radiated power (EIRP) is the highest RF
 signal strength that is transmitted from a particular antenna.
@@ -981,10 +1020,10 @@ signal strength that is transmitted from a particular antenna.
 </div>
 </div>
 
-<div id="outline-container-sec-3-1-6" class="outline-4">
-<h4 id="sec-3-1-6">Units of Power and Comparison</h4>
-<div class="outline-text-4" id="text-3-1-6">
-</div><ul class="org-ul"><li><a id="sec-3-1-6-1" name="sec-3-1-6-1"></a>Units of power (absolute)<br  /><div class="outline-text-5" id="text-3-1-6-1">
+<div id="outline-container-sec-4-1-6" class="outline-4">
+<h4 id="sec-4-1-6">Units of Power and Comparison</h4>
+<div class="outline-text-4" id="text-4-1-6">
+</div><ul class="org-ul"><li><a id="sec-4-1-6-1" name="sec-4-1-6-1"></a>Units of power (absolute)<br  /><div class="outline-text-5" id="text-4-1-6-1">
 <ol class="org-ol">
 <li>watt (W)
 </li>
@@ -1003,7 +1042,7 @@ dBm = 10 X log10(PmW)
 </li>
 
 
-<li><a id="sec-3-1-6-2" name="sec-3-1-6-2"></a>Units of comparison (relative)<br  /><div class="outline-text-5" id="text-3-1-6-2">
+<li><a id="sec-4-1-6-2" name="sec-4-1-6-2"></a>Units of comparison (relative)<br  /><div class="outline-text-5" id="text-4-1-6-2">
 <ol class="org-ol">
 <li>decibel (dB)  描述功率的改变
 </li>
@@ -1035,12 +1074,12 @@ signal;–6 dB halves the distance of the usable signal.
 </div>
 </div>
 
-<div id="outline-container-sec-3-2" class="outline-3">
-<h3 id="sec-3-2">RF Mathematics</h3>
-<div class="outline-text-3" id="text-3-2">
-</div><div id="outline-container-sec-3-2-1" class="outline-4">
-<h4 id="sec-3-2-1">Rule of 10s and 3s</h4>
-<div class="outline-text-4" id="text-3-2-1">
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2">RF Mathematics</h3>
+<div class="outline-text-3" id="text-4-2">
+</div><div id="outline-container-sec-4-2-1" class="outline-4">
+<h4 id="sec-4-2-1">Rule of 10s and 3s</h4>
+<div class="outline-text-4" id="text-4-2-1">
 <ul class="org-ul">
 <li>For every 3 dB of gain (relative), double the absolute power
 (mW).
@@ -1063,9 +1102,9 @@ signal;–6 dB halves the distance of the usable signal.
 </div>
 </div>
 
-<div id="outline-container-sec-3-3" class="outline-3">
-<h3 id="sec-3-3">Noise Floor</h3>
-<div class="outline-text-3" id="text-3-3">
+<div id="outline-container-sec-4-3" class="outline-3">
+<h3 id="sec-4-3">Noise Floor</h3>
+<div class="outline-text-3" id="text-4-3">
 <p>
 背景干扰信号， 来源很多，比如：附近802.11设备传输的信号，未调制过的
 来自其他类型设备的干扰波等。背景干扰信号的振幅随着环境的不同，也不
@@ -1076,9 +1115,9 @@ signal;–6 dB halves the distance of the usable signal.
 </div>
 </div>
 
-<div id="outline-container-sec-3-4" class="outline-3">
-<h3 id="sec-3-4">信噪比(SNR)</h3>
-<div class="outline-text-3" id="text-3-4">
+<div id="outline-container-sec-4-4" class="outline-3">
+<h3 id="sec-4-4">信噪比(SNR)</h3>
+<div class="outline-text-3" id="text-4-4">
 <p>
 SNR是衡量信号质量的一个指标。SNR是接收到的信号强度与背景干扰信号强
 度之间的差值，不是比率。例如，无线设备接收到的信号强度为-85dBm，而
@@ -1092,9 +1131,9 @@ SNR值大于或等于25 dB时，则认为信号质量很好，而当SNR低于10 
 </div>
 </div>
 
-<div id="outline-container-sec-3-5" class="outline-3">
-<h3 id="sec-3-5">接收到的信号强度指示(RSSI)</h3>
-<div class="outline-text-3" id="text-3-5">
+<div id="outline-container-sec-4-5" class="outline-3">
+<h3 id="sec-4-5">接收到的信号强度指示(RSSI)</h3>
+<div class="outline-text-3" id="text-4-5">
 <p>
 Receive sensitivity: the power level of an RF signal required to be
 successfully received by the receiver radio.
@@ -1214,9 +1253,9 @@ Received signal strength indicator (RSSI) metrics (vendor example)
 </div>
 
 
-<div id="outline-container-sec-3-6" class="outline-3">
-<h3 id="sec-3-6">Link budget</h3>
-<div class="outline-text-3" id="text-3-6">
+<div id="outline-container-sec-4-6" class="outline-3">
+<h3 id="sec-4-6">Link budget</h3>
+<div class="outline-text-3" id="text-4-6">
 <p>
 When radio communications are deployed, a link budget is the sum of
 all the planned and expected gains and losses from the transmitting
@@ -1231,9 +1270,9 @@ threshold of the receiver radio.
 </div>
 </div>
 
-<div id="outline-container-sec-3-7" class="outline-3">
-<h3 id="sec-3-7">Fade margin/system operating margin</h3>
-<div class="outline-text-3" id="text-3-7">
+<div id="outline-container-sec-4-7" class="outline-3">
+<h3 id="sec-4-7">Fade margin/system operating margin</h3>
+<div class="outline-text-3" id="text-4-7">
 <p>
 Fade margin is a level of desired signal above what is required. 
 如果一个接收器的Receive Sensitity是-80 dBm，即只要接收到的信号强度
@@ -1248,12 +1287,12 @@ Receive Sensitity的阀值为-70 dBm。
 </div>
 
 
-<div id="outline-container-sec-4" class="outline-2">
-<h2 id="sec-4">第五章 IEEE 802.11 标准</h2>
-<div class="outline-text-2" id="text-4">
-</div><div id="outline-container-sec-4-1" class="outline-3">
-<h3 id="sec-4-1">Original IEEE 802.11 standard</h3>
-<div class="outline-text-3" id="text-4-1">
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5">第五章 IEEE 802.11 标准</h2>
+<div class="outline-text-2" id="text-5">
+</div><div id="outline-container-sec-5-1" class="outline-3">
+<h3 id="sec-5-1">Original IEEE 802.11 standard</h3>
+<div class="outline-text-3" id="text-5-1">
 <p>
 发布于1997年，称为IEEE Std 802.11-1997. 只定义和规范802.11设备物
 理层和MAC的数据链路子层的行为。
@@ -1293,12 +1332,12 @@ throughput.
 </div>
 </div>
 
-<div id="outline-container-sec-4-2" class="outline-3">
-<h3 id="sec-4-2">IEEE 802.11-2007 ratified amendments</h3>
-<div class="outline-text-3" id="text-4-2">
-</div><div id="outline-container-sec-4-2-1" class="outline-4">
-<h4 id="sec-4-2-1">802.11b-1999</h4>
-<div class="outline-text-4" id="text-4-2-1">
+<div id="outline-container-sec-5-2" class="outline-3">
+<h3 id="sec-5-2">IEEE 802.11-2007 ratified amendments</h3>
+<div class="outline-text-3" id="text-5-2">
+</div><div id="outline-container-sec-5-2-1" class="outline-4">
+<h4 id="sec-5-2-1">802.11b-1999</h4>
+<div class="outline-text-4" id="text-5-2-1">
 <ol class="org-ol">
 <li>Clause 17 of the 802.11-2012 standard.
 </li>
@@ -1314,9 +1353,9 @@ throughput.
 </div>
 </div>
 
-<div id="outline-container-sec-4-2-2" class="outline-4">
-<h4 id="sec-4-2-2">802.11a-1999</h4>
-<div class="outline-text-4" id="text-4-2-2">
+<div id="outline-container-sec-5-2-2" class="outline-4">
+<h4 id="sec-5-2-2">802.11a-1999</h4>
+<div class="outline-text-4" id="text-5-2-2">
 <ol class="org-ol">
 <li>operate in 5GHz Frequency, using an RF technology called
 Orthogonal Frequency Division Multiplexing (OFDM).
@@ -1337,9 +1376,9 @@ in separate frequency ranges.
 </div>
 </div>
 
-<div id="outline-container-sec-4-2-3" class="outline-4">
-<h4 id="sec-4-2-3">802.11g-2003</h4>
-<div class="outline-text-4" id="text-4-2-3">
+<div id="outline-container-sec-5-2-3" class="outline-4">
+<h4 id="sec-5-2-3">802.11g-2003</h4>
+<div class="outline-text-4" id="text-5-2-3">
 <ol class="org-ol">
 <li>use new technology called Extended Rate Physical(ERP).
 </li>
@@ -1417,9 +1456,9 @@ in separate frequency ranges.
 </div>
 </div>
 
-<div id="outline-container-sec-4-2-4" class="outline-4">
-<h4 id="sec-4-2-4">802.11d-2001</h4>
-<div class="outline-text-4" id="text-4-2-4">
+<div id="outline-container-sec-5-2-4" class="outline-4">
+<h4 id="sec-5-2-4">802.11d-2001</h4>
+<div class="outline-text-4" id="text-5-2-4">
 <p>
 增加了802.11设备用于其他国家的一些规范(欧美及日本以后的国家)，如Contry Code信息，会包
 含在Beacons和Probe Response帧中。 
@@ -1427,9 +1466,9 @@ in separate frequency ranges.
 </div>
 </div>
 
-<div id="outline-container-sec-4-2-5" class="outline-4">
-<h4 id="sec-4-2-5">802.11h-2003</h4>
-<div class="outline-text-4" id="text-4-2-5">
+<div id="outline-container-sec-5-2-5" class="outline-4">
+<h4 id="sec-5-2-5">802.11h-2003</h4>
+<div class="outline-text-4" id="text-5-2-5">
 <p>
 该规范定义了DFS（动态频率改变）和TPC(传输功率控制)的行为。主要目
 的是让运行于5G的802.11设备能自动侦测雷达信号，并避开雷达使用的
@@ -1438,9 +1477,9 @@ in separate frequency ranges.
 </div>
 </div>
 
-<div id="outline-container-sec-4-2-6" class="outline-4">
-<h4 id="sec-4-2-6">802.11i-2004</h4>
-<div class="outline-text-4" id="text-4-2-6">
+<div id="outline-container-sec-5-2-6" class="outline-4">
+<h4 id="sec-5-2-6">802.11i-2004</h4>
+<div class="outline-text-4" id="text-5-2-6">
 <p>
 无线安全解决方案的三大关键部分：
 </p>
@@ -1518,9 +1557,9 @@ WPA version 1: a preview of 802.11i.
 </div>
 </div>
 
-<div id="outline-container-sec-4-2-7" class="outline-4">
-<h4 id="sec-4-2-7">802.11j-2004</h4>
-<div class="outline-text-4" id="text-4-2-7">
+<div id="outline-container-sec-5-2-7" class="outline-4">
+<h4 id="sec-5-2-7">802.11j-2004</h4>
+<div class="outline-text-4" id="text-5-2-7">
 <p>
 The main goal set out by the IEEE Task Group j (TGj) was to
 obtain Japanese regulatory approval by enhancing the 802.11 MAC
@@ -1530,9 +1569,9 @@ and 802.11a PHY to additionally operate in Japanese 4.9 GHz and
 </div>
 </div>
 
-<div id="outline-container-sec-4-2-8" class="outline-4">
-<h4 id="sec-4-2-8">802.11e-2005</h4>
-<div class="outline-text-4" id="text-4-2-8">
+<div id="outline-container-sec-5-2-8" class="outline-4">
+<h4 id="sec-5-2-8">802.11e-2005</h4>
+<div class="outline-text-4" id="text-5-2-8">
 <p>
 The 802.11e amendment defines the layer 2 MAC  methods needed
 to meet the QoS requirements for time-sensitive applications
@@ -1546,12 +1585,12 @@ Wi-Fi Multimedia (WMM): a “mirror” of 802.11e.
 </div>
 </div>
 
-<div id="outline-container-sec-4-3" class="outline-3">
-<h3 id="sec-4-3">IEEE 802.11-2012 ratified amendments</h3>
-<div class="outline-text-3" id="text-4-3">
-</div><div id="outline-container-sec-4-3-1" class="outline-4">
-<h4 id="sec-4-3-1">802.11r-2008</h4>
-<div class="outline-text-4" id="text-4-3-1">
+<div id="outline-container-sec-5-3" class="outline-3">
+<h3 id="sec-5-3">IEEE 802.11-2012 ratified amendments</h3>
+<div class="outline-text-3" id="text-5-3">
+</div><div id="outline-container-sec-5-3-1" class="outline-4">
+<h4 id="sec-5-3-1">802.11r-2008</h4>
+<div class="outline-text-4" id="text-5-3-1">
 <p>
 The 802.11r-2008 amendment is known as the fast basic service
 set transition (FT) amendment. The technology is more often
@@ -1562,9 +1601,9 @@ strong security defined by a robust secure network (RSN).
 </div>
 </div>
 
-<div id="outline-container-sec-4-3-2" class="outline-4">
-<h4 id="sec-4-3-2">802.11k-2008</h4>
-<div class="outline-text-4" id="text-4-3-2">
+<div id="outline-container-sec-5-3-2" class="outline-4">
+<h4 id="sec-5-3-2">802.11k-2008</h4>
+<div class="outline-text-4" id="text-5-3-2">
 <p>
 定义了一些Radio Resource Measurement的方法。如下是一些主要的
 Radio Resource Measurement：
@@ -1597,9 +1636,9 @@ Radio Resource Measurement：
 </div>
 </div>
 
-<div id="outline-container-sec-4-3-3" class="outline-4">
-<h4 id="sec-4-3-3">802.11y-2008</h4>
-<div class="outline-text-4" id="text-4-3-3">
+<div id="outline-container-sec-5-3-3" class="outline-4">
+<h4 id="sec-5-3-3">802.11y-2008</h4>
+<div class="outline-text-4" id="text-5-3-3">
 <p>
 The objective of the IEEE Task Group y (TGy) was to standardize
 the mechanisms required to allow high-powered, shared 802.11
@@ -1609,9 +1648,9 @@ MHz licensed band in the United States.
 </div>
 </div>
 
-<div id="outline-container-sec-4-3-4" class="outline-4">
-<h4 id="sec-4-3-4">802.11w-2009</h4>
-<div class="outline-text-4" id="text-4-3-4">
+<div id="outline-container-sec-5-3-4" class="outline-4">
+<h4 id="sec-5-3-4">802.11w-2009</h4>
+<div class="outline-text-4" id="text-5-3-4">
 <p>
 提供一种安全的方式去传送管理帧，防止管理帧被窃听。802.11w帧也
    称为强健管理帧。
@@ -1619,9 +1658,9 @@ MHz licensed band in the United States.
 </div>
 </div>
 
-<div id="outline-container-sec-4-3-5" class="outline-4">
-<h4 id="sec-4-3-5">802.11n-2009</h4>
-<div class="outline-text-4" id="text-4-3-5">
+<div id="outline-container-sec-5-3-5" class="outline-4">
+<h4 id="sec-5-3-5">802.11n-2009</h4>
+<div class="outline-text-4" id="text-5-3-5">
 <p>
 增强2.4G和5G的吞吐量。定义了一种新的操作，叫做HT（High
 Throughput），对PHY和MAC进行了加强以支持高达600Mbps的数据传输率，
@@ -1634,9 +1673,9 @@ HT无线使用了MIMO+OFDM技术。与802.11a/b/g设备兼容。
 </div>
 </div>
 
-<div id="outline-container-sec-4-3-6" class="outline-4">
-<h4 id="sec-4-3-6">802.11p-2010</h4>
-<div class="outline-text-4" id="text-4-3-6">
+<div id="outline-container-sec-5-3-6" class="outline-4">
+<h4 id="sec-5-3-6">802.11p-2010</h4>
+<div class="outline-text-4" id="text-5-3-6">
 <p>
 加强802.11标准规范以支持Intelligent Transportation Systems
 (ITS) applications。以更好地 支持高速移动下的数据传输。
@@ -1651,9 +1690,9 @@ Range Communications (DSRC).
 </div>
 </div>
 
-<div id="outline-container-sec-4-3-7" class="outline-4">
-<h4 id="sec-4-3-7">802.11z-2010</h4>
-<div class="outline-text-4" id="text-4-3-7">
+<div id="outline-container-sec-5-3-7" class="outline-4">
+<h4 id="sec-5-3-7">802.11z-2010</h4>
+<div class="outline-text-4" id="text-5-3-7">
 <p>
 The purpose of IEEE Task Group z (TGz) was to establish and
 standardize a Direct Link Setup (DLS) mechanism to allow
@@ -1667,9 +1706,9 @@ communicate with direct frame exchanges.
 </div>
 </div>
 
-<div id="outline-container-sec-4-3-8" class="outline-4">
-<h4 id="sec-4-3-8">802.11u-2011</h4>
-<div class="outline-text-4" id="text-4-3-8">
+<div id="outline-container-sec-5-3-8" class="outline-4">
+<h4 id="sec-5-3-8">802.11u-2011</h4>
+<div class="outline-text-4" id="text-5-3-8">
 <p>
 主要解决802.11网络与其他外部网络之间的问题。
 </p>
@@ -1681,9 +1720,9 @@ Hotspot 2.0 specifi cation and its Passpoint certifi cation.
 </div>
 </div>
 
-<div id="outline-container-sec-4-3-9" class="outline-4">
-<h4 id="sec-4-3-9">802.11v-2011</h4>
-<div class="outline-text-4" id="text-4-3-9">
+<div id="outline-container-sec-5-3-9" class="outline-4">
+<h4 id="sec-5-3-9">802.11v-2011</h4>
+<div class="outline-text-4" id="text-5-3-9">
 <p>
 802.11v provides for an exchange of information that can
 potentially ease the configuration of client stations
@@ -1693,9 +1732,9 @@ nes Wireless Network Management (WNM)
 </div>
 </div>
 
-<div id="outline-container-sec-4-3-10" class="outline-4">
-<h4 id="sec-4-3-10">802.11s-2011</h4>
-<div class="outline-text-4" id="text-4-3-10">
+<div id="outline-container-sec-5-3-10" class="outline-4">
+<h4 id="sec-5-3-10">802.11s-2011</h4>
+<div class="outline-text-4" id="text-5-3-10">
 <p>
 The 802.11s amendment proposes the use of a protocol for
 adaptive, autoconfiguring systems that support broadcast,
@@ -1705,12 +1744,12 @@ multicast, and unicast traffi cover a multihop mesh WDS.
 </div>
 </div>
 
-<div id="outline-container-sec-4-4" class="outline-3">
-<h3 id="sec-4-4">Post-2012 ratified amendments</h3>
-<div class="outline-text-3" id="text-4-4">
-</div><div id="outline-container-sec-4-4-1" class="outline-4">
-<h4 id="sec-4-4-1">02.11ae-2012</h4>
-<div class="outline-text-4" id="text-4-4-1">
+<div id="outline-container-sec-5-4" class="outline-3">
+<h3 id="sec-5-4">Post-2012 ratified amendments</h3>
+<div class="outline-text-3" id="text-5-4">
+</div><div id="outline-container-sec-5-4-1" class="outline-4">
+<h4 id="sec-5-4-1">02.11ae-2012</h4>
+<div class="outline-text-4" id="text-5-4-1">
 <p>
 The 802.11ae amendment specifies enhancements to QoS
 management.
@@ -1718,9 +1757,9 @@ management.
 </div>
 </div>
 
-<div id="outline-container-sec-4-4-2" class="outline-4">
-<h4 id="sec-4-4-2">802.11aa-2012</h4>
-<div class="outline-text-4" id="text-4-4-2">
+<div id="outline-container-sec-5-4-2" class="outline-4">
+<h4 id="sec-5-4-2">802.11aa-2012</h4>
+<div class="outline-text-4" id="text-5-4-2">
 <p>
 The 802.11aa amendment specifies QoS enhancements to the
 802.11 Media Access Control (MAC) for robust audio and video
@@ -1729,9 +1768,9 @@ streaming for both consumer and enterprise applications.
 </div>
 </div>
 
-<div id="outline-container-sec-4-4-3" class="outline-4">
-<h4 id="sec-4-4-3">802.11ad-2012</h4>
-<div class="outline-text-4" id="text-4-4-3">
+<div id="outline-container-sec-5-4-3" class="outline-4">
+<h4 id="sec-5-4-3">802.11ad-2012</h4>
+<div class="outline-text-4" id="text-5-4-3">
 <p>
 The 802.11ad amendment defines Very High Throughput (VHT)
 enhancements using the much higher unlicensed frequency band of
@@ -1740,9 +1779,9 @@ enhancements using the much higher unlicensed frequency band of
 </div>
 </div>
 
-<div id="outline-container-sec-4-4-4" class="outline-4">
-<h4 id="sec-4-4-4">802.11ac-2013</h4>
-<div class="outline-text-4" id="text-4-4-4">
+<div id="outline-container-sec-5-4-4" class="outline-4">
+<h4 id="sec-5-4-4">802.11ac-2013</h4>
+<div class="outline-text-4" id="text-5-4-4">
 <p>
 The 802.11ac-2013 amendment defines Very High Throughput (VHT)
 enhancements below 6 GHz. The technology will only be used in
@@ -1791,9 +1830,9 @@ different physical areas.
 </div>
 </div>
 
-<div id="outline-container-sec-4-4-5" class="outline-4">
-<h4 id="sec-4-4-5">802.11af-2014</h4>
-<div class="outline-text-4" id="text-4-4-5">
+<div id="outline-container-sec-5-4-5" class="outline-4">
+<h4 id="sec-5-4-5">802.11af-2014</h4>
+<div class="outline-text-4" id="text-5-4-5">
 <p>
 The 802.11af amendment allows the use of wireless in the newly
 opened TV white space (TVWS) frequencies between 54 MHz and 790
@@ -1803,12 +1842,12 @@ MHz.
 </div>
 </div>
 
-<div id="outline-container-sec-4-5" class="outline-3">
-<h3 id="sec-4-5">IEEE 802.11 draft amendments</h3>
-<div class="outline-text-3" id="text-4-5">
-</div><div id="outline-container-sec-4-5-1" class="outline-4">
-<h4 id="sec-4-5-1">802.11ah</h4>
-<div class="outline-text-4" id="text-4-5-1">
+<div id="outline-container-sec-5-5" class="outline-3">
+<h3 id="sec-5-5">IEEE 802.11 draft amendments</h3>
+<div class="outline-text-3" id="text-5-5">
+</div><div id="outline-container-sec-5-5-1" class="outline-4">
+<h4 id="sec-5-5-1">802.11ah</h4>
+<div class="outline-text-4" id="text-5-5-1">
 <p>
 The 802.11ah draft amendment defi nes the use of Wi-Fi in
 frequencies below 1 GHz.
@@ -1816,9 +1855,9 @@ frequencies below 1 GHz.
 </div>
 </div>
 
-<div id="outline-container-sec-4-5-2" class="outline-4">
-<h4 id="sec-4-5-2">802.11ai</h4>
-<div class="outline-text-4" id="text-4-5-2">
+<div id="outline-container-sec-5-5-2" class="outline-4">
+<h4 id="sec-5-5-2">802.11ai</h4>
+<div class="outline-text-4" id="text-5-5-2">
 <p>
 The goal of the 802.11ai draft amendment is to provide a fast
 initial link setup (FILS). This technology could allow a STA to
@@ -1827,9 +1866,9 @@ establish a secure link setup in less than 100 ms.
 </div>
 </div>
 
-<div id="outline-container-sec-4-5-3" class="outline-4">
-<h4 id="sec-4-5-3">802.11aj</h4>
-<div class="outline-text-4" id="text-4-5-3">
+<div id="outline-container-sec-5-5-3" class="outline-4">
+<h4 id="sec-5-5-3">802.11aj</h4>
+<div class="outline-text-4" id="text-5-5-3">
 <p>
 The 802.11aj draft amendment is to provide modifications to the
 IEEE 802.11ad-2012 amendment’s PHY and MAC layer to provide
@@ -1839,9 +1878,9 @@ frequency bands.
 </div>
 </div>
 
-<div id="outline-container-sec-4-5-4" class="outline-4">
-<h4 id="sec-4-5-4">802.11ak</h4>
-<div class="outline-text-4" id="text-4-5-4">
+<div id="outline-container-sec-5-5-4" class="outline-4">
+<h4 id="sec-5-5-4">802.11ak</h4>
+<div class="outline-text-4" id="text-5-5-4">
 <p>
 The 802.11ak draft amendment is also referred to as General Link
 (GLK). The task group is exploring enhancement to 802.11 links
@@ -1850,9 +1889,9 @@ for use in bridged networks.
 </div>
 </div>
 
-<div id="outline-container-sec-4-5-5" class="outline-4">
-<h4 id="sec-4-5-5">802.11aq</h4>
-<div class="outline-text-4" id="text-4-5-5">
+<div id="outline-container-sec-5-5-5" class="outline-4">
+<h4 id="sec-5-5-5">802.11aq</h4>
+<div class="outline-text-4" id="text-5-5-5">
 <p>
 enables delivery of network service information prior to the
 association of stations on an 802.11 network.
@@ -1861,9 +1900,9 @@ association of stations on an 802.11 network.
 </div>
 </div>
 
-<div id="outline-container-sec-4-6" class="outline-3">
-<h3 id="sec-4-6">Review Questions:</h3>
-<div class="outline-text-3" id="text-4-6">
+<div id="outline-container-sec-5-6" class="outline-3">
+<h3 id="sec-5-6">Review Questions:</h3>
+<div class="outline-text-3" id="text-5-6">
 <ol class="org-ol">
 <li>An ERP (802.11g) network mandates support for which two spread
 spectrum technologies?   
@@ -2372,12 +2411,12 @@ F. Network
 </div>
 
 
-<div id="outline-container-sec-5" class="outline-2">
-<h2 id="sec-5">第六章 无线网络与扩频技术</h2>
-<div class="outline-text-2" id="text-5">
-</div><div id="outline-container-sec-5-1" class="outline-3">
-<h3 id="sec-5-1">Industrial, Scientific, and Medical Bands</h3>
-<div class="outline-text-3" id="text-5-1">
+<div id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6">第六章 无线网络与扩频技术</h2>
+<div class="outline-text-2" id="text-6">
+</div><div id="outline-container-sec-6-1" class="outline-3">
+<h3 id="sec-6-1">Industrial, Scientific, and Medical Bands</h3>
+<div class="outline-text-3" id="text-6-1">
 <p>
 ISM的频率范围为， 这些范围由ITU-T定义：
 </p>
@@ -2412,9 +2451,9 @@ ISM的频率范围为， 这些范围由ITU-T定义：
 </div>
 </div>
 
-<div id="outline-container-sec-5-2" class="outline-3">
-<h3 id="sec-5-2">Unlicensed National Information Infrastructure Bands</h3>
-<div class="outline-text-3" id="text-5-2">
+<div id="outline-container-sec-6-2" class="outline-3">
+<h3 id="sec-6-2">Unlicensed National Information Infrastructure Bands</h3>
+<div class="outline-text-3" id="text-6-2">
 <p>
 The IEEE 802.11a amendment designated WLAN transmissions within
 the frequency space of the three 5 GHz bands, each with four
@@ -2438,18 +2477,18 @@ National Information Infrastructure (U-NII) bands.
 </ul>
 </div>
 
-<div id="outline-container-sec-5-2-1" class="outline-4">
-<h4 id="sec-5-2-1">U-NII-1 (Lower Band)</h4>
-<div class="outline-text-4" id="text-5-2-1">
+<div id="outline-container-sec-6-2-1" class="outline-4">
+<h4 id="sec-6-2-1">U-NII-1 (Lower Band)</h4>
+<div class="outline-text-4" id="text-6-2-1">
 <p>
 spans from 5.150 GHz to 5.250 GHz(100 MHz), 有4个20MHz带宽的信道。
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-5-2-2" class="outline-4">
-<h4 id="sec-5-2-2">U-NII-2 (Middle Band)</h4>
-<div class="outline-text-4" id="text-5-2-2">
+<div id="outline-container-sec-6-2-2" class="outline-4">
+<h4 id="sec-6-2-2">U-NII-2 (Middle Band)</h4>
+<div class="outline-text-4" id="text-6-2-2">
 <p>
 spans from 5.250 GHz to 5.350 GHz（100 MHz）， 也是有4个20MHz带
 宽的信道。运行于此频段的WiFi设备必须支持DFS。
@@ -2457,9 +2496,9 @@ spans from 5.250 GHz to 5.350 GHz（100 MHz）， 也是有4个20MHz带
 </div>
 </div>
 
-<div id="outline-container-sec-5-2-3" class="outline-4">
-<h4 id="sec-5-2-3">U-NII-2 Extended</h4>
-<div class="outline-text-4" id="text-5-2-3">
+<div id="outline-container-sec-6-2-3" class="outline-4">
+<h4 id="sec-6-2-3">U-NII-2 Extended</h4>
+<div class="outline-text-4" id="text-6-2-3">
 <p>
 spans from 5.470 GHz to 5.725 GHz(255 MHz)， 12个20MHz带宽的信道。
 运行于此频段的WiFi设备必须支持DFS。
@@ -2467,18 +2506,18 @@ spans from 5.470 GHz to 5.725 GHz(255 MHz)， 12个20MHz带宽的信道。
 </div>
 </div>
 
-<div id="outline-container-sec-5-2-4" class="outline-4">
-<h4 id="sec-5-2-4">U-NII-3 (Upper Band)</h4>
-<div class="outline-text-4" id="text-5-2-4">
+<div id="outline-container-sec-6-2-4" class="outline-4">
+<h4 id="sec-6-2-4">U-NII-3 (Upper Band)</h4>
+<div class="outline-text-4" id="text-6-2-4">
 <p>
 spans from 5.725 GHz to 5.850 GHz（125 MHz）。 5 个20MHz的信道，
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-5-2-5" class="outline-4">
-<h4 id="sec-5-2-5">Future U-NII Bands</h4>
-<div class="outline-text-4" id="text-5-2-5">
+<div id="outline-container-sec-6-2-5" class="outline-4">
+<h4 id="sec-6-2-5">Future U-NII Bands</h4>
+<div class="outline-text-4" id="text-6-2-5">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 <caption class="t-above"><span class="table-number">Table 2:</span> The new 5 GHz U-NII bands</caption>
 
@@ -2548,9 +2587,9 @@ spans from 5.725 GHz to 5.850 GHz（125 MHz）。 5 个20MHz的信道，
 </div>
 
 
-<div id="outline-container-sec-5-3" class="outline-3">
-<h3 id="sec-5-3">Narrowband and Spread Spectrum</h3>
-<div class="outline-text-3" id="text-5-3">
+<div id="outline-container-sec-6-3" class="outline-3">
+<h3 id="sec-6-3">Narrowband and Spread Spectrum</h3>
+<div class="outline-text-3" id="text-6-3">
 <p>
 有两种主要的RF传输技术：narrowband, spread spectrum。
 narrowband需要更高的功率发射信号，且易受干扰。
@@ -2558,9 +2597,9 @@ narrowband需要更高的功率发射信号，且易受干扰。
 </div>
 </div>
 
-<div id="outline-container-sec-5-4" class="outline-3">
-<h3 id="sec-5-4">Multipath Interference</h3>
-<div class="outline-text-3" id="text-5-4">
+<div id="outline-container-sec-6-4" class="outline-3">
+<h3 id="sec-6-4">Multipath Interference</h3>
+<div class="outline-text-3" id="text-6-4">
 <p>
 <code>delay spread:</code> the delay between the main signal and the refl
 ected signal
@@ -2579,9 +2618,9 @@ always been a concern.会影响性能和吞吐量。
 </div>
 </div>
 
-<div id="outline-container-sec-5-5" class="outline-3">
-<h3 id="sec-5-5">Frequency Hopping Spread Spectrum</h3>
-<div class="outline-text-3" id="text-5-5">
+<div id="outline-container-sec-6-5" class="outline-3">
+<h3 id="sec-6-5">Frequency Hopping Spread Spectrum</h3>
+<div class="outline-text-3" id="text-6-5">
 <p>
 used by 802.11 legacy device, 提供了1， 2Mbps的传输速率。
 the way FHSS works is that it transmits data by using a small
@@ -2591,9 +2630,9 @@ so on. FHSS适合用于narrowband传输中。
 </p>
 </div>
 
-<div id="outline-container-sec-5-5-1" class="outline-4">
-<h4 id="sec-5-5-1">Hopping Sequence</h4>
-<div class="outline-text-4" id="text-5-5-1">
+<div id="outline-container-sec-6-5-1" class="outline-4">
+<h4 id="sec-6-5-1">Hopping Sequence</h4>
+<div class="outline-text-4" id="text-6-5-1">
 <p>
 FHSS radios use a predefined hopping sequence (also called a
 hopping pattern or hopping set) comprising a series of small
@@ -2609,9 +2648,9 @@ management frame.
 </div>
 </div>
 
-<div id="outline-container-sec-5-5-2" class="outline-4">
-<h4 id="sec-5-5-2">Dwell Time</h4>
-<div class="outline-text-4" id="text-5-5-2">
+<div id="outline-container-sec-6-5-2" class="outline-4">
+<h4 id="sec-6-5-2">Dwell Time</h4>
+<div class="outline-text-4" id="text-6-5-2">
 <p>
 Dwell time is a defi ned amount of time that the FHSS system
 transmits on a specific frequency before it switches to the next
@@ -2620,9 +2659,9 @@ frequency in the hop set.
 </div>
 </div>
 
-<div id="outline-container-sec-5-5-3" class="outline-4">
-<h4 id="sec-5-5-3">Hop Time</h4>
-<div class="outline-text-4" id="text-5-5-3">
+<div id="outline-container-sec-6-5-3" class="outline-4">
+<h4 id="sec-6-5-3">Hop Time</h4>
+<div class="outline-text-4" id="text-6-5-3">
 <p>
 a measurement of the amount of time it takes for the transmitter
 to change from one frequency to another.
@@ -2630,9 +2669,9 @@ to change from one frequency to another.
 </div>
 </div>
 
-<div id="outline-container-sec-5-5-4" class="outline-4">
-<h4 id="sec-5-5-4">Modulation</h4>
-<div class="outline-text-4" id="text-5-5-4">
+<div id="outline-container-sec-6-5-4" class="outline-4">
+<h4 id="sec-6-5-4">Modulation</h4>
+<div class="outline-text-4" id="text-6-5-4">
 <p>
 FHSS使用GFSK(Gaussian frequency shift keying)来编码数据。
 </p>
@@ -2640,9 +2679,9 @@ FHSS使用GFSK(Gaussian frequency shift keying)来编码数据。
 </div>
 </div>
 
-<div id="outline-container-sec-5-6" class="outline-3">
-<h3 id="sec-5-6">Direct Sequence Spread Spectrum</h3>
-<div class="outline-text-3" id="text-5-6">
+<div id="outline-container-sec-6-6" class="outline-3">
+<h3 id="sec-6-6">Direct Sequence Spread Spectrum</h3>
+<div class="outline-text-3" id="text-6-6">
 <p>
 DSSS支持2.4G下1，2Mbps速率。801.11b提出了HR-DSSS技术，支持5.5
 Mbps和11Mbps的速率。802.11b设备 兼容802.11 DSSS设备。
@@ -2656,9 +2695,9 @@ known as <i>data encoding</i>.
 </p>
 </div>
 
-<div id="outline-container-sec-5-6-1" class="outline-4">
-<h4 id="sec-5-6-1">DSSS Data Encoding</h4>
-<div class="outline-text-4" id="text-5-6-1">
+<div id="outline-container-sec-6-6-1" class="outline-4">
+<h4 id="sec-6-6-1">DSSS Data Encoding</h4>
+<div class="outline-text-4" id="text-6-6-1">
 <p>
 由于802.11无线传输容易受到干扰，从而导致数据被破坏，为了降低数
 据传输过程中由于RF干扰导致接收到的数据被破坏而无法恢复，每个有
@@ -2688,9 +2727,9 @@ often called <i>spreading</i> or <i>chipping</i>.
 </div>
 </div>
 
-<div id="outline-container-sec-5-6-2" class="outline-4">
-<h4 id="sec-5-6-2">Modulation</h4>
-<div class="outline-text-4" id="text-5-6-2">
+<div id="outline-container-sec-6-6-2" class="outline-4">
+<h4 id="sec-6-6-2">Modulation</h4>
+<div class="outline-text-4" id="text-6-6-2">
 <p>
 After the data has been encoded using a chipping method, the
 transmitter needs to modulate the signal to create a carrier
@@ -2765,9 +2804,9 @@ signal containing the chips.
 </div>
 
 
-<div id="outline-container-sec-5-6-3" class="outline-4">
-<h4 id="sec-5-6-3">Packet Binary Convolutional Code</h4>
-<div class="outline-text-4" id="text-5-6-3">
+<div id="outline-container-sec-6-6-3" class="outline-4">
+<h4 id="sec-6-6-3">Packet Binary Convolutional Code</h4>
+<div class="outline-text-4" id="text-6-6-3">
 <p>
 Packet Binary Convolutional Code (PBCC) is a modulation
 technique that supports data rates of 5.5, 11, 22, and 33 Mbps
@@ -2775,9 +2814,9 @@ technique that supports data rates of 5.5, 11, 22, and 33 Mbps
 </div>
 </div>
 
-<div id="outline-container-sec-5-6-4" class="outline-4">
-<h4 id="sec-5-6-4">Orthogonal Frequency Division Multiplexing</h4>
-<div class="outline-text-4" id="text-5-6-4">
+<div id="outline-container-sec-6-6-4" class="outline-4">
+<h4 id="sec-6-6-4">Orthogonal Frequency Division Multiplexing</h4>
+<div class="outline-text-4" id="text-6-6-4">
 <p>
 OFDM is not a spread spectrum technology, even though it has
 similar properties to spread spectrum, such as low transmit
@@ -2792,9 +2831,9 @@ referred to as <i>subcarriers</i>
 </div>
 </div>
 
-<div id="outline-container-sec-5-7" class="outline-3">
-<h3 id="sec-5-7">Throughput vs. Bandwidth</h3>
-<div class="outline-text-3" id="text-5-7">
+<div id="outline-container-sec-6-7" class="outline-3">
+<h3 id="sec-6-7">Throughput vs. Bandwidth</h3>
+<div class="outline-text-3" id="text-6-7">
 <p>
 Wireless communication is typically performed within a
 constrained set of frequencies known as a frequency band. This
@@ -2818,50 +2857,50 @@ legacy transmissions, and 60-70 percent of the data rates for
 </div>
 
 
-<div id="outline-container-sec-6" class="outline-2">
-<h2 id="sec-6">第七章 无线局域网拓扑结构</h2>
-<div class="outline-text-2" id="text-6">
-</div><div id="outline-container-sec-6-1" class="outline-3">
-<h3 id="sec-6-1">Wireless networking topologies</h3>
+<div id="outline-container-sec-7" class="outline-2">
+<h2 id="sec-7">第七章 无线局域网拓扑结构</h2>
+<div class="outline-text-2" id="text-7">
+</div><div id="outline-container-sec-7-1" class="outline-3">
+<h3 id="sec-7-1">Wireless networking topologies</h3>
 </div>
 
-<div id="outline-container-sec-6-2" class="outline-3">
-<h3 id="sec-6-2">802.11 topologies</h3>
+<div id="outline-container-sec-7-2" class="outline-3">
+<h3 id="sec-7-2">802.11 topologies</h3>
 </div>
 
-<div id="outline-container-sec-6-3" class="outline-3">
-<h3 id="sec-6-3">802.11 configuration modes</h3>
-<div class="outline-text-3" id="text-6-3">
-</div><div id="outline-container-sec-6-3-1" class="outline-4">
-<h4 id="sec-6-3-1">Wireless wide area network (WWAN)</h4>
-<div class="outline-text-4" id="text-6-3-1">
+<div id="outline-container-sec-7-3" class="outline-3">
+<h3 id="sec-7-3">802.11 configuration modes</h3>
+<div class="outline-text-3" id="text-7-3">
+</div><div id="outline-container-sec-7-3-1" class="outline-4">
+<h4 id="sec-7-3-1">Wireless wide area network (WWAN)</h4>
+<div class="outline-text-4" id="text-7-3-1">
 <p>
 GPRS, CDMA, TDMA, LET, GSM
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-6-3-2" class="outline-4">
-<h4 id="sec-6-3-2">Wireless Metropolitan Area Network (WMAN)</h4>
-<div class="outline-text-4" id="text-6-3-2">
+<div id="outline-container-sec-7-3-2" class="outline-4">
+<h4 id="sec-7-3-2">Wireless Metropolitan Area Network (WMAN)</h4>
+<div class="outline-text-4" id="text-7-3-2">
 <p>
 802.16,  WiMax: a last-mile data-delivery solution.
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-6-3-3" class="outline-4">
-<h4 id="sec-6-3-3">Wireless Personal Area Network (WPAN)</h4>
-<div class="outline-text-4" id="text-6-3-3">
+<div id="outline-container-sec-7-3-3" class="outline-4">
+<h4 id="sec-7-3-3">Wireless Personal Area Network (WPAN)</h4>
+<div class="outline-text-4" id="text-7-3-3">
 <p>
 Bluetooth, Infrared, ZigBee, IEEE 802.15
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-6-3-4" class="outline-4">
-<h4 id="sec-6-3-4">Wireless Local Area Network (WLAN)</h4>
-<div class="outline-text-4" id="text-6-3-4">
+<div id="outline-container-sec-7-3-4" class="outline-4">
+<h4 id="sec-7-3-4">Wireless Local Area Network (WLAN)</h4>
+<div class="outline-text-4" id="text-7-3-4">
 <p>
 802.11
 </p>
@@ -2869,30 +2908,30 @@ Bluetooth, Infrared, ZigBee, IEEE 802.15
 </div>
 </div>
 
-<div id="outline-container-sec-6-4" class="outline-3">
-<h3 id="sec-6-4">802.11 Topologies</h3>
-<div class="outline-text-3" id="text-6-4">
-</div><div id="outline-container-sec-6-4-1" class="outline-4">
-<h4 id="sec-6-4-1">Access Point</h4>
-<div class="outline-text-4" id="text-6-4-1">
+<div id="outline-container-sec-7-4" class="outline-3">
+<h3 id="sec-7-4">802.11 Topologies</h3>
+<div class="outline-text-3" id="text-7-4">
+</div><div id="outline-container-sec-7-4-1" class="outline-4">
+<h4 id="sec-7-4-1">Access Point</h4>
+<div class="outline-text-4" id="text-7-4-1">
 <p>
 半双工方式收发数据。
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-6-4-2" class="outline-4">
-<h4 id="sec-6-4-2">Client Station</h4>
-<div class="outline-text-4" id="text-6-4-2">
+<div id="outline-container-sec-7-4-2" class="outline-4">
+<h4 id="sec-7-4-2">Client Station</h4>
+<div class="outline-text-4" id="text-7-4-2">
 <p>
 STA必须与AP一样去竞争半双工RF媒介的使用权。
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-6-4-3" class="outline-4">
-<h4 id="sec-6-4-3">Integration Service</h4>
-<div class="outline-text-4" id="text-6-4-3">
+<div id="outline-container-sec-7-4-3" class="outline-4">
+<h4 id="sec-7-4-3">Integration Service</h4>
+<div class="outline-text-4" id="text-7-4-3">
 <p>
 enables delivery of MSDUs between the distribution system (DS) and
 a non-IEEE-802.11 LAN via a portal.
@@ -2900,9 +2939,9 @@ a non-IEEE-802.11 LAN via a portal.
 </div>
 </div>
 
-<div id="outline-container-sec-6-4-4" class="outline-4">
-<h4 id="sec-6-4-4">Distribution System</h4>
-<div class="outline-text-4" id="text-6-4-4">
+<div id="outline-container-sec-7-4-4" class="outline-4">
+<h4 id="sec-7-4-4">Distribution System</h4>
+<div class="outline-text-4" id="text-7-4-4">
 <p>
 a <i>distribution system</i> (DS) that is used to interconnect a set of
 basic service sets (BSSs) via integrated LANs to create an
@@ -2932,9 +2971,9 @@ STA。
 </div>
 </div>
 
-<div id="outline-container-sec-6-4-5" class="outline-4">
-<h4 id="sec-6-4-5">Wireless Distribution System</h4>
-<div class="outline-text-4" id="text-6-4-5">
+<div id="outline-container-sec-7-4-5" class="outline-4">
+<h4 id="sec-7-4-5">Wireless Distribution System</h4>
+<div class="outline-text-4" id="text-7-4-5">
 <p>
 The 802.11-2012 standard defines a mechanism for wireless
 communication using a four-MAC-address frame format.
@@ -2952,9 +2991,9 @@ WDS examples: bridging, repeaters, mesh networks.
 </div>
 </div>
 
-<div id="outline-container-sec-6-4-6" class="outline-4">
-<h4 id="sec-6-4-6">Service Set Identifier</h4>
-<div class="outline-text-4" id="text-6-4-6">
+<div id="outline-container-sec-7-4-6" class="outline-4">
+<h4 id="sec-7-4-6">Service Set Identifier</h4>
+<div class="outline-text-4" id="text-7-4-6">
 <p>
 The service set identifi er (SSID) is a logical name used to
 identify an 802.11 wireless network.  不超过32个字符。
@@ -2962,9 +3001,9 @@ identify an 802.11 wireless network.  不超过32个字符。
 </div>
 </div>
 
-<div id="outline-container-sec-6-4-7" class="outline-4">
-<h4 id="sec-6-4-7">Basic Service Set</h4>
-<div class="outline-text-4" id="text-6-4-7">
+<div id="outline-container-sec-7-4-7" class="outline-4">
+<h4 id="sec-7-4-7">Basic Service Set</h4>
+<div class="outline-text-4" id="text-7-4-7">
 <p>
 The basic service set (BSS) is the cornerstone topology of an
 802.11 network. The communicating devices that make up a BSS
@@ -2973,18 +3012,18 @@ consist of one AP radio with one or more client stations.
 </div>
 </div>
 
-<div id="outline-container-sec-6-4-8" class="outline-4">
-<h4 id="sec-6-4-8">Basic Service Set Identifier</h4>
-<div class="outline-text-4" id="text-6-4-8">
+<div id="outline-container-sec-7-4-8" class="outline-4">
+<h4 id="sec-7-4-8">Basic Service Set Identifier</h4>
+<div class="outline-text-4" id="text-7-4-8">
 <p>
 AP的48比特（6字节）的MAC地址，也称为BSSID。
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-6-4-9" class="outline-4">
-<h4 id="sec-6-4-9">Basic Service Area</h4>
-<div class="outline-text-4" id="text-6-4-9">
+<div id="outline-container-sec-7-4-9" class="outline-4">
+<h4 id="sec-7-4-9">Basic Service Area</h4>
+<div class="outline-text-4" id="text-7-4-9">
 <p>
 The physical area of coverage provided by an access point in a BSS
 is known as the basic <i>service area (BSA)</i>.
@@ -2992,9 +3031,9 @@ is known as the basic <i>service area (BSA)</i>.
 </div>
 </div>
 
-<div id="outline-container-sec-6-4-10" class="outline-4">
-<h4 id="sec-6-4-10">Extended Service Set</h4>
-<div class="outline-text-4" id="text-6-4-10">
+<div id="outline-container-sec-7-4-10" class="outline-4">
+<h4 id="sec-7-4-10">Extended Service Set</h4>
+<div class="outline-text-4" id="text-7-4-10">
 <p>
 An extended service set is two or more basic service sets
 connected by a distribution system medium.
@@ -3002,9 +3041,9 @@ connected by a distribution system medium.
 </div>
 </div>
 
-<div id="outline-container-sec-6-4-11" class="outline-4">
-<h4 id="sec-6-4-11">Independent Basic Service Set</h4>
-<div class="outline-text-4" id="text-6-4-11">
+<div id="outline-container-sec-7-4-11" class="outline-4">
+<h4 id="sec-7-4-11">Independent Basic Service Set</h4>
+<div class="outline-text-4" id="text-7-4-11">
 <p>
 The radios that make up an IBSS network consist solely of client
 stations (STAs), and no access point is deployed.
@@ -3012,9 +3051,9 @@ stations (STAs), and no access point is deployed.
 </div>
 </div>
 
-<div id="outline-container-sec-6-4-12" class="outline-4">
-<h4 id="sec-6-4-12">Mesh Basic Service Set</h4>
-<div class="outline-text-4" id="text-6-4-12">
+<div id="outline-container-sec-7-4-12" class="outline-4">
+<h4 id="sec-7-4-12">Mesh Basic Service Set</h4>
+<div class="outline-text-4" id="text-7-4-12">
 <p>
 When access points support mesh functions, they may be deployed
 where wired network access is not possible
@@ -3028,9 +3067,9 @@ distribution form a mesh basic service set (MBSS).
 </div>
 </div>
 
-<div id="outline-container-sec-6-4-13" class="outline-4">
-<h4 id="sec-6-4-13">QoS Basic Service Set</h4>
-<div class="outline-text-4" id="text-6-4-13">
+<div id="outline-container-sec-7-4-13" class="outline-4">
+<h4 id="sec-7-4-13">QoS Basic Service Set</h4>
+<div class="outline-text-4" id="text-7-4-13">
 <p>
 Quality of service (QoS) mechanisms can be implemented within all
 of the 802.11 service sets.
@@ -3039,12 +3078,12 @@ of the 802.11 service sets.
 </div>
 </div>
 
-<div id="outline-container-sec-6-5" class="outline-3">
-<h3 id="sec-6-5">802.11 Configuration Modes</h3>
-<div class="outline-text-3" id="text-6-5">
-</div><div id="outline-container-sec-6-5-1" class="outline-4">
-<h4 id="sec-6-5-1">Access Point Modes</h4>
-<div class="outline-text-4" id="text-6-5-1">
+<div id="outline-container-sec-7-5" class="outline-3">
+<h3 id="sec-7-5">802.11 Configuration Modes</h3>
+<div class="outline-text-3" id="text-7-5">
+</div><div id="outline-container-sec-7-5-1" class="outline-4">
+<h4 id="sec-7-5-1">Access Point Modes</h4>
+<div class="outline-text-4" id="text-7-5-1">
 <p>
 default is root mode. 
 </p>
@@ -3080,9 +3119,9 @@ channels. Scanner mode is also often referred to as monitor mode.
 </div>
 </div>
 
-<div id="outline-container-sec-6-5-2" class="outline-4">
-<h4 id="sec-6-5-2">Client Station Modes</h4>
-<div class="outline-text-4" id="text-6-5-2">
+<div id="outline-container-sec-7-5-2" class="outline-4">
+<h4 id="sec-7-5-2">Client Station Modes</h4>
+<div class="outline-text-4" id="text-7-5-2">
 <ul class="org-ul">
 <li>infrastructure mode
 </li>
@@ -3095,12 +3134,12 @@ channels. Scanner mode is also often referred to as monitor mode.
 </div>
 
 
-<div id="outline-container-sec-7" class="outline-2">
-<h2 id="sec-7">第八章 802.11媒介访问</h2>
-<div class="outline-text-2" id="text-7">
-</div><div id="outline-container-sec-7-1" class="outline-3">
-<h3 id="sec-7-1">CSMA/CA vs. CSMA/CD</h3>
-<div class="outline-text-3" id="text-7-1">
+<div id="outline-container-sec-8" class="outline-2">
+<h2 id="sec-8">第八章 802.11媒介访问</h2>
+<div class="outline-text-2" id="text-8">
+</div><div id="outline-container-sec-8-1" class="outline-3">
+<h3 id="sec-8-1">CSMA/CA vs. CSMA/CD</h3>
+<div class="outline-text-3" id="text-8-1">
 <p>
 由于802.11媒介是半双工的方式进行数据传输，所以不能采用Ethernet中
 使用的CSMA/CD方法主动去检测是否有冲突发生。802.11会通过CSMA/CA的方
@@ -3118,9 +3157,9 @@ CSMA/CA只是确保任何时刻只有一个802.11设备在进行数据传输，�
 </div>
 </div>
 
-<div id="outline-container-sec-7-2" class="outline-3">
-<h3 id="sec-7-2">Collision Detection</h3>
-<div class="outline-text-3" id="text-7-2">
+<div id="outline-container-sec-8-2" class="outline-3">
+<h3 id="sec-8-2">Collision Detection</h3>
+<div class="outline-text-3" id="text-8-2">
 <p>
 802.11的单播帧必须得到确认。 802.11n和802.11ac可以使用帧聚合，对聚
 合帧可以使用 Block确认帧。绝大多数的单播帧都需要得到确认，多播或组
@@ -3133,14 +3172,14 @@ CSMA/CA只是确保任何时刻只有一个802.11设备在进行数据传输，�
 <div class="figure">
 <p><img src="/images/2015/2015113049.png" alt="2015113049.png" />
 </p>
-<p><span class="figure-number">Figure 2:</span> Unicast acknowledgment</p>
+<p><span class="figure-number">Figure 3:</span> Unicast acknowledgment</p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-sec-7-3" class="outline-3">
-<h3 id="sec-7-3">Distributed Coordination Function</h3>
-<div class="outline-text-3" id="text-7-3">
+<div id="outline-container-sec-8-3" class="outline-3">
+<h3 id="sec-8-3">Distributed Coordination Function</h3>
+<div class="outline-text-3" id="text-8-3">
 <p>
 DCF是802.11规范中要求必须实现的功能，其他两个可选的功能是：PCF和
 HCF。
@@ -3162,9 +3201,9 @@ DCF的主要组成部分为：
 </ol>
 </div>
 
-<div id="outline-container-sec-7-3-1" class="outline-4">
-<h4 id="sec-7-3-1">Interframe Space (IFS)</h4>
-<div class="outline-text-4" id="text-7-3-1">
+<div id="outline-container-sec-8-3-1" class="outline-4">
+<h4 id="sec-8-3-1">Interframe Space (IFS)</h4>
+<div class="outline-text-4" id="text-8-3-1">
 <p>
 <i>Interframe space (IFS)</i> is a period of time that exists between
 transmissions of wireless frames. There are six types of
@@ -3195,14 +3234,14 @@ corrupted frames
 <div class="figure">
 <p><img src="/images/2015/2015113050.png" alt="2015113050.png" />
 </p>
-<p><span class="figure-number">Figure 3:</span> SIFS and DIFS</p>
+<p><span class="figure-number">Figure 4:</span> SIFS and DIFS</p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-sec-7-3-2" class="outline-4">
-<h4 id="sec-7-3-2">Duration/ID Field</h4>
-<div class="outline-text-4" id="text-7-3-2">
+<div id="outline-container-sec-8-3-2" class="outline-4">
+<h4 id="sec-8-3-2">Duration/ID Field</h4>
+<div class="outline-text-4" id="text-8-3-2">
 <p>
 该值的大小范围为：0 ~ 32,767。 该域的值表示RF媒体还需要保持多久忙
 碌状态，其他的STA才能竞争使用RF媒介。 
@@ -3216,9 +3255,9 @@ corrupted frames
 </div>
 </div>
 
-<div id="outline-container-sec-7-3-3" class="outline-4">
-<h4 id="sec-7-3-3">Carrier Sense</h4>
-<div class="outline-text-4" id="text-7-3-3">
+<div id="outline-container-sec-8-3-3" class="outline-4">
+<h4 id="sec-8-3-3">Carrier Sense</h4>
+<div class="outline-text-4" id="text-8-3-3">
 <p>
 对于802.11 CSMA/CA设备，在进行数据传输之前，需要执行一下载波侦听，
 用于检查当前媒介是否处于忙碌状态。主要有两种方法：
@@ -3246,7 +3285,7 @@ STA传送过来的帧时，会查看帧的头部信息，看Duration/ID域是否
 <div class="figure">
 <p><img src="/images/2015/2015113051.png" alt="2015113051.png" />
 </p>
-<p><span class="figure-number">Figure 4:</span> Virtual carrier sense</p>
+<p><span class="figure-number">Figure 5:</span> Virtual carrier sense</p>
 </div>
 </li>
 
@@ -3280,9 +3319,9 @@ Clear Channel Assessment(CCA):
 </div>
 </div>
 
-<div id="outline-container-sec-7-3-4" class="outline-4">
-<h4 id="sec-7-3-4">Random Backoff Timer</h4>
-<div class="outline-text-4" id="text-7-3-4">
+<div id="outline-container-sec-8-3-4" class="outline-4">
+<h4 id="sec-8-3-4">Random Backoff Timer</h4>
+<div class="outline-text-4" id="text-8-3-4">
 <p>
 802.11 STA会在一个竞争窗口(CW)时间竞争媒介的使用权，该窗口期称为
 <i>backoff time</i> 。 工作站选择一个不超过CW值的随机数， 然后再乘以时
@@ -3321,15 +3360,15 @@ the backoff time is decremented by a slot time.
 <div class="figure">
 <p><img src="/images/2015/2015113052.png" alt="2015113052.png" />
 </p>
-<p><span class="figure-number">Figure 5:</span> Contention window length</p>
+<p><span class="figure-number">Figure 6:</span> Contention window length</p>
 </div>
 </div>
 </div>
 </div>
 
-<div id="outline-container-sec-7-4" class="outline-3">
-<h3 id="sec-7-4">Point Coordination Function</h3>
-<div class="outline-text-3" id="text-7-4">
+<div id="outline-container-sec-8-4" class="outline-3">
+<h3 id="sec-8-4">Point Coordination Function</h3>
+<div class="outline-text-3" id="text-8-4">
 <p>
 这是一种Polling的方式。 AP充当点协调者的功能。 PCF只用于一个BSS内
 部。 不能用于Ad Hoc网络（IBSS）， 因为没有AP存在。
@@ -3345,9 +3384,9 @@ AP和STA都要支持PCF功能，才能使用PCF机制。
 </div>
 </div>
 
-<div id="outline-container-sec-7-5" class="outline-3">
-<h3 id="sec-7-5">Hybrid Coordination Function</h3>
-<div class="outline-text-3" id="text-7-5">
+<div id="outline-container-sec-8-5" class="outline-3">
+<h3 id="sec-8-5">Hybrid Coordination Function</h3>
+<div class="outline-text-3" id="text-8-5">
 <p>
 HCF结合了DCF和PCF的功能，并进行了加强，创造了两个访问信道的方法：
 </p>
@@ -3368,9 +3407,9 @@ opportunity (TXOP)</i> 。 在此期间，它可以传输多个帧。 在传输�
 </div>
 </div>
 
-<div id="outline-container-sec-7-6" class="outline-3">
-<h3 id="sec-7-6">Block Acknowledgment</h3>
-<div class="outline-text-3" id="text-7-6">
+<div id="outline-container-sec-8-6" class="outline-3">
+<h3 id="sec-8-6">Block Acknowledgment</h3>
+<div class="outline-text-3" id="text-8-6">
 <p>
 A Block ACK improves channel efficiency by aggregating several
 acknowledgments into one single acknowledgment frame.
@@ -3378,9 +3417,9 @@ acknowledgments into one single acknowledgment frame.
 </div>
 </div>
 
-<div id="outline-container-sec-7-7" class="outline-3">
-<h3 id="sec-7-7">Wi-Fi Multimedia</h3>
-<div class="outline-text-3" id="text-7-7">
+<div id="outline-container-sec-8-7" class="outline-3">
+<h3 id="sec-8-7">Wi-Fi Multimedia</h3>
+<div class="outline-text-3" id="text-8-7">
 <p>
 The 802.11e amendment defi ned the layer 2 MAC methods needed to
 meet the QoS requirements for time-sensitive applications over
@@ -3391,9 +3430,9 @@ amendment.
 </div>
 </div>
 
-<div id="outline-container-sec-7-8" class="outline-3">
-<h3 id="sec-7-8">Airtime Fairness</h3>
-<div class="outline-text-3" id="text-7-8">
+<div id="outline-container-sec-8-8" class="outline-3">
+<h3 id="sec-8-8">Airtime Fairness</h3>
+<div class="outline-text-3" id="text-8-8">
 <p>
 在802.11媒介访问过程中，每个设备都需要竞争使用媒介传输数据。 对
 于每个设备来说， 竞争机会均等。 当一个速率高的设备与一个速率低
@@ -3407,12 +3446,12 @@ amendment.
 </div>
 
 
-<div id="outline-container-sec-8" class="outline-2">
-<h2 id="sec-8">第九章 802.11 MAC 架构</h2>
-<div class="outline-text-2" id="text-8">
-</div><div id="outline-container-sec-8-1" class="outline-3">
-<h3 id="sec-8-1">Data-Link Layer</h3>
-<div class="outline-text-3" id="text-8-1">
+<div id="outline-container-sec-9" class="outline-2">
+<h2 id="sec-9">第九章 802.11 MAC 架构</h2>
+<div class="outline-text-2" id="text-9">
+</div><div id="outline-container-sec-9-1" class="outline-3">
+<h3 id="sec-9-1">Data-Link Layer</h3>
+<div class="outline-text-3" id="text-9-1">
 <p>
 802.11数据链路层分为两个子层：
 </p>
@@ -3426,9 +3465,9 @@ amendment.
 </ol>
 </div>
 
-<div id="outline-container-sec-8-1-1" class="outline-4">
-<h4 id="sec-8-1-1">MAC Service Data Unit</h4>
-<div class="outline-text-4" id="text-8-1-1">
+<div id="outline-container-sec-9-1-1" class="outline-4">
+<h4 id="sec-9-1-1">MAC Service Data Unit</h4>
+<div class="outline-text-4" id="text-9-1-1">
 <p>
 MSDU数据包含来自LLC以及Layer3-7层的数据，即MSDU负载包含IP包和一
 些LLC数据。
@@ -3444,9 +3483,9 @@ MSDU负载的最大值为：2,304字节。
 </div>
 </div>
 
-<div id="outline-container-sec-8-1-2" class="outline-4">
-<h4 id="sec-8-1-2">MAC Protocol Data Unit</h4>
-<div class="outline-text-4" id="text-8-1-2">
+<div id="outline-container-sec-9-1-2" class="outline-4">
+<h4 id="sec-9-1-2">MAC Protocol Data Unit</h4>
+<div class="outline-text-4" id="text-9-1-2">
 <p>
 组成部分如下图所示 ，其中Frame Body可能被加密。
 </p>
@@ -3455,16 +3494,16 @@ MSDU负载的最大值为：2,304字节。
 <div class="figure">
 <p><img src="/images/2015/2015120101.png" alt="2015120101.png" />
 </p>
-<p><span class="figure-number">Figure 6:</span> 802.11 MPDU</p>
+<p><span class="figure-number">Figure 7:</span> 802.11 MPDU</p>
 </div>
 </div>
 </div>
 </div>
 
 
-<div id="outline-container-sec-8-2" class="outline-3">
-<h3 id="sec-8-2">Physical Layer</h3>
-<div class="outline-text-3" id="text-8-2">
+<div id="outline-container-sec-9-2" class="outline-3">
+<h3 id="sec-9-2">Physical Layer</h3>
+<div class="outline-text-3" id="text-9-2">
 <p>
 物理层也分为两个子层：
 </p>
@@ -3485,18 +3524,18 @@ PMD子层进行调制并将数据按比特位进行传输。
 </ol>
 </div>
 
-<div id="outline-container-sec-8-2-1" class="outline-4">
-<h4 id="sec-8-2-1">PLCP Service Data Unit</h4>
-<div class="outline-text-4" id="text-8-2-1">
+<div id="outline-container-sec-9-2-1" class="outline-4">
+<h4 id="sec-9-2-1">PLCP Service Data Unit</h4>
+<div class="outline-text-4" id="text-9-2-1">
 <p>
 PSDU是MPDU物理层的视角，它们仅仅是相同数据在不同OSI层上的展现。
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-8-2-2" class="outline-4">
-<h4 id="sec-8-2-2">PLCP Protocol Data Unit</h4>
-<div class="outline-text-4" id="text-8-2-2">
+<div id="outline-container-sec-9-2-2" class="outline-4">
+<h4 id="sec-9-2-2">PLCP Protocol Data Unit</h4>
+<div class="outline-text-4" id="text-9-2-2">
 <p>
 当PLCP接收到PSDU，会进行传输前的准备， 并创建PPDU。 PLCP会为
 PSDU增加一段前导码和PHY头部信息。前导码的作用主要是为了发送方与
@@ -3512,15 +3551,15 @@ PSDU增加一段前导码和PHY头部信息。前导码的作用主要是为了�
 <div class="figure">
 <p><img src="/images/2015/2015120102.png" alt="2015120102.png" />
 </p>
-<p><span class="figure-number">Figure 7:</span> Data-Link and Physical layers</p>
+<p><span class="figure-number">Figure 8:</span> Data-Link and Physical layers</p>
 </div>
 </div>
 </div>
 </div>
 
-<div id="outline-container-sec-8-3" class="outline-3">
-<h3 id="sec-8-3">802.11 and 802.3 Interoperability</h3>
-<div class="outline-text-3" id="text-8-3">
+<div id="outline-container-sec-9-3" class="outline-3">
+<h3 id="sec-9-3">802.11 and 802.3 Interoperability</h3>
+<div class="outline-text-3" id="text-9-3">
 <p>
 802.11标准定义Integration Service（IS）可以使MSDU在DS与非802.11
 LAN之间通过Portal进行传输，其中Portal通常是一个AP或者WLAN控制器。
@@ -3545,17 +3584,17 @@ IS的主要任务是：
 </div>
 </div>
 
-<div id="outline-container-sec-8-4" class="outline-3">
-<h3 id="sec-8-4">Three 802.11 Frame Types</h3>
-<div class="outline-text-3" id="text-8-4">
+<div id="outline-container-sec-9-4" class="outline-3">
+<h3 id="sec-9-4">Three 802.11 Frame Types</h3>
+<div class="outline-text-3" id="text-9-4">
 <p>
 总共有三种类型的帧：管理帧，　控制帧和数据帧。
 </p>
 </div>
 
-<div id="outline-container-sec-8-4-1" class="outline-4">
-<h4 id="sec-8-4-1">Management Frames</h4>
-<div class="outline-text-4" id="text-8-4-1">
+<div id="outline-container-sec-9-4-1" class="outline-4">
+<h4 id="sec-9-4-1">Management Frames</h4>
+<div class="outline-text-4" id="text-9-4-1">
 <p>
 　管理帧又称为 <i>Management MAC Protocol Data Unit (MMPDU)</i> 。 管理
 帧并不携带上层的信息，它只携带Layer2的IE。 802.11总共定义了14种管
@@ -3595,9 +3634,9 @@ IS的主要任务是：
 </div>
 </div>
 
-<div id="outline-container-sec-8-4-2" class="outline-4">
-<h4 id="sec-8-4-2">Control Frames</h4>
-<div class="outline-text-4" id="text-8-4-2">
+<div id="outline-container-sec-9-4-2" class="outline-4">
+<h4 id="sec-9-4-2">Control Frames</h4>
+<div class="outline-text-4" id="text-9-4-2">
 <p>
 控制帧主要是辅助数据帧的传输。主要用于清空信道，获取信道以及提供
 单播帧的确认。它们只包含头部信息。
@@ -3630,9 +3669,9 @@ IS的主要任务是：
 </div>
 </div>
 
-<div id="outline-container-sec-8-4-3" class="outline-4">
-<h4 id="sec-8-4-3">Data Frames</h4>
-<div class="outline-text-4" id="text-8-4-3">
+<div id="outline-container-sec-9-4-3" class="outline-4">
+<h4 id="sec-9-4-3">Data Frames</h4>
+<div class="outline-text-4" id="text-9-4-3">
 <p>
 数据帧是实际从上层协议传送下来的数据， Layer3~7 MSDU负载通常被
 加密。 802.11定义了15种数据帧：
@@ -3674,9 +3713,9 @@ IS的主要任务是：
 </div>
 </div>
 
-<div id="outline-container-sec-8-5" class="outline-3">
-<h3 id="sec-8-5">Beacon Management Frame</h3>
-<div class="outline-text-3" id="text-8-5">
+<div id="outline-container-sec-9-5" class="outline-3">
+<h3 id="sec-9-5">Beacon Management Frame</h3>
+<div class="outline-text-3" id="text-9-5">
 <p>
 Beacon管理帧是最重要的一种帧，它是无线网络的心跳。 一个BSS中的AP
 会发送Beacon帧，STA则监听Beacon帧。 每个Beacon帧带有时间戳信息，
@@ -3687,11 +3726,11 @@ Beacon管理帧是最重要的一种帧，它是无线网络的心跳。 一个B
 <div class="figure">
 <p><img src="/images/2015/2015120103.png" alt="2015120103.png" />
 </p>
-<p><span class="figure-number">Figure 8:</span> Beacon frame contents</p>
+<p><span class="figure-number">Figure 9:</span> Beacon frame contents</p>
 </div>
 </div>
 
-<ul class="org-ul"><li><a id="sec-8-5-0-1" name="sec-8-5-0-1"></a>Passive Scanning<br  /><div class="outline-text-5" id="text-8-5-0-1">
+<ul class="org-ul"><li><a id="sec-9-5-0-1" name="sec-9-5-0-1"></a>Passive Scanning<br  /><div class="outline-text-5" id="text-9-5-0-1">
 <p>
 在被动扫描中，STA监听从AP发送过来的Beacon帧。
 </p>
@@ -3700,7 +3739,7 @@ Beacon管理帧是最重要的一种帧，它是无线网络的心跳。 一个B
 <div class="figure">
 <p><img src="/images/2015/2015120104.png" alt="2015120104.png" />
 </p>
-<p><span class="figure-number">Figure 9:</span> Passive scanning</p>
+<p><span class="figure-number">Figure 10:</span> Passive scanning</p>
 </div>
 
 <p>
@@ -3711,15 +3750,15 @@ STA主动发送Probe Request请求，然后监控AP的Probe Response帧。
 <div class="figure">
 <p><img src="/images/2015/2015120105.png" alt="2015120105.png" />
 </p>
-<p><span class="figure-number">Figure 10:</span> Active scanning</p>
+<p><span class="figure-number">Figure 11:</span> Active scanning</p>
 </div>
 </div>
 </li></ul>
 </div>
 
-<div id="outline-container-sec-8-6" class="outline-3">
-<h3 id="sec-8-6">Authentication</h3>
-<div class="outline-text-3" id="text-8-6">
+<div id="outline-container-sec-9-6" class="outline-3">
+<h3 id="sec-9-6">Authentication</h3>
+<div class="outline-text-3" id="text-9-6">
 <p>
 802.11下的Authentication相当于“插上网线”的步骤， 主要是认证双方
 是否合法的802.11设备，仅此而已。
@@ -3736,7 +3775,7 @@ STA主动发送Probe Request请求，然后监控AP的Probe Response帧。
 </ol>
 </div>
 
-<ul class="org-ul"><li><a id="sec-8-6-0-1" name="sec-8-6-0-1"></a>Open System Authentication<br  /><div class="outline-text-5" id="text-8-6-0-1">
+<ul class="org-ul"><li><a id="sec-9-6-0-1" name="sec-9-6-0-1"></a>Open System Authentication<br  /><div class="outline-text-5" id="text-9-6-0-1">
 <p>
 It is essentially an exchange of hellos between the client and
 the AP。 
@@ -3744,7 +3783,7 @@ the AP。
 </div>
 </li>
 
-<li><a id="sec-8-6-0-2" name="sec-8-6-0-2"></a>Shared Key Authentication<br  /><div class="outline-text-5" id="text-8-6-0-2">
+<li><a id="sec-9-6-0-2" name="sec-9-6-0-2"></a>Shared Key Authentication<br  /><div class="outline-text-5" id="text-9-6-0-2">
 <p>
 Steps:
 </p>
@@ -3779,9 +3818,9 @@ it will also respond negatively.
 </li></ul>
 </div>
 
-<div id="outline-container-sec-8-7" class="outline-3">
-<h3 id="sec-8-7">Association</h3>
-<div class="outline-text-3" id="text-8-7">
+<div id="outline-container-sec-9-7" class="outline-3">
+<h3 id="sec-9-7">Association</h3>
+<div class="outline-text-3" id="text-9-7">
 <p>
 当STA与AP进行完Auth交互后，下一步就是与AP关联。当一个STA与AP关联
 后，它就成为了一个BSS中的成员。这样STA就可以通过AP将数据发送到DS
@@ -3794,21 +3833,21 @@ Association Response给STA，拒绝或同意STA的加入。
 </p>
 </div>
 
-<div id="outline-container-sec-8-7-1" class="outline-4">
-<h4 id="sec-8-7-1">Authentication and Association States</h4>
-<div class="outline-text-4" id="text-8-7-1">
+<div id="outline-container-sec-9-7-1" class="outline-4">
+<h4 id="sec-9-7-1">Authentication and Association States</h4>
+<div class="outline-text-4" id="text-9-7-1">
 
 <div class="figure">
 <p><img src="/images/2015/2015120201.png" alt="2015120201.png" />
 </p>
-<p><span class="figure-number">Figure 11:</span> Authentication and association states</p>
+<p><span class="figure-number">Figure 12:</span> Authentication and association states</p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-sec-8-7-2" class="outline-4">
-<h4 id="sec-8-7-2">Basic and Supported Rates</h4>
-<div class="outline-text-4" id="text-8-7-2">
+<div id="outline-container-sec-9-7-2" class="outline-4">
+<h4 id="sec-9-7-2">Basic and Supported Rates</h4>
+<div class="outline-text-4" id="text-9-7-2">
 <p>
 AP可以设置 <code>基本速率集</code> 和 <code>可支持的速率集</code> 。 每个与AP关联的STA必
 须表明它支持AP的 <code>基本速率集</code> ，否则就会被AP拒绝关联。 而 <code>可支
@@ -3826,9 +3865,9 @@ ERP (802.11g)支持的速率集为： 1, 2, 5.5, 6, 9, 12, 18, 24, 36,
 </div>
 </div>
 
-<div id="outline-container-sec-8-7-3" class="outline-4">
-<h4 id="sec-8-7-3">Roaming</h4>
-<div class="outline-text-4" id="text-8-7-3">
+<div id="outline-container-sec-9-7-3" class="outline-4">
+<h4 id="sec-9-7-3">Roaming</h4>
+<div class="outline-text-4" id="text-9-7-3">
 <p>
 漫游：在保持上层连接不中断的情况下，STA从一个AP转到另一个AP所在
 的BSS中。
@@ -3847,9 +3886,9 @@ AP要通知旧的AP, 与旧AP关联的STA目前准备与新的AP关联,请转发
 </div>
 </div>
 
-<div id="outline-container-sec-8-7-4" class="outline-4">
-<h4 id="sec-8-7-4">Reassociation</h4>
-<div class="outline-text-4" id="text-8-7-4">
+<div id="outline-container-sec-9-7-4" class="outline-4">
+<h4 id="sec-9-7-4">Reassociation</h4>
+<div class="outline-text-4" id="text-9-7-4">
 <p>
 当一个STA发生漫游后，就会发送Reassociation Request给新的AP，
 Reassociation是指重新关联到无线网络的SSID，而不是指重新关联到某
@@ -3860,14 +3899,14 @@ Reassociation是指重新关联到无线网络的SSID，而不是指重新关联
 <div class="figure">
 <p><img src="/images/2015/2015120203.png" alt="2015120203.png" />
 </p>
-<p><span class="figure-number">Figure 12:</span> Reassociation process</p>
+<p><span class="figure-number">Figure 13:</span> Reassociation process</p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-sec-8-7-5" class="outline-4">
-<h4 id="sec-8-7-5">Disassociation</h4>
-<div class="outline-text-4" id="text-8-7-5">
+<div id="outline-container-sec-9-7-5" class="outline-4">
+<h4 id="sec-9-7-5">Disassociation</h4>
+<div class="outline-text-4" id="text-9-7-5">
 <p>
 Disassociation是一个通知，并不是请求，通信双方必须接收，不能拒绝。
 AP和STA都可以发送。
@@ -3875,9 +3914,9 @@ AP和STA都可以发送。
 </div>
 </div>
 
-<div id="outline-container-sec-8-7-6" class="outline-4">
-<h4 id="sec-8-7-6">Deauthentication</h4>
-<div class="outline-text-4" id="text-8-7-6">
+<div id="outline-container-sec-9-7-6" class="outline-4">
+<h4 id="sec-9-7-6">Deauthentication</h4>
+<div class="outline-text-4" id="text-9-7-6">
 <p>
 Deauthentication也是一个通知，通信双方必须接收，不能拒绝，AP和
 STA都可以发送。
@@ -3886,9 +3925,9 @@ STA都可以发送。
 </div>
 </div>
 
-<div id="outline-container-sec-8-8" class="outline-3">
-<h3 id="sec-8-8">ACK Frame</h3>
-<div class="outline-text-3" id="text-8-8">
+<div id="outline-container-sec-9-8" class="outline-3">
+<h3 id="sec-9-8">ACK Frame</h3>
+<div class="outline-text-3" id="text-9-8">
 <p>
 ACK帧是802.11 CSMA/CA机制的一个核心组件，每个单播帧都必须通过ACK
 帧来确认发送是否成功。ACK帧主要用于发送过程的确认动作。 
@@ -3896,9 +3935,9 @@ ACK帧是802.11 CSMA/CA机制的一个核心组件，每个单播帧都必须通
 </div>
 </div>
 
-<div id="outline-container-sec-8-9" class="outline-3">
-<h3 id="sec-8-9">Fragmentation</h3>
-<div class="outline-text-3" id="text-8-9">
+<div id="outline-container-sec-9-9" class="outline-3">
+<h3 id="sec-9-9">Fragmentation</h3>
+<div class="outline-text-3" id="text-9-9">
 <p>
 802.11支持帧分片， 分片是将一个大的帧分成较小的帧，这些较小的帧也
 是一个个802.11帧，都包含MAC Header信息，可以单独传输，并需要ACK确
@@ -3915,23 +3954,23 @@ ACK帧是802.11 CSMA/CA机制的一个核心组件，每个单播帧都必须通
 <div class="figure">
 <p><img src="/images/2015/2015120204.png" alt="2015120204.png" />
 </p>
-<p><span class="figure-number">Figure 13:</span> Frame fragmentation</p>
+<p><span class="figure-number">Figure 14:</span> Frame fragmentation</p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-sec-8-10" class="outline-3">
-<h3 id="sec-8-10">Protection Mechanism</h3>
-<div class="outline-text-3" id="text-8-10">
+<div id="outline-container-sec-9-10" class="outline-3">
+<h3 id="sec-9-10">Protection Mechanism</h3>
+<div class="outline-text-3" id="text-9-10">
 <p>
 在同一个BSS中存在802.11b  802.11g 或者802.11n, 802.11ac设备时，支
 持更高速率的设备会启用保护机制。
 </p>
 </div>
 
-<div id="outline-container-sec-8-10-1" class="outline-4">
-<h4 id="sec-8-10-1">RTS/CTS</h4>
-<div class="outline-text-4" id="text-8-10-1">
+<div id="outline-container-sec-9-10-1" class="outline-4">
+<h4 id="sec-9-10-1">RTS/CTS</h4>
+<div class="outline-text-4" id="text-9-10-1">
 <p>
 Request to send/clear to send (RTS/CTS) is a mechanism that
 performs a NAV distribution and helps prevent collisions from
@@ -3955,9 +3994,9 @@ RTS/CTS主要用于两种情况：
 </div>
 </div>
 
-<div id="outline-container-sec-8-10-2" class="outline-4">
-<h4 id="sec-8-10-2">CTS-to-Self</h4>
-<div class="outline-text-4" id="text-8-10-2">
+<div id="outline-container-sec-9-10-2" class="outline-4">
+<h4 id="sec-9-10-2">CTS-to-Self</h4>
+<div class="outline-text-4" id="text-9-10-2">
 <p>
 CTS-to-Self is used strictly as a protection mechanism for
 mixed-mode environments. One of the benefits of using
@@ -3973,39 +4012,39 @@ STA也可以选择CTS-to-Self作为保护机制。
 </div>
 </div>
 
-<div id="outline-container-sec-8-11" class="outline-3">
-<h3 id="sec-8-11">Data Frames</h3>
-<div class="outline-text-3" id="text-8-11">
+<div id="outline-container-sec-9-11" class="outline-3">
+<h3 id="sec-9-11">Data Frames</h3>
+<div class="outline-text-3" id="text-9-11">
 <p>
 空数据帧一般用于通知AP当前STA处于省电状态。
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-8-12" class="outline-3">
-<h3 id="sec-8-12">Power Management</h3>
-<div class="outline-text-3" id="text-8-12">
-</div><div id="outline-container-sec-8-12-1" class="outline-4">
-<h4 id="sec-8-12-1">Active Mode</h4>
-<div class="outline-text-4" id="text-8-12-1">
+<div id="outline-container-sec-9-12" class="outline-3">
+<h3 id="sec-9-12">Power Management</h3>
+<div class="outline-text-3" id="text-9-12">
+</div><div id="outline-container-sec-9-12-1" class="outline-4">
+<h4 id="sec-9-12-1">Active Mode</h4>
+<div class="outline-text-4" id="text-9-12-1">
 <p>
 处于非省电状态，对于直接接电源的STA，应该配置为Active Mode。
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-8-12-2" class="outline-4">
-<h4 id="sec-8-12-2">Power Save Mode</h4>
-<div class="outline-text-4" id="text-8-12-2">
+<div id="outline-container-sec-9-12-2" class="outline-4">
+<h4 id="sec-9-12-2">Power Save Mode</h4>
+<div class="outline-text-4" id="text-9-12-2">
 <p>
 当STA处于省电状态时，应该将Power Management位置为1. 
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-8-12-3" class="outline-4">
-<h4 id="sec-8-12-3">Traffic Indication Map</h4>
-<div class="outline-text-4" id="text-8-12-3">
+<div id="outline-container-sec-9-12-3" class="outline-4">
+<h4 id="sec-9-12-3">Traffic Indication Map</h4>
+<div class="outline-text-4" id="text-9-12-3">
 <p>
 当关联到某个AP的STA进入省电模式时，它会发送一个Null数据帧，这个
 帧的Power Management位会被置为1， AP收到后，就知道该STA进入省电
@@ -4032,9 +4071,9 @@ STA可以继续进入PS状态。
 </div>
 
 
-<div id="outline-container-sec-8-12-4" class="outline-4">
-<h4 id="sec-8-12-4">Delivery Traffic Indication Message</h4>
-<div class="outline-text-4" id="text-8-12-4">
+<div id="outline-container-sec-9-12-4" class="outline-4">
+<h4 id="sec-9-12-4">Delivery Traffic Indication Message</h4>
+<div class="outline-text-4" id="text-9-12-4">
 <p>
 除了单播数据，网络中也会存在多播数据和广播数据，由于多播和广播
 数据是针对所有STA的，BSS需要提供一种方法以确保所有STA都能及时醒
@@ -4058,9 +4097,9 @@ DTIM。
 </div>
 </div>
 
-<div id="outline-container-sec-8-12-5" class="outline-4">
-<h4 id="sec-8-12-5">Announcement Traffic Indication Message</h4>
-<div class="outline-text-4" id="text-8-12-5">
+<div id="outline-container-sec-9-12-5" class="outline-4">
+<h4 id="sec-9-12-5">Announcement Traffic Indication Message</h4>
+<div class="outline-text-4" id="text-9-12-5">
 <p>
 在一个IBSS网络，没有中心的AP。 一个STA进入PS模式时，需要通知其
 他的STA自己已经进入PS Mode状态，其他STA会缓存发往该STA的帧。
@@ -4089,14 +4128,14 @@ CSMA/CA过程重新发送数据。
 </div>
 
 
-<div id="outline-container-sec-8-12-6" class="outline-4">
-<h4 id="sec-8-12-6">WMM Power Save and U-APSD</h4>
-<div class="outline-text-4" id="text-8-12-6">
+<div id="outline-container-sec-9-12-6" class="outline-4">
+<h4 id="sec-9-12-6">WMM Power Save and U-APSD</h4>
+<div class="outline-text-4" id="text-9-12-6">
 
 <div class="figure">
 <p><img src="/images/2015/2015120801.png" alt="2015120801.png" />
 </p>
-<p><span class="figure-number">Figure 14:</span> Legacy power management</p>
+<p><span class="figure-number">Figure 15:</span> Legacy power management</p>
 </div>
 
 
@@ -4109,7 +4148,7 @@ traffic based on WMM access categories.
 <div class="figure">
 <p><img src="/images/2015/2015120802.png" alt="2015120802.png" />
 </p>
-<p><span class="figure-number">Figure 15:</span> WMM-PS</p>
+<p><span class="figure-number">Figure 16:</span> WMM-PS</p>
 </div>
 
 <p>
@@ -4151,9 +4190,9 @@ frame burst during the AP’s TXOP.
 </div>
 </div>
 
-<div id="outline-container-sec-8-12-7" class="outline-4">
-<h4 id="sec-8-12-7">802.11n Power Management</h4>
-<div class="outline-text-4" id="text-8-12-7">
+<div id="outline-container-sec-9-12-7" class="outline-4">
+<h4 id="sec-9-12-7">802.11n Power Management</h4>
+<div class="outline-text-4" id="text-9-12-7">
 <p>
 802.11n定义了两个新的Power-Management方法：
 </p>
@@ -4186,25 +4225,25 @@ defined for use for HT (802.11n) radios。
 
 
 
-<div id="outline-container-sec-9" class="outline-2">
-<h2 id="sec-9">第十章 WLAN 架构</h2>
-<div class="outline-text-2" id="text-9">
-</div><div id="outline-container-sec-9-1" class="outline-3">
-<h3 id="sec-9-1">Wireless LAN client devices</h3>
-<div class="outline-text-3" id="text-9-1">
+<div id="outline-container-sec-10" class="outline-2">
+<h2 id="sec-10">第十章 WLAN 架构</h2>
+<div class="outline-text-2" id="text-10">
+</div><div id="outline-container-sec-10-1" class="outline-3">
+<h3 id="sec-10-1">Wireless LAN client devices</h3>
+<div class="outline-text-3" id="text-10-1">
 <p>
 NIC + Driver + utilities
 </p>
 </div>
-<div id="outline-container-sec-9-1-1" class="outline-4">
-<h4 id="sec-9-1-1">802.11 Radio form factors</h4>
-<div class="outline-text-4" id="text-9-1-1">
+<div id="outline-container-sec-10-1-1" class="outline-4">
+<h4 id="sec-10-1-1">802.11 Radio form factors</h4>
+<div class="outline-text-4" id="text-10-1-1">
 <p>
 802.11 无线芯片可以用于客户端NIC和AP设备中，这些网卡芯片以多种形
 式与主芯片连接：外置的PCMCIA和USB，或内置集成到主芯片中。
 </p>
 </div>
-<ul class="org-ul"><li><a id="sec-9-1-1-1" name="sec-9-1-1-1"></a>External Wi-Fi radios<br  /><div class="outline-text-5" id="text-9-1-1-1">
+<ul class="org-ul"><li><a id="sec-10-1-1-1" name="sec-10-1-1-1"></a>External Wi-Fi radios<br  /><div class="outline-text-5" id="text-10-1-1-1">
 <ul class="org-ul">
 <li>PCMCIA
 </li>
@@ -4215,7 +4254,7 @@ NIC + Driver + utilities
 </ul>
 </div>
 </li>
-<li><a id="sec-9-1-1-2" name="sec-9-1-1-2"></a>Internal Wi-Fi Radios<br  /><div class="outline-text-5" id="text-9-1-1-2">
+<li><a id="sec-10-1-1-2" name="sec-10-1-1-2"></a>Internal Wi-Fi Radios<br  /><div class="outline-text-5" id="text-10-1-1-2">
 <ul class="org-ul">
 <li>Mini PCI
 </li>
@@ -4224,27 +4263,27 @@ NIC + Driver + utilities
 </li></ul>
 </div>
 
-<div id="outline-container-sec-9-1-2" class="outline-4">
-<h4 id="sec-9-1-2">802.11 Radio chipsets</h4>
-<div class="outline-text-4" id="text-9-1-2">
+<div id="outline-container-sec-10-1-2" class="outline-4">
+<h4 id="sec-10-1-2">802.11 Radio chipsets</h4>
+<div class="outline-text-4" id="text-10-1-2">
 <p>
 A group of integrated circuits designed to work together is
 often marketed as a <i>chipset</i>. 
 </p>
 </div>
 </div>
-<div id="outline-container-sec-9-1-3" class="outline-4">
-<h4 id="sec-9-1-3">Client utilities</h4>
-<div class="outline-text-4" id="text-9-1-3">
+<div id="outline-container-sec-10-1-3" class="outline-4">
+<h4 id="sec-10-1-3">Client utilities</h4>
+<div class="outline-text-4" id="text-10-1-3">
 <p>
 提供用户配置网卡的软件工具。
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-9-1-4" class="outline-4">
-<h4 id="sec-9-1-4">Management, control and data planes</h4>
-<div class="outline-text-4" id="text-9-1-4">
+<div id="outline-container-sec-10-1-4" class="outline-4">
+<h4 id="sec-10-1-4">Management, control and data planes</h4>
+<div class="outline-text-4" id="text-10-1-4">
 <p>
 Telecommunication networks are often defi ned as three logical
 planes of operation:
@@ -4267,12 +4306,12 @@ forwarded.
 </div>
 </div>
 
-<div id="outline-container-sec-9-2" class="outline-3">
-<h3 id="sec-9-2">WLAN architecture</h3>
-<div class="outline-text-3" id="text-9-2">
-</div><div id="outline-container-sec-9-2-1" class="outline-4">
-<h4 id="sec-9-2-1">Autonomous WLAN architecture</h4>
-<div class="outline-text-4" id="text-9-2-1">
+<div id="outline-container-sec-10-2" class="outline-3">
+<h3 id="sec-10-2">WLAN architecture</h3>
+<div class="outline-text-3" id="text-10-2">
+</div><div id="outline-container-sec-10-2-1" class="outline-4">
+<h4 id="sec-10-2-1">Autonomous WLAN architecture</h4>
+<div class="outline-text-4" id="text-10-2-1">
 <p>
 <i>autonomous AP</i> are often referred to as fat APs: a standalone
 WLAN portal device where all three planes of operation existed
@@ -4282,16 +4321,16 @@ protocol stack and the 802.3 protocol stack.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-9-2-2" class="outline-4">
-<h4 id="sec-9-2-2">Centralized network management systems</h4>
-<div class="outline-text-4" id="text-9-2-2">
+<div id="outline-container-sec-10-2-2" class="outline-4">
+<h4 id="sec-10-2-2">Centralized network management systems</h4>
+<div class="outline-text-4" id="text-10-2-2">
 <p>
 In the centralized WLAN architecture, autonomous APs have been
 replaced with <i>controller-based access points</i>, also known as
 lightweight APs or thin APs.
 </p>
 </div>
-<ul class="org-ul"><li><a id="sec-9-2-2-1" name="sec-9-2-2-1"></a>WLAN Controller<br  /><div class="outline-text-5" id="text-9-2-2-1">
+<ul class="org-ul"><li><a id="sec-10-2-2-1" name="sec-10-2-2-1"></a>WLAN Controller<br  /><div class="outline-text-5" id="text-10-2-2-1">
 <p>
 At the heart of the centralized WLAN architecture model is the
 WLAN controller
@@ -4300,67 +4339,67 @@ WLAN controller
 </li></ul>
 </div>
 
-<div id="outline-container-sec-9-2-3" class="outline-4">
-<h4 id="sec-9-2-3">Cloud networking</h4>
+<div id="outline-container-sec-10-2-3" class="outline-4">
+<h4 id="sec-10-2-3">Cloud networking</h4>
 </div>
 
-<div id="outline-container-sec-9-2-4" class="outline-4">
-<h4 id="sec-9-2-4">Centralized WLAN architecture</h4>
+<div id="outline-container-sec-10-2-4" class="outline-4">
+<h4 id="sec-10-2-4">Centralized WLAN architecture</h4>
 </div>
 
-<div id="outline-container-sec-9-2-5" class="outline-4">
-<h4 id="sec-9-2-5">Distributed WLAN architecture</h4>
+<div id="outline-container-sec-10-2-5" class="outline-4">
+<h4 id="sec-10-2-5">Distributed WLAN architecture</h4>
 </div>
 
-<div id="outline-container-sec-9-2-6" class="outline-4">
-<h4 id="sec-9-2-6">Unified WLAN architecture</h4>
+<div id="outline-container-sec-10-2-6" class="outline-4">
+<h4 id="sec-10-2-6">Unified WLAN architecture</h4>
 </div>
 
-<div id="outline-container-sec-9-2-7" class="outline-4">
-<h4 id="sec-9-2-7">Hybrid architecture</h4>
-</div>
-</div>
-
-<div id="outline-container-sec-9-3" class="outline-3">
-<h3 id="sec-9-3">Specialty WLAN infrastructure</h3>
-<div class="outline-text-3" id="text-9-3">
-</div><div id="outline-container-sec-9-3-1" class="outline-4">
-<h4 id="sec-9-3-1">Wireless workgroup bridge</h4>
-</div>
-
-<div id="outline-container-sec-9-3-2" class="outline-4">
-<h4 id="sec-9-3-2">Wireless LAN bridges</h4>
-</div>
-
-<div id="outline-container-sec-9-3-3" class="outline-4">
-<h4 id="sec-9-3-3">Enterprise WLAN router</h4>
-</div>
-
-<div id="outline-container-sec-9-3-4" class="outline-4">
-<h4 id="sec-9-3-4">Wireless LAN mesh access points</h4>
-</div>
-
-<div id="outline-container-sec-9-3-5" class="outline-4">
-<h4 id="sec-9-3-5">WLAN array</h4>
-</div>
-
-<div id="outline-container-sec-9-3-6" class="outline-4">
-<h4 id="sec-9-3-6">Virtual AP system</h4>
-</div>
-
-<div id="outline-container-sec-9-3-7" class="outline-4">
-<h4 id="sec-9-3-7">Real-time location systems</h4>
-</div>
-
-<div id="outline-container-sec-9-3-8" class="outline-4">
-<h4 id="sec-9-3-8">VoWiFi</h4>
-</div>
+<div id="outline-container-sec-10-2-7" class="outline-4">
+<h4 id="sec-10-2-7">Hybrid architecture</h4>
 </div>
 </div>
 
-<div id="outline-container-sec-10" class="outline-2">
-<h2 id="sec-10">第十二章 WLAN 问题处理与设计</h2>
-<div class="outline-text-2" id="text-10">
+<div id="outline-container-sec-10-3" class="outline-3">
+<h3 id="sec-10-3">Specialty WLAN infrastructure</h3>
+<div class="outline-text-3" id="text-10-3">
+</div><div id="outline-container-sec-10-3-1" class="outline-4">
+<h4 id="sec-10-3-1">Wireless workgroup bridge</h4>
+</div>
+
+<div id="outline-container-sec-10-3-2" class="outline-4">
+<h4 id="sec-10-3-2">Wireless LAN bridges</h4>
+</div>
+
+<div id="outline-container-sec-10-3-3" class="outline-4">
+<h4 id="sec-10-3-3">Enterprise WLAN router</h4>
+</div>
+
+<div id="outline-container-sec-10-3-4" class="outline-4">
+<h4 id="sec-10-3-4">Wireless LAN mesh access points</h4>
+</div>
+
+<div id="outline-container-sec-10-3-5" class="outline-4">
+<h4 id="sec-10-3-5">WLAN array</h4>
+</div>
+
+<div id="outline-container-sec-10-3-6" class="outline-4">
+<h4 id="sec-10-3-6">Virtual AP system</h4>
+</div>
+
+<div id="outline-container-sec-10-3-7" class="outline-4">
+<h4 id="sec-10-3-7">Real-time location systems</h4>
+</div>
+
+<div id="outline-container-sec-10-3-8" class="outline-4">
+<h4 id="sec-10-3-8">VoWiFi</h4>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-11" class="outline-2">
+<h2 id="sec-11">第十二章 WLAN 问题处理与设计</h2>
+<div class="outline-text-2" id="text-11">
 <p>
 A bottoms-up approach to analyzing the OSI reference model layers
 also applies to wireless networking. A wireless networking
@@ -4381,9 +4420,9 @@ Radio驱动问题，通常会引起连接性问题或是性能问题。频谱分
 </p>
 </div>
 
-<div id="outline-container-sec-10-1" class="outline-3">
-<h3 id="sec-10-1">Layer 2重传</h3>
-<div class="outline-text-3" id="text-10-1">
+<div id="outline-container-sec-11-1" class="outline-3">
+<h3 id="sec-11-1">Layer 2重传</h3>
+<div class="outline-text-3" id="text-11-1">
 <p>
 在WLAN网络中， Layer 2重传的情况往往会引起性能方面的问题。过多的
 Layer 2重传会从如下两个方面影响WLAN：
@@ -4418,9 +4457,9 @@ Layer 2重传会从如下两个方面影响WLAN：
 </div>
 </div>
 
-<div id="outline-container-sec-10-2" class="outline-3">
-<h3 id="sec-10-2">RF干涉</h3>
-<div class="outline-text-3" id="text-10-2">
+<div id="outline-container-sec-11-2" class="outline-3">
+<h3 id="sec-11-2">RF干涉</h3>
+<div class="outline-text-3" id="text-11-2">
 <p>
 有多种不同类型的干涉会极大地影响802.11无线网络的性能。干涉的设备会
 阻止一个802.11 radio传输数据，导致DOS。 如果另一个RF源以很强的功率
@@ -4430,9 +4469,9 @@ RF能量，并延迟传输。另一种干涉会导致传输的数据帧直接被
 </p>
 </div>
 
-<div id="outline-container-sec-10-2-1" class="outline-4">
-<h4 id="sec-10-2-1">窄波干涉</h4>
-<div class="outline-text-4" id="text-10-2-1">
+<div id="outline-container-sec-11-2-1" class="outline-4">
+<h4 id="sec-11-2-1">窄波干涉</h4>
+<div class="outline-text-4" id="text-11-2-1">
 <p>
 窄波通常只占用小部分频宽，不会对一路上有你频宽造成DoS，比如2.4GHz
 ISM频段。窄波信号通常振幅很高，会完全中断频率空间范围内的数据传输。
@@ -4442,9 +4481,9 @@ ISM频段。窄波信号通常振幅很高，会完全中断频率空间范围�
 </div>
 </div>
 
-<div id="outline-container-sec-10-2-2" class="outline-4">
-<h4 id="sec-10-2-2">宽波干涉</h4>
-<div class="outline-text-4" id="text-10-2-2">
+<div id="outline-container-sec-11-2-2" class="outline-4">
+<h4 id="sec-11-2-2">宽波干涉</h4>
+<div class="outline-text-4" id="text-11-2-2">
 <p>
 如果传输的信号会中断整个频段的通信，则认为是宽波干涉。宽波干涉会导
 致整个2.4GHz的ISM频段出现DoS。唯一的解决办法是通常频谱分析仪定位于
@@ -4453,9 +4492,9 @@ ISM频段。窄波信号通常振幅很高，会完全中断频率空间范围�
 </div>
 </div>
 
-<div id="outline-container-sec-10-2-3" class="outline-4">
-<h4 id="sec-10-2-3">全波段干涉</h4>
-<div class="outline-text-4" id="text-10-2-3">
+<div id="outline-container-sec-11-2-3" class="outline-4">
+<h4 id="sec-11-2-3">全波段干涉</h4>
+<div class="outline-text-4" id="text-11-2-3">
 <p>
 这种情况一般发生在FHSS（Frequency Hopping Spread Spectrum）通信中。
 FHSS设备不停地在整个频段跳跃，会影响在这个频段范围内的传输数据的设
@@ -4466,9 +4505,9 @@ FHSS设备不停地在整个频段跳跃，会影响在这个频段范围内的�
 </div>
 </div>
 
-<div id="outline-container-sec-10-2-4" class="outline-4">
-<h4 id="sec-10-2-4">Adjacent Channel Interference</h4>
-<div class="outline-text-4" id="text-10-2-4">
+<div id="outline-container-sec-11-2-4" class="outline-4">
+<h4 id="sec-11-2-4">Adjacent Channel Interference</h4>
+<div class="outline-text-4" id="text-11-2-4">
 <p>
 the 802.11-2012 standard requires 25 MHz of separation between the
 center frequencies of 802.11b/g channels in order for them to be
@@ -4485,9 +4524,9 @@ channel interference.
 </div>
 </div>
 
-<div id="outline-container-sec-10-2-5" class="outline-4">
-<h4 id="sec-10-2-5">Low SNR</h4>
-<div class="outline-text-4" id="text-10-2-5">
+<div id="outline-container-sec-11-2-5" class="outline-4">
+<h4 id="sec-11-2-5">Low SNR</h4>
+<div class="outline-text-4" id="text-11-2-5">
 <p>
 背景干扰信号强度接近接收的信号，或者接收到的信号强度太低。SNR不是
 一个比率，而是接收到的信号与背景干扰信号之间的分贝差值（decibels）。
@@ -4501,9 +4540,9 @@ channel interference.
 </div>
 </div>
 
-<div id="outline-container-sec-10-2-6" class="outline-4">
-<h4 id="sec-10-2-6">功率设置不匹配</h4>
-<div class="outline-text-4" id="text-10-2-6">
+<div id="outline-container-sec-11-2-6" class="outline-4">
+<h4 id="sec-11-2-6">功率设置不匹配</h4>
+<div class="outline-text-4" id="text-11-2-6">
 <p>
 AP的功率与STA的功率设备不匹配，导致出现这种情况：AP发出的数据，STA
 能收到，但是STA回的ACK，AP却收不到。 
@@ -4511,9 +4550,9 @@ AP的功率与STA的功率设备不匹配，导致出现这种情况：AP发出�
 </div>
 </div>
 
-<div id="outline-container-sec-10-2-7" class="outline-4">
-<h4 id="sec-10-2-7">Near/Far</h4>
-<div class="outline-text-4" id="text-10-2-7">
+<div id="outline-container-sec-11-2-7" class="outline-4">
+<h4 id="sec-11-2-7">Near/Far</h4>
+<div class="outline-text-4" id="text-11-2-7">
 <p>
 离AP较近骨刺功率较大的设备会影响离AP较远，且功能偏低的设备与AP之间
 的数据通信。 
@@ -4521,9 +4560,9 @@ AP的功率与STA的功率设备不匹配，导致出现这种情况：AP发出�
 </div>
 </div>
 
-<div id="outline-container-sec-10-2-8" class="outline-4">
-<h4 id="sec-10-2-8">隐藏结点问题</h4>
-<div class="outline-text-4" id="text-10-2-8">
+<div id="outline-container-sec-11-2-8" class="outline-4">
+<h4 id="sec-11-2-8">隐藏结点问题</h4>
+<div class="outline-text-4" id="text-11-2-8">
 <p>
 连接到同一个AP中的两个设备不能相互侦测到对方的存在，导致数据传输过
 程中产生冲突，也会导致Layer 2重传。
@@ -4560,21 +4599,21 @@ AP的功率与STA的功率设备不匹配，导致出现这种情况：AP发出�
 </div>
 </div>
 
-<div id="outline-container-sec-10-3" class="outline-3">
-<h3 id="sec-10-3">802.11覆盖范围的考量</h3>
-<div class="outline-text-3" id="text-10-3">
-</div><div id="outline-container-sec-10-3-1" class="outline-4">
-<h4 id="sec-10-3-1">动态速率调整</h4>
-<div class="outline-text-4" id="text-10-3-1">
+<div id="outline-container-sec-11-3" class="outline-3">
+<h3 id="sec-11-3">802.11覆盖范围的考量</h3>
+<div class="outline-text-3" id="text-11-3">
+</div><div id="outline-container-sec-11-3-1" class="outline-4">
+<h4 id="sec-11-3-1">动态速率调整</h4>
+<div class="outline-text-4" id="text-11-3-1">
 <p>
 低速率的设备，会影响处于同一个BSS中的高速率设备的吞吐量。
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-10-3-2" class="outline-4">
-<h4 id="sec-10-3-2">Roaming</h4>
-<div class="outline-text-4" id="text-10-3-2">
+<div id="outline-container-sec-11-3-2" class="outline-4">
+<h4 id="sec-11-3-2">Roaming</h4>
+<div class="outline-text-4" id="text-11-3-2">
 <p>
 Rooming问题的产生通常是由于差劲的网络设计或者是WiFi设备驱动的问题。
 Rooming的决定一般跟WiFi芯片厂商有关，每个厂家的行为都可以是特有的，
@@ -4598,9 +4637,9 @@ Keith Parsons
 </div>
 </div>
 
-<div id="outline-container-sec-10-3-3" class="outline-4">
-<h4 id="sec-10-3-3"><code>Co-channel</code> Interference</h4>
-<div class="outline-text-4" id="text-10-3-3">
+<div id="outline-container-sec-11-3-3" class="outline-4">
+<h4 id="sec-11-3-3"><code>Co-channel</code> Interference</h4>
+<div class="outline-text-4" id="text-11-3-3">
 <p>
 The unnecessary medium contention overhead that occurs because all
 the APs are on the same channel is called co-channel interference
@@ -4610,8 +4649,8 @@ the APs are on the same channel is called co-channel interference
 </div>
 </div>
 
-<div id="outline-container-sec-10-4" class="outline-3">
-<h3 id="sec-10-4">Performance</h3>
+<div id="outline-container-sec-11-4" class="outline-3">
+<h3 id="sec-11-4">Performance</h3>
 </div>
 </div>
 
@@ -4619,12 +4658,12 @@ the APs are on the same channel is called co-channel interference
 
 
 
-<div id="outline-container-sec-11" class="outline-2">
-<h2 id="sec-11">第十三章 802.11网络安全架构</h2>
-<div class="outline-text-2" id="text-11">
-</div><div id="outline-container-sec-11-1" class="outline-3">
-<h3 id="sec-11-1">802.11 security basics</h3>
-<div class="outline-text-3" id="text-11-1">
+<div id="outline-container-sec-12" class="outline-2">
+<h2 id="sec-12">第十三章 802.11网络安全架构</h2>
+<div class="outline-text-2" id="text-12">
+</div><div id="outline-container-sec-12-1" class="outline-3">
+<h3 id="sec-12-1">802.11 security basics</h3>
+<div class="outline-text-3" id="text-12-1">
 <p>
 802.11无线网络安全主要包含如下5个要素：
 </p>
@@ -4642,9 +4681,9 @@ the APs are on the same channel is called co-channel interference
 </ol>
 </div>
 
-<div id="outline-container-sec-11-1-1" class="outline-4">
-<h4 id="sec-11-1-1">Data privacy and integrity</h4>
-<div class="outline-text-4" id="text-11-1-1">
+<div id="outline-container-sec-12-1-1" class="outline-4">
+<h4 id="sec-12-1-1">Data privacy and integrity</h4>
+<div class="outline-text-4" id="text-12-1-1">
 <p>
 基于WLAN网络的开放性特点，为了保护数据私密性，必须对数据进行加密。
 主要有加密方式：
@@ -4663,9 +4702,9 @@ the APs are on the same channel is called co-channel interference
 </div>
 </div>
 
-<div id="outline-container-sec-11-1-2" class="outline-4">
-<h4 id="sec-11-1-2">Authentication, authorization, and accounting (AAA)</h4>
-<div class="outline-text-4" id="text-11-1-2">
+<div id="outline-container-sec-12-1-2" class="outline-4">
+<h4 id="sec-12-1-2">Authentication, authorization, and accounting (AAA)</h4>
+<div class="outline-text-4" id="text-12-1-2">
 <ul class="org-ul">
 <li><code>Authentication（认证）</code>
         对身份和私密信息进行验证，如用户名和密码信息。
@@ -4680,9 +4719,9 @@ the APs are on the same channel is called co-channel interference
 </div>
 </div>
 
-<div id="outline-container-sec-11-1-3" class="outline-4">
-<h4 id="sec-11-1-3">Segmentation</h4>
-<div class="outline-text-4" id="text-11-1-3">
+<div id="outline-container-sec-12-1-3" class="outline-4">
+<h4 id="sec-12-1-3">Segmentation</h4>
+<div class="outline-text-4" id="text-12-1-3">
 <p>
 对已经授权访问网络资源的用户再次进行一个分组，便于为不同的用户或
 设备提供不同安全等级的网络服务。
@@ -4690,9 +4729,9 @@ the APs are on the same channel is called co-channel interference
 </div>
 </div>
 
-<div id="outline-container-sec-11-1-4" class="outline-4">
-<h4 id="sec-11-1-4">Monitoring and policy</h4>
-<div class="outline-text-4" id="text-11-1-4">
+<div id="outline-container-sec-12-1-4" class="outline-4">
+<h4 id="sec-12-1-4">Monitoring and policy</h4>
+<div class="outline-text-4" id="text-12-1-4">
 <p>
 监测网络攻击。
 </p>
@@ -4700,12 +4739,12 @@ the APs are on the same channel is called co-channel interference
 </div>
 </div>
 
-<div id="outline-container-sec-11-2" class="outline-3">
-<h3 id="sec-11-2">Legacy 802.11 security</h3>
-<div class="outline-text-3" id="text-11-2">
-</div><div id="outline-container-sec-11-2-1" class="outline-4">
-<h4 id="sec-11-2-1">Legacy authentication</h4>
-<div class="outline-text-4" id="text-11-2-1">
+<div id="outline-container-sec-12-2" class="outline-3">
+<h3 id="sec-12-2">Legacy 802.11 security</h3>
+<div class="outline-text-3" id="text-12-2">
+</div><div id="outline-container-sec-12-2-1" class="outline-4">
+<h4 id="sec-12-2-1">Legacy authentication</h4>
+<div class="outline-text-4" id="text-12-2-1">
 <p>
 最初802.11定义了两种认证方法：
 </p>
@@ -4722,7 +4761,7 @@ the APs are on the same channel is called co-channel interference
 </p>
 </div>
 
-<ul class="org-ul"><li><a id="sec-11-2-1-1" name="sec-11-2-1-1"></a>Open System authentication<br  /><div class="outline-text-5" id="text-11-2-1-1">
+<ul class="org-ul"><li><a id="sec-12-2-1-1" name="sec-12-2-1-1"></a>Open System authentication<br  /><div class="outline-text-5" id="text-12-2-1-1">
 <ol class="org-ol">
 <li>The client sends an authentication request.
 </li>
@@ -4732,7 +4771,7 @@ the APs are on the same channel is called co-channel interference
 </div>
 </li>
 
-<li><a id="sec-11-2-1-2" name="sec-11-2-1-2"></a>Shared Key authentication<br  /><div class="outline-text-5" id="text-11-2-1-2">
+<li><a id="sec-12-2-1-2" name="sec-12-2-1-2"></a>Shared Key authentication<br  /><div class="outline-text-5" id="text-12-2-1-2">
 <ol class="org-ol">
 <li>The client station sent an authentication request to the access point.
 </li>
@@ -4768,9 +4807,9 @@ Shared Key认证过程看起来比Open system认证过程要安全些，但是�
 </li></ul>
 </div>
 
-<div id="outline-container-sec-11-2-2" class="outline-4">
-<h4 id="sec-11-2-2">Static WEP encryption</h4>
-<div class="outline-text-4" id="text-11-2-2">
+<div id="outline-container-sec-12-2-2" class="outline-4">
+<h4 id="sec-12-2-2">Static WEP encryption</h4>
+<div class="outline-text-4" id="text-12-2-2">
 <p>
 有线等效加密是Layer-2层的加密方法，使用RC4作为流加密器。最初的
 802.11标准只定义了64-位的WEP作为可支持的加密方法，之后，128-位的
@@ -4801,7 +4840,7 @@ STA必须与AP拥有相同 的WEP Key。
 <div class="figure">
 <p><img src="/images/2015/2015121001.png" alt="2015121001.png" />
 </p>
-<p><span class="figure-number">Figure 16:</span> Static WEP encryption key and initialization vector</p>
+<p><span class="figure-number">Figure 17:</span> Static WEP encryption key and initialization vector</p>
 </div>
 
 <p>
@@ -4812,7 +4851,7 @@ STA必须与AP拥有相同 的WEP Key。
 <div class="figure">
 <p><img src="/images/2015/2015121002.png" alt="2015121002.png" />
 </p>
-<p><span class="figure-number">Figure 17:</span> WEP encryption process</p>
+<p><span class="figure-number">Figure 18:</span> WEP encryption process</p>
 </div>
 
 <ol class="org-ol">
@@ -4840,9 +4879,9 @@ data.
 </div>
 </div>
 
-<div id="outline-container-sec-11-2-3" class="outline-4">
-<h4 id="sec-11-2-3">MAC filters</h4>
-<div class="outline-text-4" id="text-11-2-3">
+<div id="outline-container-sec-12-2-3" class="outline-4">
+<h4 id="sec-12-2-3">MAC filters</h4>
+<div class="outline-text-4" id="text-12-2-3">
 <p>
 由于MAC地址的唯一性特点，可以通过MAC地址过滤来限制设备是否允许关
 联当前AP等等，具体过滤规则802.11规范中并没有说明，与具体厂商实现
@@ -4851,9 +4890,9 @@ data.
 </div>
 </div>
 
-<div id="outline-container-sec-11-2-4" class="outline-4">
-<h4 id="sec-11-2-4">SSID cloaking(隐藏SSID)</h4>
-<div class="outline-text-4" id="text-11-2-4">
+<div id="outline-container-sec-12-2-4" class="outline-4">
+<h4 id="sec-12-2-4">SSID cloaking(隐藏SSID)</h4>
+<div class="outline-text-4" id="text-12-2-4">
 <p>
 当AP设置了禁止广播SSID后，它发出的Beacon帧中SSID字段就是空的，这
 样，STA不能通过被动扫描的方式发现设备。主设备进行主动扫描，即使
@@ -4871,9 +4910,9 @@ AP设置的SSID，则会被允许进行Association操作。
 </div>
 </div>
 
-<div id="outline-container-sec-11-3" class="outline-3">
-<h3 id="sec-11-3">Robust security</h3>
-<div class="outline-text-3" id="text-11-3">
+<div id="outline-container-sec-12-3" class="outline-3">
+<h3 id="sec-12-3">Robust security</h3>
+<div class="outline-text-3" id="text-12-3">
 <p>
 802.11i定义了两种认证方法：
 </p>
@@ -4894,13 +4933,13 @@ CCMP/AES是默认的加密方法，TKIP/RC4是可选的加密方法。
 <div class="figure">
 <p><img src="/images/2015/2015121003.png" alt="2015121003.png" />
 </p>
-<p><span class="figure-number">Figure 18:</span> Security standards and certifications comparison</p>
+<p><span class="figure-number">Figure 19:</span> Security standards and certifications comparison</p>
 </div>
 </div>
 
-<div id="outline-container-sec-11-3-1" class="outline-4">
-<h4 id="sec-11-3-1">Robust security network (RSN)</h4>
-<div class="outline-text-4" id="text-11-3-1">
+<div id="outline-container-sec-12-3-1" class="outline-4">
+<h4 id="sec-12-3-1">Robust security network (RSN)</h4>
+<div class="outline-text-4" id="text-12-3-1">
 <p>
 802.11标准定义了：
 </p>
@@ -4935,9 +4974,9 @@ same BSS, although most vendors do not support a TSN.
 </div>
 </div>
 
-<div id="outline-container-sec-11-3-2" class="outline-4">
-<h4 id="sec-11-3-2">Authentication and authorization</h4>
-<div class="outline-text-4" id="text-11-3-2">
+<div id="outline-container-sec-12-3-2" class="outline-4">
+<h4 id="sec-12-3-2">Authentication and authorization</h4>
+<div class="outline-text-4" id="text-12-3-2">
 <p>
 Authentication：the verification of user identity and　
 credentials.
@@ -4951,9 +4990,9 @@ access to　network resources and services.
 </div>
 </div>
 
-<div id="outline-container-sec-11-3-3" class="outline-4">
-<h4 id="sec-11-3-3">PSK authentication</h4>
-<div class="outline-text-4" id="text-11-3-3">
+<div id="outline-container-sec-12-3-3" class="outline-4">
+<h4 id="sec-12-3-3">PSK authentication</h4>
+<div class="outline-text-4" id="text-12-3-3">
 <p>
 最新的802.11标准定义了认证和密钥管理服务（AKM）. AKM服务同时要求
 认证过程和加密密钥的产生和管理。
@@ -4983,9 +5022,9 @@ WPA/WPA2-PSK, and WPA/WPA2-Preshared Key.
 </div>
 </div>
 
-<div id="outline-container-sec-11-3-4" class="outline-4">
-<h4 id="sec-11-3-4">Proprietary PSK authentication</h4>
-<div class="outline-text-4" id="text-11-3-4">
+<div id="outline-container-sec-12-3-4" class="outline-4">
+<h4 id="sec-12-3-4">Proprietary PSK authentication</h4>
+<div class="outline-text-4" id="text-12-3-4">
 <p>
 专有的PSK认证是由厂家自己定义的方法，以应对字典攻击。标准的PSK
 认证方法中，所有的设备拥有相同的PSK，而厂家特有的方法可以允许每
@@ -4996,14 +5035,14 @@ WPA/WPA2-PSK, and WPA/WPA2-Preshared Key.
 <div class="figure">
 <p><img src="/images/2015/2015121004.png" alt="2015121004.png" />
 </p>
-<p><span class="figure-number">Figure 19:</span> Proprietary PSK</p>
+<p><span class="figure-number">Figure 20:</span> Proprietary PSK</p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-sec-11-3-5" class="outline-4">
-<h4 id="sec-11-3-5">802.1X/EAP framework</h4>
-<div class="outline-text-4" id="text-11-3-5">
+<div id="outline-container-sec-12-3-5" class="outline-4">
+<h4 id="sec-12-3-5">802.1X/EAP framework</h4>
+<div class="outline-text-4" id="text-12-3-5">
 <p>
 802.11X标准是一种基于端口访问控制的标准。在执行认证过程时，需要
 一套协议，EAP就是用于用户认证的协议，它是Layer-2层的认证协议。
@@ -5022,14 +5061,14 @@ encryption.
 <div class="figure">
 <p><img src="/images/2015/2015121005.png" alt="2015121005.png" />
 </p>
-<p><span class="figure-number">Figure 20:</span> 802.1X/EAP authentication</p>
+<p><span class="figure-number">Figure 21:</span> 802.1X/EAP authentication</p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-sec-11-3-6" class="outline-4">
-<h4 id="sec-11-3-6">Dynamic encryption-key generation</h4>
-<div class="outline-text-4" id="text-11-3-6">
+<div id="outline-container-sec-12-3-6" class="outline-4">
+<h4 id="sec-12-3-6">Dynamic encryption-key generation</h4>
+<div class="outline-text-4" id="text-12-3-6">
 <p>
 尽管802.1X/EAP框架没有要求加密，但是建议进行加密。802.1X/EAP的目
 的是认证和授权，它的一个副产物就是动态加密密钥的产生和分发。 
@@ -5037,9 +5076,9 @@ encryption.
 </div>
 </div>
 
-<div id="outline-container-sec-11-3-7" class="outline-4">
-<h4 id="sec-11-3-7">4-Way Handshake</h4>
-<div class="outline-text-4" id="text-11-3-7">
+<div id="outline-container-sec-12-3-7" class="outline-4">
+<h4 id="sec-12-3-7">4-Way Handshake</h4>
+<div class="outline-text-4" id="text-12-3-7">
 <p>
 对于两个RSN设备，相互之间在建立认证和关联过程的同时，也需要通过
 一个4-Way握手过程来产生一个动态加密密钥。
@@ -5063,9 +5102,9 @@ Key）。PTK用来加密和解密单播数据，GTK用来加密和解密广播�
 </div>
 </div>
 
-<div id="outline-container-sec-11-3-8" class="outline-4">
-<h4 id="sec-11-3-8">WPA/WPA2-Personal</h4>
-<div class="outline-text-4" id="text-11-3-8">
+<div id="outline-container-sec-12-3-8" class="outline-4">
+<h4 id="sec-12-3-8">WPA/WPA2-Personal</h4>
+<div class="outline-text-4" id="text-12-3-8">
 <p>
 当使用PSK认证时，有一个公式用来将passphase(用户输入的密码或AP设
 置的密码)转换成PMK， 用于在4-Way握手过程中产生动态加密解密密钥。
@@ -5073,9 +5112,9 @@ Key）。PTK用来加密和解密单播数据，GTK用来加密和解密广播�
 </div>
 </div>
 
-<div id="outline-container-sec-11-3-9" class="outline-4">
-<h4 id="sec-11-3-9">TKIP encryption</h4>
-<div class="outline-text-4" id="text-11-3-9">
+<div id="outline-container-sec-12-3-9" class="outline-4">
+<h4 id="sec-12-3-9">TKIP encryption</h4>
+<div class="outline-text-4" id="text-12-3-9">
 <p>
 对WEP加密方法的一个改良，仍然使用RC4算法，
 </p>
@@ -5087,9 +5126,9 @@ TKIP加密方法。
 </div>
 </div>
 
-<div id="outline-container-sec-11-3-10" class="outline-4">
-<h4 id="sec-11-3-10">CCMP encryption</h4>
-<div class="outline-text-4" id="text-11-3-10">
+<div id="outline-container-sec-12-3-10" class="outline-4">
+<h4 id="sec-12-3-10">CCMP encryption</h4>
+<div class="outline-text-4" id="text-12-3-10">
 <p>
 最新的加密方法，802.11n之后的设备默认使用该加密方法。
 </p>
@@ -5097,12 +5136,12 @@ TKIP加密方法。
 </div>
 </div>
 
-<div id="outline-container-sec-11-4" class="outline-3">
-<h3 id="sec-11-4">Traffic segmentation</h3>
-<div class="outline-text-3" id="text-11-4">
-</div><div id="outline-container-sec-11-4-1" class="outline-4">
-<h4 id="sec-11-4-1">VLANs</h4>
-<div class="outline-text-4" id="text-11-4-1">
+<div id="outline-container-sec-12-4" class="outline-3">
+<h3 id="sec-12-4">Traffic segmentation</h3>
+<div class="outline-text-3" id="text-12-4">
+</div><div id="outline-container-sec-12-4-1" class="outline-4">
+<h4 id="sec-12-4-1">VLANs</h4>
+<div class="outline-text-4" id="text-12-4-1">
 <p>
 Virtual local area networks (VLANs) are used to create separate
 broadcast domains in a layer 2 network and are often used to
@@ -5120,14 +5159,14 @@ while communicating through a single access point.
 <div class="figure">
 <p><img src="/images/2015/2015121006.png" alt="2015121006.png" />
 </p>
-<p><span class="figure-number">Figure 21:</span> Wireless VLANs</p>
+<p><span class="figure-number">Figure 22:</span> Wireless VLANs</p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-sec-11-4-2" class="outline-4">
-<h4 id="sec-11-4-2">RBAC</h4>
-<div class="outline-text-4" id="text-11-4-2">
+<div id="outline-container-sec-12-4-2" class="outline-4">
+<h4 id="sec-12-4-2">RBAC</h4>
+<div class="outline-text-4" id="text-12-4-2">
 <p>
 Role-based access control (RBAC) is another approach to
 restricting system access to authorized users.
@@ -5136,56 +5175,56 @@ restricting system access to authorized users.
 </div>
 </div>
 
-<div id="outline-container-sec-11-5" class="outline-3">
-<h3 id="sec-11-5">Infrastructure security</h3>
-<div class="outline-text-3" id="text-11-5">
-</div><div id="outline-container-sec-11-5-1" class="outline-4">
-<h4 id="sec-11-5-1">Physical security</h4>
+<div id="outline-container-sec-12-5" class="outline-3">
+<h3 id="sec-12-5">Infrastructure security</h3>
+<div class="outline-text-3" id="text-12-5">
+</div><div id="outline-container-sec-12-5-1" class="outline-4">
+<h4 id="sec-12-5-1">Physical security</h4>
 </div>
 
-<div id="outline-container-sec-11-5-2" class="outline-4">
-<h4 id="sec-11-5-2">Interface security</h4>
-</div>
-</div>
-
-<div id="outline-container-sec-11-6" class="outline-3">
-<h3 id="sec-11-6">VPN wireless security</h3>
-<div class="outline-text-3" id="text-11-6">
-</div><div id="outline-container-sec-11-6-1" class="outline-4">
-<h4 id="sec-11-6-1">Layer 3 VPNs</h4>
-</div>
-
-<div id="outline-container-sec-11-6-2" class="outline-4">
-<h4 id="sec-11-6-2">SSL VPN</h4>
-</div>
-
-<div id="outline-container-sec-11-6-3" class="outline-4">
-<h4 id="sec-11-6-3">VPN deployment</h4>
-</div>
-
-<div id="outline-container-sec-11-6-4" class="outline-4">
-<h4 id="sec-11-6-4">Guest WLAN security</h4>
-</div>
-
-<div id="outline-container-sec-11-6-5" class="outline-4">
-<h4 id="sec-11-6-5">Captive portal</h4>
-</div>
+<div id="outline-container-sec-12-5-2" class="outline-4">
+<h4 id="sec-12-5-2">Interface security</h4>
 </div>
 </div>
 
-
-
-
-<div id="outline-container-sec-12" class="outline-2">
-<h2 id="sec-12">第十六章 Site Survey Systems and Devices</h2>
+<div id="outline-container-sec-12-6" class="outline-3">
+<h3 id="sec-12-6">VPN wireless security</h3>
+<div class="outline-text-3" id="text-12-6">
+</div><div id="outline-container-sec-12-6-1" class="outline-4">
+<h4 id="sec-12-6-1">Layer 3 VPNs</h4>
 </div>
+
+<div id="outline-container-sec-12-6-2" class="outline-4">
+<h4 id="sec-12-6-2">SSL VPN</h4>
+</div>
+
+<div id="outline-container-sec-12-6-3" class="outline-4">
+<h4 id="sec-12-6-3">VPN deployment</h4>
+</div>
+
+<div id="outline-container-sec-12-6-4" class="outline-4">
+<h4 id="sec-12-6-4">Guest WLAN security</h4>
+</div>
+
+<div id="outline-container-sec-12-6-5" class="outline-4">
+<h4 id="sec-12-6-5">Captive portal</h4>
+</div>
+</div>
+</div>
+
+
+
 
 <div id="outline-container-sec-13" class="outline-2">
-<h2 id="sec-13">第十八章 802.11n</h2>
-<div class="outline-text-2" id="text-13">
-</div><div id="outline-container-sec-13-1" class="outline-3">
-<h3 id="sec-13-1">802.11n-2009 amendment</h3>
-<div class="outline-text-3" id="text-13-1">
+<h2 id="sec-13">第十六章 Site Survey Systems and Devices</h2>
+</div>
+
+<div id="outline-container-sec-14" class="outline-2">
+<h2 id="sec-14">第十八章 802.11n</h2>
+<div class="outline-text-2" id="text-14">
+</div><div id="outline-container-sec-14-1" class="outline-3">
+<h3 id="sec-14-1">802.11n-2009 amendment</h3>
+<div class="outline-text-3" id="text-14-1">
 <p>
 802.11n-2009定义了HT， 无线通信可以结合MIMO技术和OFDM技术。 MIMO
 技术提高了吞吐量和通信范围。802.11n向后与802.11a/b/g保持兼容。
@@ -5194,9 +5233,9 @@ restricting system access to authorized users.
 </div>
 </div>
 
-<div id="outline-container-sec-13-2" class="outline-3">
-<h3 id="sec-13-2">Wi-Fi Alliance certification</h3>
-<div class="outline-text-3" id="text-13-2">
+<div id="outline-container-sec-14-2" class="outline-3">
+<h3 id="sec-14-2">Wi-Fi Alliance certification</h3>
+<div class="outline-text-3" id="text-14-2">
 <p>
 Wi-Fi联盟针对802.11n有一个厂商认证项目称为WiFi CERTIFIED n。
 802.11n的产品必须通过一些强制测试项和可选项。所有认证过的802.11n
@@ -5205,9 +5244,9 @@ Wi-Fi联盟针对802.11n有一个厂商认证项目称为WiFi CERTIFIED n。
 </div>
 </div>
 
-<div id="outline-container-sec-13-3" class="outline-3">
-<h3 id="sec-13-3">MIMO</h3>
-<div class="outline-text-3" id="text-13-3">
+<div id="outline-container-sec-14-3" class="outline-3">
+<h3 id="sec-14-3">MIMO</h3>
+<div class="outline-text-3" id="text-14-3">
 <p>
 MIMO是支持802.11n物理层的核心和灵魂。对于传统的802.11设备，多径是
 一个会导致信号衰减或数据破坏的问题，但是，对于802.11n设备，多径效
@@ -5254,13 +5293,13 @@ improving sensitivity.
 <div class="figure">
 <p><img src="/images/2015/2015121101.png" alt="2015121101.png" />
 </p>
-<p><span class="figure-number">Figure 22:</span> MIMO operation and multipath</p>
+<p><span class="figure-number">Figure 23:</span> MIMO operation and multipath</p>
 </div>
 </div>
 
-<div id="outline-container-sec-13-3-1" class="outline-4">
-<h4 id="sec-13-3-1">Radio chains</h4>
-<div class="outline-text-4" id="text-13-3-1">
+<div id="outline-container-sec-14-3-1" class="outline-4">
+<h4 id="sec-14-3-1">Radio chains</h4>
+<div class="outline-text-4" id="text-14-3-1">
 <p>
 A radio chain is defi ned as a single radio and all of its
 supporting architecture, including mixers, amplifi ers, and
@@ -5277,14 +5316,14 @@ analog/digital converters.
 <div class="figure">
 <p><img src="/images/2015/2015121102.png" alt="2015121102.png" />
 </p>
-<p><span class="figure-number">Figure 23:</span> 2×3 and 3×3 MIMO</p>
+<p><span class="figure-number">Figure 24:</span> 2×3 and 3×3 MIMO</p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-sec-13-3-2" class="outline-4">
-<h4 id="sec-13-3-2">Spatial multiplexing (SM)</h4>
-<div class="outline-text-4" id="text-13-3-2">
+<div id="outline-container-sec-14-3-2" class="outline-4">
+<h4 id="sec-14-3-2">Spatial multiplexing (SM)</h4>
+<div class="outline-text-4" id="text-14-3-2">
 <p>
 A MIMO radio also has the ability to send independent unique
 data streams. Each independent data stream is known as a
@@ -5316,7 +5355,7 @@ multiplexing (SM) or spatial diversity multiplexing (SDM).
 <div class="figure">
 <p><img src="/images/2015/2015121103.png" alt="2015121103.png" />
 </p>
-<p><span class="figure-number">Figure 24:</span> Multiple spatial streams</p>
+<p><span class="figure-number">Figure 25:</span> Multiple spatial streams</p>
 </div>
 
 <p>
@@ -5325,9 +5364,9 @@ multiplexing (SM) or spatial diversity multiplexing (SDM).
 </div>
 </div>
 
-<div id="outline-container-sec-13-3-3" class="outline-4">
-<h4 id="sec-13-3-3">MIMO diversity</h4>
-<div class="outline-text-4" id="text-13-3-3">
+<div id="outline-container-sec-14-3-3" class="outline-4">
+<h4 id="sec-14-3-3">MIMO diversity</h4>
+<div class="outline-text-4" id="text-14-3-3">
 <p>
 Antenna diversity (both receive and transmit) is a method of
 using multiple antennas to survive the negative effects of
@@ -5341,9 +5380,9 @@ multipath.
 </div>
 </div>
 
-<div id="outline-container-sec-13-3-4" class="outline-4">
-<h4 id="sec-13-3-4">Space-time block coding (STBC)</h4>
-<div class="outline-text-4" id="text-13-3-4">
+<div id="outline-container-sec-14-3-4" class="outline-4">
+<h4 id="sec-14-3-4">Space-time block coding (STBC)</h4>
+<div class="outline-text-4" id="text-14-3-4">
 <p>
 Space-time block coding (STBC) is a method where the same
 information is transmitted on two or more antennas. It is a
@@ -5359,9 +5398,9 @@ type of transmit diversity.
 </div>
 </div>
 
-<div id="outline-container-sec-13-3-5" class="outline-4">
-<h4 id="sec-13-3-5">Cyclic shift diversity (CSD)</h4>
-<div class="outline-text-4" id="text-13-3-5">
+<div id="outline-container-sec-14-3-5" class="outline-4">
+<h4 id="sec-14-3-5">Cyclic shift diversity (CSD)</h4>
+<div class="outline-text-4" id="text-14-3-5">
 <p>
 另一种比较重要的Transmit Diversity技术，可以用于802.11n设备与传
 统802.11设备之间的数据传输。
@@ -5369,9 +5408,9 @@ type of transmit diversity.
 </div>
 </div>
 
-<div id="outline-container-sec-13-3-6" class="outline-4">
-<h4 id="sec-13-3-6">Transmit beamforming (TxBF)</h4>
-<div class="outline-text-4" id="text-13-3-6">
+<div id="outline-container-sec-14-3-6" class="outline-4">
+<h4 id="sec-14-3-6">Transmit beamforming (TxBF)</h4>
+<div class="outline-text-4" id="text-14-3-6">
 <p>
 802.11n标准中定义的一种可选的物理层能力。Transmit beamforming
 can be used when there are more transmitting antennas than
@@ -5386,12 +5425,12 @@ there are spatial data streams.
 </div>
 </div>
 
-<div id="outline-container-sec-13-4" class="outline-3">
-<h3 id="sec-13-4">HT channels</h3>
-<div class="outline-text-3" id="text-13-4">
-</div><div id="outline-container-sec-13-4-1" class="outline-4">
-<h4 id="sec-13-4-1">20 MHz non-HT and HT channels</h4>
-<div class="outline-text-4" id="text-13-4-1">
+<div id="outline-container-sec-14-4" class="outline-3">
+<h3 id="sec-14-4">HT channels</h3>
+<div class="outline-text-3" id="text-14-4">
+</div><div id="outline-container-sec-14-4-1" class="outline-4">
+<h4 id="sec-14-4-1">20 MHz non-HT and HT channels</h4>
+<div class="outline-text-4" id="text-14-4-1">
 <p>
 802.11n (HT) radios also use the same OFDM technology and have
 the capability of using either 20 MHz channels or 40 MHz
@@ -5404,26 +5443,26 @@ non-HT OFDM channel.
 <div class="figure">
 <p><img src="/images/2015/2015121104.png" alt="2015121104.png" />
 </p>
-<p><span class="figure-number">Figure 25:</span> 20 MHz non-HT (802.11a/g) channel</p>
+<p><span class="figure-number">Figure 26:</span> 20 MHz non-HT (802.11a/g) channel</p>
 </div>
 
 
 <div class="figure">
 <p><img src="/images/2015/2015121105.png" alt="2015121105.png" />
 </p>
-<p><span class="figure-number">Figure 26:</span> 20 MHz HT (802.11n) channel</p>
+<p><span class="figure-number">Figure 27:</span> 20 MHz HT (802.11n) channel</p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-sec-13-4-2" class="outline-4">
-<h4 id="sec-13-4-2">40 MHz channels</h4>
-<div class="outline-text-4" id="text-13-4-2">
+<div id="outline-container-sec-14-4-2" class="outline-4">
+<h4 id="sec-14-4-2">40 MHz channels</h4>
+<div class="outline-text-4" id="text-14-4-2">
 
 <div class="figure">
 <p><img src="/images/2015/2015121106.png" alt="2015121106.png" />
 </p>
-<p><span class="figure-number">Figure 27:</span> 40 MHz HT (802.11n) channel</p>
+<p><span class="figure-number">Figure 28:</span> 40 MHz HT (802.11n) channel</p>
 </div>
 
 <p>
@@ -5433,9 +5472,9 @@ non-HT OFDM channel.
 </div>
 </div>
 
-<div id="outline-container-sec-13-4-3" class="outline-4">
-<h4 id="sec-13-4-3">40 MHz Intolerant</h4>
-<div class="outline-text-4" id="text-13-4-3">
+<div id="outline-container-sec-14-4-3" class="outline-4">
+<h4 id="sec-14-4-3">40 MHz Intolerant</h4>
+<div class="outline-text-4" id="text-14-4-3">
 <p>
 2.4G频段，只有一个不重叠的40 MHz的信道。 一个在2.4G使用40 MHz信道宽
 度的AP会影响周围其他的AP，如果该AP运行在2.4G，并使用20 MHz信道
@@ -5448,9 +5487,9 @@ non-HT OFDM channel.
 </div>
 </div>
 
-<div id="outline-container-sec-13-4-4" class="outline-4">
-<h4 id="sec-13-4-4">Guard interval (GI)</h4>
-<div class="outline-text-4" id="text-13-4-4">
+<div id="outline-container-sec-14-4-4" class="outline-4">
+<h4 id="sec-14-4-4">Guard interval (GI)</h4>
+<div class="outline-text-4" id="text-14-4-4">
 <p>
 For digital signals, data is modulated onto the carrier signal
 in bits or collections of bits called <i>symbols</i>.
@@ -5481,7 +5520,7 @@ of the same signal. 通过delay spread的大小为50 ns ~ 100 ns, 最
 <div class="figure">
 <p><img src="/images/2015/2015121107.png" alt="2015121107.png" />
 </p>
-<p><span class="figure-number">Figure 28:</span> Guard interval</p>
+<p><span class="figure-number">Figure 29:</span> Guard interval</p>
 </div>
 
 <p>
@@ -5490,9 +5529,9 @@ GI的主要作用是防止 <code>Inter symbol inerference</code>.
 </div>
 </div>
 
-<div id="outline-container-sec-13-4-5" class="outline-4">
-<h4 id="sec-13-4-5">Modulation and coding scheme (MCS)</h4>
-<div class="outline-text-4" id="text-13-4-5">
+<div id="outline-container-sec-14-4-5" class="outline-4">
+<h4 id="sec-14-4-5">Modulation and coding scheme (MCS)</h4>
+<div class="outline-text-4" id="text-14-4-5">
 <p>
 802.11n data rates are defined with a modulation and coding
 scheme (MCS) matrix.
@@ -5500,9 +5539,9 @@ scheme (MCS) matrix.
 </div>
 </div>
 
-<div id="outline-container-sec-13-4-6" class="outline-4">
-<h4 id="sec-13-4-6">HT PHY</h4>
-<div class="outline-text-4" id="text-13-4-6">
+<div id="outline-container-sec-14-4-6" class="outline-4">
+<h4 id="sec-14-4-6">HT PHY</h4>
+<div class="outline-text-4" id="text-14-4-6">
 <p>
 MSDU是Layer3~7层的负载。 MPDU是整个802.11帧的技术名称。当MPDU转
 到物理层后，前导码和PHY头部信息加入到MPDU，产生了 <i>Physical
@@ -5516,14 +5555,14 @@ Layer Convergence Procedure Protocol Data Unit (PPDU).</i>
 <div class="figure">
 <p><img src="/images/2015/2015121108.png" alt="2015121108.png" />
 </p>
-<p><span class="figure-number">Figure 29:</span> 802.11n PPDU formats</p>
+<p><span class="figure-number">Figure 30:</span> 802.11n PPDU formats</p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-sec-13-4-7" class="outline-4">
-<h4 id="sec-13-4-7">Non-HT legacy</h4>
-<div class="outline-text-4" id="text-13-4-7">
+<div id="outline-container-sec-14-4-7" class="outline-4">
+<h4 id="sec-14-4-7">Non-HT legacy</h4>
+<div class="outline-text-4" id="text-14-4-7">
 <p>
 Support for the non-HT legacy format is mandatory for 802.11n
 radios, and transmissions can occur in only 20 MHz channels.
@@ -5531,9 +5570,9 @@ radios, and transmissions can occur in only 20 MHz channels.
 </div>
 </div>
 
-<div id="outline-container-sec-13-4-8" class="outline-4">
-<h4 id="sec-13-4-8">HT Mixed</h4>
-<div class="outline-text-4" id="text-13-4-8">
+<div id="outline-container-sec-14-4-8" class="outline-4">
+<h4 id="sec-14-4-8">HT Mixed</h4>
+<div class="outline-text-4" id="text-14-4-8">
 <p>
 The HT Mixed format is also considered mandatory, and
 transmissions can occur in both 20 MHz and 40 MHz channels.
@@ -5547,9 +5586,9 @@ interoperability with the 802.11a/g non-HT clients.
 </div>
 </div>
 
-<div id="outline-container-sec-13-4-9" class="outline-4">
-<h4 id="sec-13-4-9">HT Greenfield</h4>
-<div class="outline-text-4" id="text-13-4-9">
+<div id="outline-container-sec-14-4-9" class="outline-4">
+<h4 id="sec-14-4-9">HT Greenfield</h4>
+<div class="outline-text-4" id="text-14-4-9">
 <p>
 Greenfield format is optional, and the HT radios can transmit
 by using both 20 MHz and 40 MHz channels..
@@ -5562,18 +5601,18 @@ by using both 20 MHz and 40 MHz channels..
 </div>
 </div>
 
-<div id="outline-container-sec-13-5" class="outline-3">
-<h3 id="sec-13-5">HT MAC</h3>
-<div class="outline-text-3" id="text-13-5">
+<div id="outline-container-sec-14-5" class="outline-3">
+<h3 id="sec-14-5">HT MAC</h3>
+<div class="outline-text-3" id="text-14-5">
 <p>
 针对MAC逻辑链路子层， 也提供了一些机制来增强吞吐量，改进电源管理
 功能： 使用帧聚合。 
 </p>
 </div>
 
-<div id="outline-container-sec-13-5-1" class="outline-4">
-<h4 id="sec-13-5-1">A-MSDU</h4>
-<div class="outline-text-4" id="text-13-5-1">
+<div id="outline-container-sec-14-5-1" class="outline-4">
+<h4 id="sec-14-5-1">A-MSDU</h4>
+<div class="outline-text-4" id="text-14-5-1">
 <p>
 802.11设备传输帧时，使用竞争机制来获取媒介使用权，这样会产生一
 些通信开锁，且是无法避免的。 为了降低通信开销，802.11n引入了两
@@ -5588,14 +5627,14 @@ by using both 20 MHz and 40 MHz channels..
 <div class="figure">
 <p><img src="/images/2015/2015121109.png" alt="2015121109.png" />
 </p>
-<p><span class="figure-number">Figure 30:</span> A-MSDU</p>
+<p><span class="figure-number">Figure 31:</span> A-MSDU</p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-sec-13-5-2" class="outline-4">
-<h4 id="sec-13-5-2">A-MPDU</h4>
-<div class="outline-text-4" id="text-13-5-2">
+<div id="outline-container-sec-14-5-2" class="outline-4">
+<h4 id="sec-14-5-2">A-MPDU</h4>
+<div class="outline-text-4" id="text-14-5-2">
 <p>
 The second method of frame aggregation is known as <i>Aggregate
 MAC Protocol Data Unit (A-MPDU)</i>.
@@ -5605,25 +5644,25 @@ MAC Protocol Data Unit (A-MPDU)</i>.
 <div class="figure">
 <p><img src="/images/2015/2015121110.png" alt="2015121110.png" />
 </p>
-<p><span class="figure-number">Figure 31:</span> A-MPDU</p>
+<p><span class="figure-number">Figure 32:</span> A-MPDU</p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-sec-13-5-3" class="outline-4">
-<h4 id="sec-13-5-3">Block Acknowledgment</h4>
-<div class="outline-text-4" id="text-13-5-3">
+<div id="outline-container-sec-14-5-3" class="outline-4">
+<h4 id="sec-14-5-3">Block Acknowledgment</h4>
+<div class="outline-text-4" id="text-14-5-3">
 <p>
 A-MSDU只需要 一个ACK，但是，A-MPDU需要对其中的每个MPDU进行确认，
-这是通过 <i>multiple traffi c ID block acknowledgment (MTBA)
+这是通过 <i>multiple traffic ID block acknowledgment (MTBA)
 frame</i> 来完成的，它实际上是一个A-MPDU的Block ACK帧。 
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-13-5-4" class="outline-4">
-<h4 id="sec-13-5-4">RIFS</h4>
-<div class="outline-text-4" id="text-13-5-4">
+<div id="outline-container-sec-14-5-4" class="outline-4">
+<h4 id="sec-14-5-4">RIFS</h4>
+<div class="outline-text-4" id="text-14-5-4">
 <p>
 802.11n引入了一个更短的帧间间隔 <i>reduced interframe space
 (RIFS)</i> 。 
@@ -5631,9 +5670,9 @@ frame</i> 来完成的，它实际上是一个A-MPDU的Block ACK帧。
 </div>
 </div>
 
-<div id="outline-container-sec-13-5-5" class="outline-4">
-<h4 id="sec-13-5-5">HT power management</h4>
-<div class="outline-text-4" id="text-13-5-5">
+<div id="outline-container-sec-14-5-5" class="outline-4">
+<h4 id="sec-14-5-5">HT power management</h4>
+<div class="outline-text-4" id="text-14-5-5">
 <ol class="org-ol">
 <li>spatial multiplexing power save(SM power save)
 </li>
@@ -5644,12 +5683,12 @@ frame</i> 来完成的，它实际上是一个A-MPDU的Block ACK帧。
 </div>
 </div>
 
-<div id="outline-container-sec-13-6" class="outline-3">
-<h3 id="sec-13-6">HT operation</h3>
-<div class="outline-text-3" id="text-13-6">
-</div><div id="outline-container-sec-13-6-1" class="outline-4">
-<h4 id="sec-13-6-1">20/40 channel operation</h4>
-<div class="outline-text-4" id="text-13-6-1">
+<div id="outline-container-sec-14-6" class="outline-3">
+<h3 id="sec-14-6">HT operation</h3>
+<div class="outline-text-3" id="text-14-6">
+</div><div id="outline-container-sec-14-6-1" class="outline-4">
+<h4 id="sec-14-6-1">20/40 channel operation</h4>
+<div class="outline-text-4" id="text-14-6-1">
 <p>
 Several rules apply for the operation of 20 MHz and 40 MHz
 stations within the same HT 20/40 basic service set:
@@ -5676,9 +5715,9 @@ the secondary channel.
 </div>
 </div>
 
-<div id="outline-container-sec-13-6-2" class="outline-4">
-<h4 id="sec-13-6-2">HT protection modes (0–3)</h4>
-<div class="outline-text-4" id="text-13-6-2">
+<div id="outline-container-sec-14-6-2" class="outline-4">
+<h4 id="sec-14-6-2">HT protection modes (0–3)</h4>
+<div class="outline-text-4" id="text-14-6-2">
 <p>
 在Beacon帧中，有一个HT Protection的域，它有4个可能的值0~3. 保护
 模式会动态变化，取决于周围的设备或者关联的HT AP。使用的保护机制
@@ -5712,14 +5751,250 @@ stations are associated to the HT access point.
 </div>
 </div>
 
-<div id="outline-container-sec-13-6-3" class="outline-4">
-<h4 id="sec-13-6-3">RTS/CTS and CTS-to-self</h4>
+<div id="outline-container-sec-14-6-3" class="outline-4">
+<h4 id="sec-14-6-3">RTS/CTS and CTS-to-self</h4>
 </div>
 </div>
 </div>
 
 
-<div id="outline-container-sec-14" class="outline-2">
-<h2 id="sec-14">第十九章 VHT &amp; 802.11ac</h2>
+<div id="outline-container-sec-15" class="outline-2">
+<h2 id="sec-15">第十九章 VHT &amp; 802.11ac</h2>
+<div class="outline-text-2" id="text-15">
+</div><div id="outline-container-sec-15-1" class="outline-3">
+<h3 id="sec-15-1">802.11ac 2003修订版</h3>
+<div class="outline-text-3" id="text-15-1">
+<p>
+802.11ac是分阶段实现的，第一阶段目标是传输速率达到1.3Gbps， 第二阶
+段目标是传输速率达到3.5Gbps。 
+</p>
+
+<p>
+与802.11n对比情况如下：
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042601.png" alt="2016042601.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-15-2" class="outline-3">
+<h3 id="sec-15-2">5 GHz only</h3>
+<div class="outline-text-3" id="text-15-2">
+<p>
+802.11ac由于支持更高的带宽，所以只能工作在5G频段上。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-15-3" class="outline-3">
+<h3 id="sec-15-3">20,40,80,160 MHz信道</h3>
+<div class="outline-text-3" id="text-15-3">
+<p>
+11ac在11n的基础上，引入了80MHz，160MHz的带宽。其中，40MHz带宽信道是
+由两个相相邻的20MHz信道组合而成，80MHz带宽信道是由两个相邻的40MHz信
+道组合而成，160MHz是由两个相邻或独立的两个80MHz信道构成。
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042602.png" alt="2016042602.png" />
+</p>
+</div>
+
+<p>
+对于11n设备，当他们使用40MHz带宽传输数据时，必须等待Primary Channel
+和Secondary Channel都空闲的情况下，才能进行数据传输。显然会影响11n
+设备的性能。
+</p>
+
+<p>
+11ac设备引入了新的功能，允许AP以每帧为单位选择不同的带宽进行传输。
+这种特性称为 <i>dynamic bandwidth operation</i> 。 这样，11ac的AP，如果
+工作在信36，40，44，48上以80MHz带宽进行数据传输，在进行数据传输之前，
+会检查这4个信道是否空闲，如果发现其中36信息被其他AP占用，则会在信道
+44，48上以40Mhz带宽进行数据传输。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-15-4" class="outline-3">
+<h3 id="sec-15-4">256 QAM modulation</h3>
+<div class="outline-text-3" id="text-15-4">
+<p>
+新的调整信号方法， 256 QAM is more sensitive to noise and interference.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-15-5" class="outline-3">
+<h3 id="sec-15-5">Modulation and coding schemes</h3>
+<div class="outline-text-3" id="text-15-5">
+<p>
+11ac只定义了10个MCS选项，前8个是必须实现的。
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042603.png" alt="2016042603.png" />
+</p>
+</div>
+
+<p>
+The last column represents the maximum achievable data rate for
+each MCS. The data rate is based on a 20 MHz wide channel, a single 
+spatial stream, and a short guard interval (400 ns). 
+</p>
+
+<p>
+11ac不能单独禁用某一个速率，但是支持三个选择： <i>MCS 0-7,MCS 0-8, or MCS 0-9.</i>
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-15-6" class="outline-3">
+<h3 id="sec-15-6">Single User MIMO</h3>
+</div>
+
+<div id="outline-container-sec-15-7" class="outline-3">
+<h3 id="sec-15-7">802.11ac date Rates</h3>
+<div class="outline-text-3" id="text-15-7">
+<p>
+相对于11n，11ac主要在如下几个方面进行了增强，以提升数据传输速率。
+</p>
+<ol class="org-ol">
+<li>采用 <code>256-QAM</code> 调制方法
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-15-8" class="outline-3">
+<h3 id="sec-15-8">VHT MAC</h3>
+<div class="outline-text-3" id="text-15-8">
+<p>
+11ac只需要考虑11a, 11n(5G)设备的共存问题。 由于物理层都使用OFDM前导
+码，可以容易计算出等待的时间。
+</p>
+</div>
+
+<div id="outline-container-sec-15-8-1" class="outline-4">
+<h4 id="sec-15-8-1"><code>A-MPDU</code></h4>
+<div class="outline-text-4" id="text-15-8-1">
+<p>
+所有11ac数据帧都是使用 <code>A-MPDU</code> 帧格式进行传输，即使是只有一个数据
+帧传输。 <code>A-MPDU</code> 降低了每帧的开销，只要求一个Block ACK。11n中的
+RIFS不需要了，所以11ac是不支持RIFS的。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-15-8-2" class="outline-4">
+<h4 id="sec-15-8-2">RTS/CTS</h4>
+<div class="outline-text-4" id="text-15-8-2">
+<p>
+一个AP如果有准备在4个相邻信道上进行80MHz的数据传输，需要在4个信道
+上发送RTS，然后监听CTS，如果信道不忙，则会收到4个CTS。
+</p>
+
+<p>
+但是，如果4个信道中，有一个或2个信道忙，则AP可能只收到两个CTS，这
+样AP就只能进行40MHz的数据传输。
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-15-9" class="outline-3">
+<h3 id="sec-15-9">Beamforming</h3>
+<div class="outline-text-3" id="text-15-9">
+<p>
+Instead of equally radiating the RF signal, beamforming allows an
+802.11 transmitter to focus or direct the RF energy toward a
+specific client.
+</p>
+
+<p>
+To perform beamforming, the multiple radio chains in the AP
+transmit the same information through different antennas. The APs
+time their transmissions so that the waves of all of the antennas
+arrive at the receiving radio at the same time and in phase with
+each other. This should result in a signal increase of
+approximately 3 decibels.
+</p>
+</div>
+
+
+<div id="outline-container-sec-15-9-1" class="outline-4">
+<h4 id="sec-15-9-1">Explicit Beamforming</h4>
+<div class="outline-text-4" id="text-15-9-1">
+<p>
+11n定义了多种beamforming方法，但是11ac只使用explicit beamforming，
+并且要求发送方和接收方都要支持。
+</p>
+
+<p>
+Explicit Beamforming的过程如下：
+</p>
+<ol class="org-ol">
+<li>Beamformer传输一个空数据包（NDP）， 告知beamformee准备进行
+beamformed传输的意图。
+</li>
+<li>The beamformee processes each OFDM subcarrier and creates
+feedback information.
+</li>
+<li>The beamformer uses the feedback matrix to calculate a steering
+matrix that is used to direct the data transmission to the
+beamformee.
+</li>
+</ol>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042604.png" alt="2016042604.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-15-9-2" class="outline-4">
+<h4 id="sec-15-9-2">Multiuser MIMO</h4>
+<div class="outline-text-4" id="text-15-9-2">
+<p>
+The goal of MU-MIMO is to use as many spatial streams as possible,
+whether the transmission is with one client using four spatial
+streams or with four clients using one spatial stream each.
+</p>
+
+<p>
+MU-MIMO is only supported for downstream transmission from an AP
+to multiple clients.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-15-9-3" class="outline-4">
+<h4 id="sec-15-9-3">Multiuser Beamforming</h4>
+</div>
+
+<div id="outline-container-sec-15-9-4" class="outline-4">
+<h4 id="sec-15-9-4">Quality of Service</h4>
+</div>
+</div>
+
+<div id="outline-container-sec-15-10" class="outline-3">
+<h3 id="sec-15-10">Infrastructure requirements</h3>
+</div>
+
+<div id="outline-container-sec-15-11" class="outline-3">
+<h3 id="sec-15-11">802.11ac in a SOHO or home</h3>
+</div>
+
+<div id="outline-container-sec-15-12" class="outline-3">
+<h3 id="sec-15-12">WFA certification</h3>
+</div>
 </div>
 </div>

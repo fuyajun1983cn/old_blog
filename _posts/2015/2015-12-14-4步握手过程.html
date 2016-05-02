@@ -1,7 +1,8 @@
 ---
 layout: post
-title:  "4步握手过程"
-date:   2015-12-14 
+date: 2015-12-14
+author: 山庄来客
+update: 2016-05-02
 categories: wifi
 ---
 <div id="content">
@@ -10,13 +11,37 @@ categories: wifi
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#sec-1">4-Way HandShake  &amp;  Group HandShake</a></li>
-<li><a href="#sec-2">Question: Four-way Handshake in WPA-Personal (WPA-PSK)</a>
+<li><a href="#sec-1">基础理论</a>
 <ul>
-<li><a href="#sec-2-1">four-way exchange</a></li>
-<li><a href="#sec-2-2">2-Way Group Handshake</a></li>
-<li><a href="#sec-2-3">如何产生GMK？</a></li>
-<li><a href="#sec-2-4">如何产生临时Key？</a></li>
+<li><a href="#sec-1-1">概述</a></li>
+<li><a href="#sec-1-2">术语</a></li>
+<li><a href="#sec-1-3">Key</a>
+<ul>
+<li><a href="#sec-1-3-1">Key Hierarchy</a></li>
+<li><a href="#sec-1-3-2">PMKSA（PMK Security Association）</a></li>
+<li><a href="#sec-1-3-3">临时密钥计算</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-2">4-Way HandShake</a>
+<ul>
+<li>
+<ul>
+<li><a href="#sec-2-0-1">基本步骤</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-3">Group HandShake</a>
+<ul>
+<li>
+<ul>
+<li><a href="#sec-3-0-1">基本步骤</a></li>
+<li><a href="#sec-3-0-2">如何产生GMK？</a></li>
+<li><a href="#sec-3-0-3">如何产生临时Key？</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -25,13 +50,248 @@ categories: wifi
 
 
 <div id="outline-container-sec-1" class="outline-2">
-<h2 id="sec-1">4-Way HandShake  &amp;  Group HandShake</h2>
+<h2 id="sec-1">基础理论</h2>
 <div class="outline-text-2" id="text-1">
+</div><div id="outline-container-sec-1-1" class="outline-3">
+<h3 id="sec-1-1">概述</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+Both WPA2-PSK and WPA2-EAP result in a Pairwise Master Key (PMK)
+known to both the supplicant (client) and the authenticator
+(AP). (In PSK the PMK is derived directly from the password,
+whereas in EAP it is a result of the authentication process.) The
+four-way WPA2 handshake essentially makes the supplicant and
+authenticator prove to each other that they both know the PMK, and
+creates the temporal keys used to actually secure network
+data. Capturing the four-way handshake will not divulge the PMK or
+PSK (since capturing the handshake is trivial over wireless this
+would be a major vulnerability). The PMK isn't even sent during the
+handshake, instead it is used to calculate a Message Integrity
+Check (MIC). You basically need to perform a dictionary or
+bruteforce attack on the handshake until you find a password which
+results in the same MIC as in the packets.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-2" class="outline-3">
+<h3 id="sec-1-2">术语</h3>
+<div class="outline-text-3" id="text-1-2">
+<ul class="org-ul">
+<li><code>MSK-Master Session Key ( or AAA Key)</code>
+Key information that is jointly negotiated between the Supplicant
+&amp; Authentication Server. This key information is transported via
+a secure channel from Authenticating Server to Authenticator.
+</li>
+<li><code>PMK-Pairwise Master Key</code>
+PMK is derived from MSK seeding material. PMK is first 256bits
+(0-255) of MSK. It can be derived from an EAP method or directly
+from a PresharedKey(PSK).
+</li>
+<li><code>GMK-Group Master Key</code>
+GMK is randomly created on Authenticator &amp; refresh it in
+configured time interval to reduce the risk of GMK being
+compromised.
+</li>
+
+<li><code>PTK-Pairwise Transient Key</code>
+value derived from PMK,Authenicator nonce(Anonce),Supplicant
+nonce(Snonce), Authenticator Address, Supplicant Address. This is
+used to encrypt all unicast transmission between client &amp; an AP. 
+
+<p>
+Unicast data sent between two parties needs to be private to
+those two parties. This is best accomplished by using a specific
+key for each pair of devices communicating. we called this a
+pairwise key.
+</p>
+</li>
+
+<li><code>GTK-Group Temporal Key</code>
+GTK is used to encrypt all broadcast/multicast transmission
+between an AP &amp; multiple client statsions. GTK is derived on
+Authenticator &amp; sending to supplicant during 4-Way Handshake (M3)
+
+<p>
+broadcast (or multicast) data must be received by multiple
+parties who form a trusted group. Therefore, a key must be
+shared by all the members of that trusted group. This is called
+the group key.
+</p>
+</li>
+
+<li><code>Pre-shared keys</code>
+Preshared keys bypass the concept of upper-layer authentication
+completely; you are assumed to be authentic simply by proving
+possession of the key.
+</li>
+
+<li><code>server-based keys</code>
+requires an upper-layer authentication process that allows the
+mobile device and an authentication server to generate matching secret keys. 
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1-3" class="outline-3">
+<h3 id="sec-1-3">Key</h3>
+<div class="outline-text-3" id="text-1-3">
+</div><div id="outline-container-sec-1-3-1" class="outline-4">
+<h4 id="sec-1-3-1">Key Hierarchy</h4>
+<div class="outline-text-4" id="text-1-3-1">
+<p>
+RSN key hierarchy
+</p>
+
 
 <div class="figure">
-<p><img src="{{site.url}}/images/2015/2015121401.png" alt="2015121401.png" />
+<p><img src="/images/2016/2016042505.png" alt="2016042505.png" />
 </p>
-<p><span class="figure-number">Figure 1:</span> 802.11i四次握手过程</p>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042504.png" alt="2016042504.png" />
+</p>
+</div>
+
+<p>
+对于PTK来说，每个STA与AP之间独立共享一个唯一的PTK，而对于GTK，所有
+STA与AP之间共享同一个GTK。
+</p>
+</div>
+
+<ul class="org-ul"><li><a id="sec-1-3-1-1" name="sec-1-3-1-1"></a>AES<br  /><div class="outline-text-5" id="text-1-3-1-1">
+<ul class="org-ul">
+<li>Pairwise Key Hierarchy
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042506.png" alt="2016042506.png" />
+</p>
+</div>
+</li>
+
+<li>Group Key Hierarchy
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042509.png" alt="2016042509.png" />
+</p>
+</div>
+</li>
+</ul>
+</div>
+</li>
+
+<li><a id="sec-1-3-1-2" name="sec-1-3-1-2"></a>TKIP<br  /><div class="outline-text-5" id="text-1-3-1-2">
+<ul class="org-ul">
+<li>Pairwise Key Hierarchy
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042507.png" alt="2016042507.png" />
+</p>
+</div>
+</li>
+
+<li>Group Key Hierarchy
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042508.png" alt="2016042508.png" />
+</p>
+</div>
+</li>
+</ul>
+</div>
+</li></ul>
+</div>
+
+<div id="outline-container-sec-1-3-2" class="outline-4">
+<h4 id="sec-1-3-2">PMKSA（PMK Security Association）</h4>
+<div class="outline-text-4" id="text-1-3-2">
+<p>
+认证者与申请者都有可能缓存PMKSA， 它包含了一些相关状态信息，如AP的
+MAC地址，PMK的生存期以及唯一的标识PMKID等。其他PMKID是根据如下公式
+计算出来的一个Hash值：
+</p>
+<pre class="example">
+PMKID = HMAC-SHA1-128(PMK, "PMK Name" | MAC_AP | MAC_STA)
+</pre>
+
+<p>
+When associating with an access point, the station determines if
+it has a valid PMK with the target access point by checking if it
+has a PMKSA that matches the target access point's MAC address. If
+such PMK does not exist, the station and the access point perform
+authentication using EAP. If the station determines that it shares
+a PMK with the target AP, then the station proposes the use of the
+PMK by including the PMKID in the RSN Information Element of the
+(Re)Association Request message. Upon reciept of a (Re)Assiciation
+Request with a PMKID, the access point checks whether is has a
+valid PMKSA with the same PMKID. If so, it begins the four way
+handshake exchange using the negotiated PMKSA.
+</p>
+
+<p>
+在与AP进行关联或重新关联时，会先检测是否有对应的PMKSA，如果存在，
+则在请求IE中包含PMKID信息，AP收到后，根据PMKID信息检测是否有对应的
+PMKSA，如果存在，则使用之前协商好的PMKSA直接进入4步握手阶段。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-3-3" class="outline-4">
+<h4 id="sec-1-3-3">临时密钥计算</h4>
+<div class="outline-text-4" id="text-1-3-3">
+<p>
+ PMK并不直接用于保密操作，它本身用来产生一组Key，这些Key用来保护设备
+间的通信链路。有4个单独Key来保护通信链路：
+</p>
+
+<ul class="org-ul">
+<li>Data Encryption key (128 bits)
+</li>
+<li>Data Integrity key (128 bits)
+</li>
+<li>EAPOL-Key Encryption key (128 bits)
+</li>
+<li>EAPOL-Key Integrity key (128 bits)
+</li>
+</ul>
+
+<p>
+这些Key称为临时Key，因为每次设备与AP关联时，都会重新产生。这些Key一
+起统称为PTK(pairwise transient key)。
+</p>
+
+<p>
+ <a href="/images/2016/2016042502.png
+">/images/2016/2016042502.png
+</a>
+PMK利用认证过程中产生的生成Key的原料来产生的。对于Pre-Shared Key，
+直接将其作为PMK来使用。
+认证结束后，即当收到认证方发送的EAP-Success消息，双方都应该获取到了
+PMK。
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">4-Way HandShake</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-sec-2-0-1" class="outline-4">
+<h4 id="sec-2-0-1">基本步骤</h4>
+<div class="outline-text-4" id="text-2-0-1">
+
+<div class="figure">
+<p><img src="/images/2015/2015121401.png" alt="2015121401.png" />
+</p>
+<p><span class="figure-number">Figure 7:</span> 802.11i四次握手过程</p>
 </div>
 
 <p>
@@ -61,6 +321,11 @@ M3中包含一个MIC校验，使申请者能够核实认证方拥有一个匹配
 </ol>
 
 <p>
+整个步骤用如下图表示所示：
+<img src="/images/2016/2016042501.png" alt="2016042501.png" />
+</p>
+
+<p>
 用简单的言语解释一下，基本意思就是：
  PTK是两边都要对上的，而GTK是在PTK成功后，AP直接将加密过GTK发给STA，
  STA再把GTK解出来。抓包看到有四个EAPOL-KEY，后两个包含AP和STA安装
@@ -75,179 +340,21 @@ ANounce PMK AA和SA得出PTK，进而有MIC key然后连同一个802.1X data通
 STA发过来的MIC是一样的，那么就说明两侧的PMK是一样的，不然过后AP就
 会发出deauth给STA
 </p>
-
-<p>
-PTK成功后，两侧的PTK Key结构就确定下来了，随后AP会通过EAPOL-KEY把
-GTK发给STA，AP发一个MIC给STA，STA把KEY解出来，发一个确认信息给AP。
-</p>
-
-<p>
-WPA和RSN在处理流程还存在下面一些不同：   
-基本上就是PTK和GTK何时安装到驱动的时机是不一样以及传输使用的
-descriptor格式不同。
-</p>
+</div>
 </div>
 </div>
 
-
-<div id="outline-container-sec-2" class="outline-2">
-<h2 id="sec-2">Question: Four-way Handshake in WPA-Personal (WPA-PSK)</h2>
-<div class="outline-text-2" id="text-2">
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">Group HandShake</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-sec-3-0-1" class="outline-4">
+<h4 id="sec-3-0-1">基本步骤</h4>
+<div class="outline-text-4" id="text-3-0-1">
 <p>
-Both WPA2-PSK and WPA2-EAP result in a Pairwise Master Key (PMK)
-known to both the supplicant (client) and the authenticator
-(AP). (In PSK the PMK is derived directly from the password,
-whereas in EAP it is a result of the authentication process.) The
-four-way WPA2 handshake essentially makes the supplicant and
-authenticator prove to each other that they both know the PMK, and
-creates the temporal keys used to actually secure network
-data. Capturing the four-way handshake will not divulge the PMK or
-PSK (since capturing the handshake is trivial over wireless this
-would be a major vulnerability). The PMK isn't even sent during the
-handshake, instead it is used to calculate a Message Integrity
-Check (MIC). You basically need to perform a dictionary or
-bruteforce attack on the handshake until you find a password which
-results in the same MIC as in the packets.
+PTK成功后，两侧的PTK Key结构就确定下来了，随后AP会通过
+  <code>EAPOL-KEY</code> 把GTK发给STA，AP发一个MIC给STA，STA把KEY解出来，发一个确认信息给AP。
 </p>
 
-<p>
-Definition:
-为了保护数据传输，需要Key进行加密保护。
-<code>pairwise key</code>: Unicast data sent between two parties needs to be
-private to those two parties. This is best accomplished by using a
-specific key for each pair of devices communicating. we called this
-a pairwise key.
-<code>group key</code>: broadcast (or multicast) data must be received by
-multiple parties who form a trusted group. Therefore, a key must be
-shared by all the members of that trusted group. This is called the
-group key.
-</p>
-
-<p>
-<code>Pre-shared keys</code>: Preshared keys bypass the concept of upper-layer
-authentication completely; you are assumed to be authentic simply
-by proving possession of the key.
-<code>server-based keys</code>: requires an upper-layer authentication process
-that allows the mobile device and an authentication server to
-generate matching secret keys. 
-</p>
-
-<p>
-pairwise key hierarchy:
-</p>
-
-<p>
-PMK(Pairwise Master Key)  &#x2014;&#x2014;&#x2014;&#x2014;&#x2014;&#x2014;&gt;  Delivered
-server-based keys or with a preshared key.
-There is a different PMK for each mobile device, and from this all
-other pairwise keys are derived. 
-</p>
-
-<p>
-PMK利用认证过程中产生的生成Key的原料来产生的。对于Pre-Shared Key，
-直接将其作为PMK来使用。
-认证结束后，即当收到认证方发送的EAP-Success消息，双方都应该获取到了
-PMK。
-</p>
-
-<p>
-PMK并不直接用于保密操作，它本身用来产生一组Key，这些Key用来保护设备
-间的通信链路。有4个单独Key来保护通信链路：
-</p>
-
-<ul class="org-ul">
-<li>Data Encryption key (128 bits)
-</li>
-<li>Data Integrity key (128 bits)
-</li>
-<li>EAPOL-Key Encryption key (128 bits)
-</li>
-<li>EAPOL-Key Integrity key (128 bits)
-</li>
-</ul>
-
-<p>
-这些Key称为临时Key，因为每次设备与AP关联时，都会重新产生。这些Key一
-起统称为PTK(pairwise transient key)。 
-</p>
-
-
-<div class="figure">
-<p><img src="{{site.url}}/images/2015/2015121403.png" alt="2015121403.png" />
-</p>
-<p><span class="figure-number">Figure 2:</span> Key Component</p>
-</div>
-</div>
-
-
-<div id="outline-container-sec-2-1" class="outline-3">
-<h3 id="sec-2-1">four-way exchange</h3>
-<div class="outline-text-3" id="text-2-1">
-<p>
-The access point and the mobile device must prove to each other
-that they both possess a copy of the secret PMK.  In WPA/RSN the
-processes of proving key ownership is combined with the process of
-deriving the temporal keys using a key message exchange before the
-connection can be opened for business. the exchange is done using
-EAPOL-Key messages. 
-</p>
-
-<p>
-Steps: First: both the supplicant and authenticator to generate a
-nonce value. The nonce selected by the authenticator is called
-ANonce and that of the supplicant is the SNonce. 
-</p>
-
-<ol class="org-ol">
-<li>Message(A): Authenticator -&gt; Supplicant  (M1) Supplicant根据自
-己的PMK，SNonce, MAC地址以及Authenticator的ANonce和MAC地址通过
-预设的算法计算出一组临时的Key。
-</li>
-
-<li>Message(B): Supplicant -&gt; Authenticator (M2) Supplicant将SNonce
-通过另一个消息发送给Authenticator，该消息包含了MIC(Message
-Integrity Check) 已防止篡改(trampering)。计算MIC时使用了第一步
-产生的EAPOL-Key Integrity Key。同时，该消息也可以让
-Authenticator判断Supplicant是否确实拥有的PMK的信息。 当
-Authenticator接收到M2后，它会取出SNonce信息并结合其他的一些信息
-来产生一组临时Key。到此为此，双方都确认了拥有相同的PMK，但还没
-有开始加密传输数据。
-</li>
-
-<li>Message(C): Authenticator -&gt;  Supplicant (M3)  该消息一方面告知
-Supplicant，Authenticator已经准备好后，开始使用新的Key来加密传
-输，另一方面，该消息包含了MIC，所以Supplicant可以确认
-Authenticator是否拥有匹配的PMK。这个消息也没有加密。
-</li>
-
-<li>Message(D): Supplicant -&gt; Authenticator (M4) 这个消息确认了
-4-Way Handshake过程完成，并且告知Authenticator已经安装了Key，收
-到此消息后，Authenticator也会安装Key，之后双方之间的数据传输都
-会加密进行。
-</li>
-</ol>
-
-<p>
-总结一下，上述过程主要完成了如下一些过程：
-</p>
-<ol class="org-ol">
-<li>交换ANonce和SNonce。
-</li>
-<li>计算Temporal Key。
-</li>
-<li>Supplicant向Authenticator证明自己知道PMK。
-</li>
-<li>Authenticator向Supplicant证明自己知道PMK。
-</li>
-<li>双方同步下信息，并打开加密数据传输。
-</li>
-</ol>
-</div>
-</div>
-
-<div id="outline-container-sec-2-2" class="outline-3">
-<h3 id="sec-2-2">2-Way Group Handshake</h3>
-<div class="outline-text-3" id="text-2-2">
 <p>
 这个Key通过加密通道进行传输，拥有Group Key的设备才能收到从AP发送
 过来的广播包。AP在发送Group Key的时候会执行如下操作：
@@ -259,17 +366,23 @@ Authenticator是否拥有匹配的PMK。这个消息也没有加密。
 <li>得到256-bit的GTK(Group Transient Key)，临时Key从GTK中获取。
 </li>
 <li>当AP与移动设备间的单播安全链路建立后：
-a)        发送GTK给移动设备
-b) 检测接收到GTK的确认消息。
+a)发送GTK给移动设备
+b)检测接收到GTK的确认消息。
 </li>
 </ol>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042503.png" alt="2016042503.png" />
+</p>
+</div>
 </div>
 </div>
 
 
-<div id="outline-container-sec-2-3" class="outline-3">
-<h3 id="sec-2-3">如何产生GMK？</h3>
-<div class="outline-text-3" id="text-2-3">
+<div id="outline-container-sec-3-0-2" class="outline-4">
+<h4 id="sec-3-0-2">如何产生GMK？</h4>
+<div class="outline-text-4" id="text-3-0-2">
 <p>
 The access point allocates a GMK simply by choosing a 256-bit
 cryptographic-quality random number. 
@@ -277,9 +390,9 @@ cryptographic-quality random number.
 </div>
 </div>
 
-<div id="outline-container-sec-2-4" class="outline-3">
-<h3 id="sec-2-4">如何产生临时Key？</h3>
-<div class="outline-text-3" id="text-2-4">
+<div id="outline-container-sec-3-0-3" class="outline-4">
+<h4 id="sec-3-0-3">如何产生临时Key？</h4>
+<div class="outline-text-4" id="text-3-0-3">
 <p>
 需要两个Key：
 </p>
