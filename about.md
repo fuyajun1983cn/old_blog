@@ -27,4 +27,4 @@ permalink: /about/
 
 如果您也是一名技术爱好者，或者您正在为公司寻找相关人才，请扫描如下二维码加我微信：
 
-![wemedia](/images/wemedia.png)
+![wemedia](/images/wemedia.jpg)
