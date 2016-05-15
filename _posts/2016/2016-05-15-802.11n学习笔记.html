@@ -1,0 +1,754 @@
+---
+layout: post
+date: 2016-05-15
+author: 山庄来客
+update: 2016-05-15
+categories: wifi 
+---
+<div id="content">
+<h1 class="title">802.11n学习笔记</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. 主要知识点</a>
+<ul>
+<li><a href="#sec-1-1">1.1. 传输速度</a></li>
+<li><a href="#sec-1-2">1.2. 802.11n的一些考量</a></li>
+<li><a href="#sec-1-3">1.3. 物理层</a></li>
+<li><a href="#sec-1-4">1.4. Mac层</a></li>
+<li><a href="#sec-1-5">1.5. 频道，成帧和编码</a></li>
+<li><a href="#sec-1-6">1.6. 与互操作性相关的高级物理层特性</a>
+<ul>
+<li><a href="#sec-1-6-1">1.6.1. Radio Medium Coordination</a></li>
+<li><a href="#sec-1-6-2">1.6.2. CCA（Clear-Channel Assessment）</a></li>
+<li><a href="#sec-1-6-3">1.6.3. Channel Width Selection (20/40 MHz BSS)</a></li>
+<li><a href="#sec-1-6-4">1.6.4. 40 MHz Intolerance for Channel Width Interoperability</a></li>
+</ul>
+</li>
+<li><a href="#sec-1-7">1.7. 与性能相关的高级物理层特性</a></li>
+<li><a href="#sec-1-8">1.8. MU-MIMO (Multi-User MIMO) VS SU-MIMO</a></li>
+</ul>
+</li>
+<li><a href="#sec-2">2. HT20 HT40 Coexistence</a>
+<ul>
+<li><a href="#sec-2-1">2.1. Frame</a>
+<ul>
+<li><a href="#sec-2-1-1">2.1.1. AP</a></li>
+<li><a href="#sec-2-1-2">2.1.2. STA</a></li>
+<li><a href="#sec-2-1-3">2.1.3. HT20/40 BSS Coexistence Management (Action Frame)</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-2">2.2. 40 MHz Intolerance</a></li>
+<li><a href="#sec-2-3">2.3. OBSS</a></li>
+<li><a href="#sec-2-4">2.4. transition between HT40 and HT20</a>
+<ul>
+<li><a href="#sec-2-4-1">2.4.1. STA 20/40 Coexistence Overall Flow</a></li>
+<li><a href="#sec-2-4-2">2.4.2. HT40 to HT20</a></li>
+<li><a href="#sec-2-4-3">2.4.3. HT20 to HT40</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<p>
+-*- coding: chinese-gbk-dos -*-
+</p>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> 主要知识点</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-sec-1-1" class="outline-3">
+<h3 id="sec-1-1"><span class="section-number-3">1.1</span> 传输速度</h3>
+<div class="outline-text-3" id="text-1-1">
+<ol class="org-ol">
+<li>一般实际的吞吐量是理论值的一半。
+</li>
+<li>802.11b, 最高传输速率是11Mbps， 实际吞吐率是5-6Mbps。
+</li>
+<li>802.11a/g, 最高传输速率是54Mbps, 实际吞吐率是25-30Mbps。
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-1-2" class="outline-3">
+<h3 id="sec-1-2"><span class="section-number-3">1.2</span> 802.11n的一些考量</h3>
+<div class="outline-text-3" id="text-1-2">
+<ol class="org-ol">
+<li>增加协议的效率，避免传输速率的提升受到协议开销的拖累。
+</li>
+<li>把事情做对比快速做出来更重要。
+</li>
+<li>传统的802.11a/b/g，链路层和物理层是独立的，改进速度多半认为是物理层的一个任务。而改进的方法就是让信号传输更快。
+</li>
+<li>802.11n的一个技术基础就是使用了MIMO技术。在此之前 ，在通信过程中，多径效应限制了传输带宽或传输速率。
+</li>
+<li>在MIMO系统中，发射器和接收器可以复用多个路径。每个路径获得不同的
+数据集, 不易受到多径效应的影响, 因为每个天线传输的数据是不同的数
+据，相互之间不产生干扰。
+</li>
+<li>使用40MHz频宽，但与其他非802.11的设备存在干扰，所以一般2.4GHz的频段一般会禁用40MHz的频宽。
+</li>
+<li>增加效率的方法是：frame aggregation。
+</li>
+<li>802.11n MAC扩展了802.11的省电功能，消耗更多的电量，对于低功耗设备来讲，算是一个需要考量的缺点。
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-1-3" class="outline-3">
+<h3 id="sec-1-3"><span class="section-number-3">1.3</span> 物理层</h3>
+<div class="outline-text-3" id="text-1-3">
+<ol class="org-ol">
+<li>如何加快网络速度？
+<ul class="org-ul">
+<li>增加传输速率, 使用MIMO技术，可达150Mbps，最高可达600Mbps。
+</li>
+<li>增加协议的效率，即单位时间内传输更多的数据。
+</li>
+</ul>
+</li>
+<li>MIMO
+<ul class="org-ul">
+<li>在MIMO系统中，所在天线都是同时活跃。
+</li>
+<li>MIMO表示方法
+TxR:S
+S代表Spatial Stream的数据，它的数量决定了设备的最大传输速率。
+R代表接收天线数量，T代表发送天线数量，T和R的值要大于或等于S。
+</li>
+</ul>
+</li>
+<li>提高速度
+<ul class="org-ul">
+<li>保留了20MHz的频道，但是增加了802.11a/g中未用到的子载波。
+</li>
+<li>支持在40MHz的频道。
+</li>
+<li>802.11有许多选项一起决定了数据传输速率
+</li>
+<li>对于采用单天线的802.11n的设备，数据传输速率会得到一点提升，因为802.11的每个信道会携带更多的subcarriers。
+</li>
+<li>Beamforming, 波束，可以定向传输信号， 主要是对接收方有利。
+</li>
+</ul>
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-1-4" class="outline-3">
+<h3 id="sec-1-4"><span class="section-number-3">1.4</span> Mac层</h3>
+<div class="outline-text-3" id="text-1-4">
+<ol class="org-ol">
+<li>基础
+<ul class="org-ul">
+<li>帧的大小稍微比802.11的数据帧大些。
+</li>
+<li>管理帧包含了HT能力信息的元素，来表明它是一个802.11n的网络。
+</li>
+<li>设备在发送数据包的过程中，需要包含HT IE信息来表明它是一个
+802.11n的设备。同时,根据AP发送过来的Beacon帧的信息，来判断AP是
+否支持802.11n网络。 
+</li>
+<li>802.11n定义了两种类型的帧：（A-MPDU）和（A-MSDU） 采用聚合帧是
+为了把时间尽量用在传输上。另外，也需要考虑一点，就是聚合帧的大
+小设置要合理，不能影响小的,高优先级帧。
+<ul class="org-ul">
+<li><code>A-MPDU</code> ：Aggregate MAC Protocol Data Unit
+
+<p>
+这是一种更常见的聚合帧形式，它的大小主要由PLCP限制，可以长达
+65535字节。 每个放到聚合帧中的子帧都包含自己的MAC头和FCS，相
+当于每个子帧都是一个独立的MAC帧。
+</p>
+</li>
+
+<li><code>A-MSDU</code> ：Aggregate MAC Service Data Unit， take several
+higher-layer packets and build them into a single MAC frame
+payload.
+
+<p>
+这种聚合帧的做法是：在数据传输到物理层前，先把多个高层的数据
+包打包成一个MAC帧。这种聚合帧从形式上看就是只有一个
+MAC 帧。这种帧需要更多的软件上的支持，因为网络驱动必须将多个
+高层数据包整合成单个的MAC帧的负载。
+</p>
+
+<p>
+另外，这两种聚合帧可以联合使用，如 <code>A-MPDU</code> 的子帧可以是一个
+<code>A-MSDU</code> 聚合帧。
+</p>
+</li>
+</ul>
+</li>
+
+<li>Block Acknowledgment (BA) 
+
+<p>
+802.11n接收端可以选择向包含在一个聚合中的某个帧发送一个ACK，
+不用向里面的每个帧都发送ACK。
+</p>
+</li>
+
+<li>保护机制  
+
+<p>
+802.11n设备在准备发送数据前，先发送CTS-to-Self，以便旧的设备能
+够回避访问媒介时间。
+</p>
+
+<p>
+如果检测到旧式设备，会启动RTS-CTS或CTS-to-self保护机制。
+</p>
+
+<p>
+有如下的一些保护规则：
+</p>
+<ol class="org-ol">
+<li>无保护
+
+<p>
+当周围的设备都是802.11n设备时，无需进行保护措施，这种情况比
+较少见。
+</p>
+</li>
+
+<li>Non-member 保护
+
+<p>
+当需要在一个网络中保护其他非802.11n设备，以阻止连接上该网络
+上的802.11n设备的数据传输。
+</p>
+</li>
+
+<li>20 MHz保护模式
+
+<p>
+这种模式只针对20/40 MHz的网络，当需要在这两种带宽动态变换时。
+</p>
+</li>
+
+<li>Non-HT保护模式
+</li>
+</ol>
+</li>
+
+<li>Security
+
+<p>
+802.11n禁用了TKIP和WEP，使用CCMP， <code>802.11a/b/g</code> 设备仍然允许使用
+TKIP，一些认证过的11n设备也实现了TKIP和WEP，但是禁止它们使用
+11n的速率。
+</p>
+</li>
+
+<li>Clear Channel Assessment(CCA)
+
+<p>
+在准备传输数据之前，802.11n设备需要执行一个CCA，来判断当前信道是否空闲
+</p>
+</li>
+
+<li>省电
+</li>
+</ul>
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-1-5" class="outline-3">
+<h3 id="sec-1-5"><span class="section-number-3">1.5</span> 频道，成帧和编码</h3>
+<div class="outline-text-3" id="text-1-5">
+<ol class="org-ol">
+<li>频道结构和布局
+
+<ul class="org-ul">
+<li>频道结构与802.11a/g类似，基于OFDM，将无线信道分成若干个子负载，
+且相互之间正交。
+</li>
+
+<li>与802.11a/g使用相同的调制和编号方案。
+</li>
+</ul>
+</li>
+
+<li>增加无线频谱的使用
+
+<ul class="org-ul">
+<li>保留了802.11之前标准的20MHz频道，但通过增加子负载来改进频谱效率。
+</li>
+
+<li>增加了4个子负载，而无需额外增加Pilot子负载。
+</li>
+
+<li>Pilot子负载用于频道测量和校准，是一种开销，就像MIMO增强数据传输的效率一数, 它增强了Pilot负载操作的效率。
+</li>
+
+<li>支持40Mhz的信道上操作
+</li>
+
+<li>802.11n要考虑当局的管制政策，且需要有DFS避让机制。
+</li>
+</ul>
+</li>
+
+<li>传输:Modulation &amp; Guard Interval
+
+<ul class="org-ul">
+<li>当一个帧传输时，有两点需要一致：
+
+<ol class="org-ol">
+<li>发送端选择Modulation Rate和Coding，即描述怎样将数据转变成无
+线电波。
+MSC(Modulation and Coding Set)的编号描述了对于一个数据传输
+来说，使用的Spatial Numbers的数量，Modulation方法（BPSK,
+QPSK, 16-QAM, 64-QAM）以及纠错码。
+</li>
+
+<li>发送端必须选择一个Guard Interval, 802.11n需要更短的Guard
+Interval。
+</li>
+</ol>
+</li>
+</ul>
+</li>
+
+<li>PLCP Framing
+802.11n使用PLCP定义了一种新的物理层帧，它支持三种模式：
+<ol class="org-ol">
+<li><code>Non-HT mode</code>
+         legacy mode
+</li>
+
+<li>HT mixed mode
+这种模式下，会考虑与之前设备的兼容性。
+</li>
+
+<li><code>HT-Greenfield mode</code>
+         这种模式下，不会考虑与之前设备的兼容性。
+</li>
+</ol>
+</li>
+
+<li>速率
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042701.png" alt="2016042701.png" />
+</p>
+<p><span class="figure-number">Figure 1:</span> 20 MHz speeds (long guard interval)</p>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042702.png" alt="2016042702.png" />
+</p>
+<p><span class="figure-number">Figure 2:</span> 40 MHz speeds (long guard interval)</p>
+</div>
+</li>
+
+<li>Mandatory PHY Features
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042703.png" alt="2016042703.png" />
+</p>
+<p><span class="figure-number">Figure 3:</span> Feature classification of PHY features</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+
+
+<div id="outline-container-sec-1-6" class="outline-3">
+<h3 id="sec-1-6"><span class="section-number-3">1.6</span> 与互操作性相关的高级物理层特性</h3>
+<div class="outline-text-3" id="text-1-6">
+</div><div id="outline-container-sec-1-6-1" class="outline-4">
+<h4 id="sec-1-6-1"><span class="section-number-4">1.6.1</span> Radio Medium Coordination</h4>
+<div class="outline-text-4" id="text-1-6-1">
+<p>
+OBSS(Overlapping BSS): Another network that uses available
+airtime. 
+网络设计的基本则就是最小化OBSS的存在。 尽量使周围的AP使用不同的信
+道进行数据传输。 
+</p>
+
+<p>
+11n后，由于引入了40MHz的信道， 需要额外的方法来检测使用了40MHz的
+OBSS。 
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-6-2" class="outline-4">
+<h4 id="sec-1-6-2"><span class="section-number-4">1.6.2</span> CCA（Clear-Channel Assessment）</h4>
+<div class="outline-text-4" id="text-1-6-2">
+<p>
+CCA主要用于检测当前准备进行数据传输的信道是否处于忙状态。
+对于11n设备，当工作于20MHz的信道上时，检测媒介是否忙碌的规则如下：
+</p>
+<ul class="org-ul">
+<li>Signal detection
+信号强度大于-80dBm则认为当前信道处于忙状态。
+</li>
+<li>Energy detection
+cutoff value: -62 dBm
+</li>
+<li>Greenfield detection
+-72 dBm
+</li>
+</ul>
+
+<p>
+当工作于40MHz信道上时，则会同时检测Primary Channel和Second Channel
+是否处于忙状态。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-6-3" class="outline-4">
+<h4 id="sec-1-6-3"><span class="section-number-4">1.6.3</span> Channel Width Selection (20/40 MHz BSS)</h4>
+<div class="outline-text-4" id="text-1-6-3">
+<p>
+一般情况下，2.4G下，不重叠的40MHz带宽的信道很少，很容易出现干扰问
+题。 
+</p>
+
+<p>
+当使用40MHz带宽传输时，周围的设备只会根据主信道的NAV值进行更新。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-6-4" class="outline-4">
+<h4 id="sec-1-6-4"><span class="section-number-4">1.6.4</span> 40 MHz Intolerance for Channel Width Interoperability</h4>
+<div class="outline-text-4" id="text-1-6-4">
+<p>
+11n设备在40MHz下传输数据，会影响在20MHz下的数据传输。 
+</p>
+
+<p>
+因此，提出了一种机制：Forty MHz Intolerance
+用于2.4G网络，它包含在HT Capabilities IE中，告知正在使用40Mhz进行
+传输的AP禁用40MHz数据传输，改用20MHz的带宽进行数据传输。
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-7" class="outline-3">
+<h3 id="sec-1-7"><span class="section-number-3">1.7</span> 与性能相关的高级物理层特性</h3>
+<div class="outline-text-3" id="text-1-7">
+<p>
+802.11n由于使用了MIMO技术，从而加快了数据传输速率。 不仅如此， 在
+一些更高级的无线芯片中，可以从MIMO天线阵列中往特定方向传输数据， 这
+个过程称之为："beamforming" 或 BF。
+</p>
+
+<ul class="org-ul">
+<li>Beamforming
+
+<p>
+将无线电波能量集中于某一个方向，主要是有助于接收方更好的接收 数据，
+对于发送方，则没有额外的好处。
+</p>
+
+<ol class="org-ol">
+<li>隐式Beamforming 
+
+<p>
+implicit beamforming devices do not use any frame exchanges
+ that are dedicated to  beamforming. Instead, devices estimate the beamforming
+matrix from received frames, or by inference from frames(ACKs or data
+on pilot channels) that are lost.
+</p>
+</li>
+
+<li>显式Beamforming
+
+<p>
+Before transmitting, a device actively measures the channel,
+and uses the measurement to compute the steering matrix
+directly.
+</p>
+
+<p>
+Active channel measurement: transmitting a sounding frame to
+the beamformee, which replies with a frame that indicates how
+the sounding frame was received. By comparing the known
+contents of the sounding frame to a representation of its
+contents at the receiver, the beamformer can compute the 
+steering matrix. downside: a device must be able to send
+channel measurements back to the beamformer.
+</p>
+</li>
+</ol>
+</li>
+
+<li>影响BF性能的因素
+
+<ul class="org-ul">
+<li>Channel Sounding Quality
+
+<ul class="org-ul">
+<li>Including accuracy of channel estimation, compression loss of sounding feedback.
+</li>
+
+<li>While SNR is low, the BF performance will degrade.
+</li>
+</ul>
+</li>
+
+<li>The Accuracy of Calibration (for iBF).
+
+<ul class="org-ul">
+<li>iBF need extra calibration to make sure that the reciprocal assumption of baseband equivalent channel is hold.
+</li>
+
+<li>if calibration is failed, the steering matrix is decided
+based on wrong channel information.
+</li>
+</ul>
+</li>
+</ul>
+</li>
+
+<li>Space-Time Block Coding (STBC)
+
+<p>
+当无线链路数量超过空中流的数目时，可以使用STBC。Space-Time Block
+Coding (STBC) requires two radio chains to transmit a single
+spatial stream. 传输速率虽然会降低，但是提高了传输质量。
+</p>
+</li>
+
+<li>Low-Density Parity Check (LDPC) 
+
+<p>
+在802.11 关联过程中，会协商是否传递LDPC编码的帧，如果对端在
+Beacon或Association Request帧中表明了支持LDPC，则802.11n设备只会
+传输LDPC编码的帧。
+</p>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1-8" class="outline-3">
+<h3 id="sec-1-8"><span class="section-number-3">1.8</span> MU-MIMO (Multi-User MIMO) VS SU-MIMO</h3>
+<div class="outline-text-3" id="text-1-8">
+<p>
+在同样一个时间点，可以同时向多个user传数据。
+</p>
+
+<ul class="org-ul">
+<li>Complexity
+<ul class="org-ul">
+<li>SU: AP and STA have same/similar complexity (same number of RF chains)
+</li>
+<li>MU: AP has higher cost /complexity, STA has lower
+cost/complexity
+</li>
+</ul>
+</li>
+<li>Spectra Efficiency
+<ul class="org-ul">
+<li>SU: serve only one station at a time. Spectral efficiency is lower
+</li>
+<li>MU: serve multiple stations simultaneously with higher sepctral
+efficiency.
+</li>
+</ul>
+</li>
+<li>Signal Overhead
+<ul class="org-ul">
+<li>SU: higher overhead.
+</li>
+<li>MU: lower overhead
+</li>
+</ul>
+</li>
+<li>BF matrix calculation
+<ul class="org-ul">
+<li>SU: Performed in STA
+</li>
+<li>MU: Performed in AP, need to collect channel of all users.
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> HT20 HT40 Coexistence</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+11n有两种频宽模式：HT(High Throughput)20和HT40。
+</p>
+
+<p>
+HT20是出于兼容性考虑：比如，一个区域内存在11b/g信号，那么为了尽量减
+少对它们的干扰，需要设定为HT20，以减少频带的重叠。
+</p>
+
+<p>
+HT40是出于高性能考虑：HT40相当于两个HT20的捆绑，一个是主，一个是辅。
+主信道发送beacon报文和部分数据报文，辅信道发送其他报文。
+</p>
+</div>
+
+<div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> Frame</h3>
+<div class="outline-text-3" id="text-2-1">
+</div><div id="outline-container-sec-2-1-1" class="outline-4">
+<h4 id="sec-2-1-1"><span class="section-number-4">2.1.1</span> AP</h4>
+<div class="outline-text-4" id="text-2-1-1">
+<p>
+AP在Beacon中，会通过IE中的信息来表明是否支持20/40 Coexistence
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042801.png" alt="2016042801.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-1-2" class="outline-4">
+<h4 id="sec-2-1-2"><span class="section-number-4">2.1.2</span> STA</h4>
+<div class="outline-text-4" id="text-2-1-2">
+<p>
+STA在Association Request帧中，也会通过IE中的信息来表明是否支持
+20/40 Coexistence.
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042802.png" alt="2016042802.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-1-3" class="outline-4">
+<h4 id="sec-2-1-3"><span class="section-number-4">2.1.3</span> HT20/40 BSS Coexistence Management (Action Frame)</h4>
+<div class="outline-text-4" id="text-2-1-3">
+<p>
+STA可以通过此Action帧来通知周围AP从HT 40MHz转为HT 20MHz。 
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042803.png" alt="2016042803.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> 40 MHz Intolerance</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+40MHz传输会对20MHz重叠的网络产生很大的影响，802.11n引入了一种机制，
+可以告知周围的AP："Please don’t use 40 MHz transmissions near me."
+这样，周围的AP就会关闭40MHz的带宽传输。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-3" class="outline-3">
+<h3 id="sec-2-3"><span class="section-number-3">2.3</span> OBSS</h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+与当前网络使用相同或部分相同信道的网络。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-4" class="outline-3">
+<h3 id="sec-2-4"><span class="section-number-3">2.4</span> transition between HT40 and HT20</h3>
+<div class="outline-text-3" id="text-2-4">
+<p>
+There are many things that will cause fallback to 20 MHz. But the
+most frequently encountered reasons are: 
+</p>
+<ol class="org-ol">
+<li>If an AP detects another BSS (wireless network) within +/1 40
+MHz, i.e. two channels, of its own channel. For example, if an
+AP is set to Channel 6, another network operating anywhere from
+Channel 4 to 8 will trigger fallback. 
+</li>
+<li>A client device with its 40 MHz ("fat channel") intolerant bit
+set is detected
+</li>
+</ol>
+<p>
+An example of another cause for fallback is that if an 802.11n
+station sends a “20/40 BSS Coexistence” management frame containing
+one “20/40 BSS Intolerant Channel Report” element to AP. If the
+report includes a channel in its channel list that is within the
++/- 40 MHz of its set channel, the AP will fall back to 20 MHz
+mode.
+</p>
+
+<p>
+The AP or STA (client device) will remain in 20 MHz mode as long as
+there is an overlapping BSS.
+</p>
+
+<p>
+Both idle (no traffic) and active (with traffic) neighboring APs
+will cause fallback to 20 MHz.
+</p>
+
+<p>
+All routers designed to the final 802.11n must not switch to 40 MHz
+bandwidth mode in the 2.4 GHz band unless asked to do.
+</p>
+</div>
+
+<div id="outline-container-sec-2-4-1" class="outline-4">
+<h4 id="sec-2-4-1"><span class="section-number-4">2.4.1</span> STA 20/40 Coexistence Overall Flow</h4>
+<div class="outline-text-4" id="text-2-4-1">
+<p>
+收到一个 20/40 BSS Coexistence Management Frame， 
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016042804.png" alt="2016042804.png" />
+</p>
+</div>
+
+<p>
+如果其中的Information Request为真，则会执行一次扫描，收集相关信息。
+</p>
+
+<p>
+接收AP的Beacon信息，收集HT相关的信息, 并根据情况选择是否进行HT20与
+HT40之间的切换。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-4-2" class="outline-4">
+<h4 id="sec-2-4-2"><span class="section-number-4">2.4.2</span> HT40 to HT20</h4>
+</div>
+
+<div id="outline-container-sec-2-4-3" class="outline-4">
+<h4 id="sec-2-4-3"><span class="section-number-4">2.4.3</span> HT20 to HT40</h4>
+</div>
+</div>
+</div>
+</div>

@@ -1,11 +1,12 @@
 ---
 layout: post
-title:  "11n Block Acknowledgement"
-date:   2015-12-15 
-categories: wifi
+date: 2015-12-15
+author: 山庄来客
+update: 2016-05-15
+categories: wifi 
 ---
 <div id="content">
-<h1 class="title">Block Acknowledgement</h1>
+<h1 class="title">11n Block Acknowledgement</h1>
 <div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
@@ -13,12 +14,19 @@ categories: wifi
 <li><a href="#sec-1">概述</a></li>
 <li><a href="#sec-2">BA Inside</a>
 <ul>
-<li><a href="#sec-2-1">BA的类型</a></li>
-<li><a href="#sec-2-2">隐式BA请求</a></li>
-<li><a href="#sec-2-3">BA Bitmap</a></li>
-<li><a href="#sec-2-4">Compressed BA</a></li>
-<li><a href="#sec-2-5">BAR(BA Request)</a></li>
-<li><a href="#sec-2-6">Ack Policy</a></li>
+<li><a href="#sec-2-1">BA Procedure</a></li>
+<li><a href="#sec-2-2">BA setup &amp; tear down</a></li>
+<li><a href="#sec-2-3">BA的类型</a></li>
+<li><a href="#sec-2-4">隐式BA请求</a></li>
+<li><a href="#sec-2-5">BA Bitmap</a></li>
+<li><a href="#sec-2-6">Compressed BA</a></li>
+<li><a href="#sec-2-7">BAR(BA Request)</a></li>
+<li><a href="#sec-2-8">BAR Ack Policy</a></li>
+</ul>
+</li>
+<li><a href="#sec-3">深入了解BA</a>
+<ul>
+<li><a href="#sec-3-1">Receive buffer operation</a></li>
 </ul>
 </li>
 </ul>
@@ -41,8 +49,39 @@ Acknowledgement)。 在802.11e中引入了 <code>Block Acknowlegement</code> 的
 <h2 id="sec-2">BA Inside</h2>
 <div class="outline-text-2" id="text-2">
 </div><div id="outline-container-sec-2-1" class="outline-3">
-<h3 id="sec-2-1">BA的类型</h3>
+<h3 id="sec-2-1">BA Procedure</h3>
 <div class="outline-text-3" id="text-2-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016050401.png" alt="2016050401.png" />
+</p>
+<p><span class="figure-number">Figure 1:</span> BA Session Procedure</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2">BA setup &amp; tear down</h3>
+<div class="outline-text-3" id="text-2-2">
+
+<div class="figure">
+<p><img src="/images/2015/2015121504.png" alt="2015121504.png" />
+</p>
+<p><span class="figure-number">Figure 2:</span> Block Ack setup</p>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2015/2015121505.png" alt="2015121505.png" />
+</p>
+<p><span class="figure-number">Figure 3:</span> Block Ack deletion</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-3" class="outline-3">
+<h3 id="sec-2-3">BA的类型</h3>
+<div class="outline-text-3" id="text-2-3">
 <p>
 BA分为 <code>Immediate BA</code> 和 <code>Delayed BA</code> , 区别如下图所示：
 </p>
@@ -59,9 +98,9 @@ ADDBA会指定使用何种类型的BA。
 </div>
 </div>
 
-<div id="outline-container-sec-2-2" class="outline-3">
-<h3 id="sec-2-2">隐式BA请求</h3>
-<div class="outline-text-3" id="text-2-2">
+<div id="outline-container-sec-2-4" class="outline-3">
+<h3 id="sec-2-4">隐式BA请求</h3>
+<div class="outline-text-3" id="text-2-4">
 <p>
 有时，在抓取的802.11n的sniffer log中，只看到BA事件，没有看到BAR，
 这是因为BAR是隐式的，即"Immediate BA with implicit BA request"。 
@@ -69,15 +108,15 @@ ADDBA会指定使用何种类型的BA。
 
 
 <div class="figure">
-<p><img src="{{site.url}}/images/2015/2015121502.png" alt="2015121502.png" />
+<p><img src="/images/2015/2015121502.png" alt="2015121502.png" />
 </p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-sec-2-3" class="outline-3">
-<h3 id="sec-2-3">BA Bitmap</h3>
-<div class="outline-text-3" id="text-2-3">
+<div id="outline-container-sec-2-5" class="outline-3">
+<h3 id="sec-2-5">BA Bitmap</h3>
+<div class="outline-text-3" id="text-2-5">
 <p>
 BA Bitmap 和起始序列号显示了正在被确认的数据包。每个比特位确认一
 个包，且该包的序列号等于起始序列号加上比特号，如下图显示的BA是确
@@ -86,16 +125,15 @@ BA Bitmap 和起始序列号显示了正在被确认的数据包。每个比特�
 
 
 <div class="figure">
-<p><img src="{{site.url}}/images/2015/2015121503.png" alt="2015121503.png" />
+<p><img src="/images/2015/2015121503.png" alt="2015121503.png" />
 </p>
 </div>
 </div>
 </div>
 
-
-<div id="outline-container-sec-2-4" class="outline-3">
-<h3 id="sec-2-4">Compressed BA</h3>
-<div class="outline-text-3" id="text-2-4">
+<div id="outline-container-sec-2-6" class="outline-3">
+<h3 id="sec-2-6">Compressed BA</h3>
+<div class="outline-text-3" id="text-2-6">
 <p>
 BA最初是定义在802.11e中，以允许确认每个的MSDU，bitmap有128字节长。
 802.11n只允许确认每个MPDU，且bitmap是8个字节长。8字节长的Bitmap称为
@@ -104,9 +142,9 @@ BA最初是定义在802.11e中，以允许确认每个的MSDU，bitmap有128字�
 </div>
 </div>
 
-<div id="outline-container-sec-2-5" class="outline-3">
-<h3 id="sec-2-5">BAR(BA Request)</h3>
-<div class="outline-text-3" id="text-2-5">
+<div id="outline-container-sec-2-7" class="outline-3">
+<h3 id="sec-2-7">BAR(BA Request)</h3>
+<div class="outline-text-3" id="text-2-7">
 <p>
 一个BAR也用来改变起始序列号。有一种应用场景是： 当一个发送方一开
 始没有使用聚合发送数据帧（此时会通过正常的Ack确认帧）， 之后，它
@@ -116,12 +154,64 @@ BA最初是定义在802.11e中，以允许确认每个的MSDU，bitmap有128字�
 </div>
 </div>
 
-<div id="outline-container-sec-2-6" class="outline-3">
-<h3 id="sec-2-6">Ack Policy</h3>
-<div class="outline-text-3" id="text-2-6">
+<div id="outline-container-sec-2-8" class="outline-3">
+<h3 id="sec-2-8">BAR Ack Policy</h3>
+<div class="outline-text-3" id="text-2-8">
 <p>
-表明一个BAR是否应该发送。
+require Immediate Acknowledgement or not.
 </p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">深入了解BA</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1">Receive buffer operation</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+针对每次Block Acknowledge, 接收方都会维护一个MAC变量：
+<code>NextExpectedSequenceNumber</code> 。 
+</p>
+
+<p>
+初始值为0. 
+</p>
+
+<p>
+如果收到的帧的Sequence Number小于 <code>NextExpectedSequenceNumber</code> ，则
+会丢弃该帧, 否则都会缓存该帧。 
+</p>
+
+<p>
+当收到 <code>BlockAckReq</code> 帧时，它会冲刷当前收到的MSDU和 <code>A-MSDU</code> . 会执
+行如下一些过程：
+</p>
+<ol class="org-ol">
+<li>对于那些已经接收到的帧，如果帧的序号小于 <code>BlockAckReq</code> 帧中的起始
+序号，则会被传递到下一个MAC过程中去处理。
+</li>
+<li>同时，从起始序号开始的， 将对应的帧也传递到下一个MAC过程中去处理，
+直至出现的序号没有对应收到的帧为止。
+</li>
+<li>上述两步过后，如果没有帧需要传递给下一个MAC过程中去处理，且
+<code>BlockAckReq</code> 帧中的起始序号要比 <code>NextExpectedSequenceNumber</code> 值
+要大，则将 <code>NextExpectedSequenceNumber</code> 值更新为此值。
+</li>
+<li>如果接收到了一个MPDU，但是接收的Buffer已经满了，则序号最早的帧将
+会被传递到下一个MAC过程去处理。
+</li>
+<li>如果接收到了一个MPDU，但是接收的Buffer没有满，且接收到的帧中的
+序号最小值与 <code>NextExpectedSequenceNumber</code> 值相同，则该MPDU将会直
+接被传递给下一个MAC过程。
+</li>
+<li>每次接收者传送一个MSDU或 <code>A-MSDU</code> 给下一个MAC过程去处理，
+<code>NextExpectedSequenceNumber</code> 的值会更新为该帧的序号加1.
+</li>
+<li>接收者应该以递增的顺序将接收到的帧传送给下一个MAC过程。 
+</li>
+</ol>
 </div>
 </div>
 </div>

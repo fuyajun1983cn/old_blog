@@ -1,0 +1,1924 @@
+---
+layout: post
+date: 2016-05-15
+author: 山庄来客
+update: 2016-05-15
+categories: wifi 
+---
+<div id="content">
+<h1 class="title">WiFi_P2P协议学习</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">WiFi P2P概述</a>
+<ul>
+<li><a href="#sec-1-1">WiFi P2P技术基本要求</a></li>
+<li><a href="#sec-1-2">可选的能力要求</a></li>
+<li><a href="#sec-1-3">参考资料</a></li>
+<li><a href="#sec-1-4">WiFi P2P技术概述</a>
+<ul>
+<li><a href="#sec-1-4-1">Key features of Wi-Fi P2P networks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-2">WiFi P2P Framework</a></li>
+<li><a href="#sec-3">WiFi P2P Architecture</a></li>
+<li><a href="#sec-4">WiFi P2P Protocol Overview</a>
+<ul>
+<li><a href="#sec-4-1">基本流程概述</a></li>
+<li><a href="#sec-4-2">P2P Device Discovery</a>
+<ul>
+<li><a href="#sec-4-2-1">Scan Phase</a></li>
+<li><a href="#sec-4-2-2">创建一个连接</a></li>
+</ul>
+</li>
+<li><a href="#sec-4-3">P2P Group Formation</a>
+<ul>
+<li><a href="#sec-4-3-1">Special Provisioning Consideration</a></li>
+<li><a href="#sec-4-3-2">P2P Group Owner Role</a></li>
+<li><a href="#sec-4-3-3">Group Owner Negotiation</a></li>
+<li><a href="#sec-4-3-4">Provisioning</a></li>
+<li><a href="#sec-4-3-5">Autonomous P2P Group</a></li>
+</ul>
+</li>
+<li><a href="#sec-4-4">P2P Group Session</a>
+<ul>
+<li><a href="#sec-4-4-1">Communication within a P2P Group</a></li>
+<li><a href="#sec-4-4-2">P2P Group Session Credentials</a></li>
+<li><a href="#sec-4-4-3">P2P Group Owner Responsibilities</a></li>
+<li><a href="#sec-4-4-4">P2P Client Discovery</a></li>
+<li><a href="#sec-4-4-5">P2P Invitation</a></li>
+<li><a href="#sec-4-4-6">Persistent Groups</a></li>
+<li><a href="#sec-4-4-7">Invoking a Persistent P2P Group</a></li>
+<li><a href="#sec-4-4-8">P2P Persistent Group Reconnection</a></li>
+<li><a href="#sec-4-4-9">P2P Discovery and Group Formation Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-5">Power Management and WiFi P2P Technology</a>
+<ul>
+<li><a href="#sec-5-1">P2P Power Management</a></li>
+<li><a href="#sec-5-2">P2P Power Management:Impact on Availability</a></li>
+<li><a href="#sec-5-3">Discovery Considerations</a></li>
+<li><a href="#sec-5-4">Availability for Discoverability</a></li>
+<li><a href="#sec-5-5">Opportunistic Power Save</a></li>
+<li><a href="#sec-5-6">Notice of Absence</a></li>
+<li><a href="#sec-5-7">P2P Client Power Management</a></li>
+</ul>
+</li>
+<li><a href="#sec-6">Additional WiFi P2P Technology Capabilities</a>
+<ul>
+<li><a href="#sec-6-1">Service Discovery</a></li>
+<li><a href="#sec-6-2">Concurrency: P2P and WLAN</a></li>
+<li><a href="#sec-6-3">Managed P2P Device Capability</a></li>
+</ul>
+</li>
+<li><a href="#sec-7">Additional WiFi P2P Technology Considerations</a>
+<ul>
+<li><a href="#sec-7-1">WiFi P2P WLAN Coexistence</a></li>
+<li><a href="#sec-7-2">WiFi P2P Spectrum Coexistence in 5GHz</a></li>
+</ul>
+</li>
+<li><a href="#sec-8">Summary: Minimum Requirements for WiFi P2P Devices</a></li>
+<li><a href="#sec-9">附录</a>
+<ul>
+<li><a href="#sec-9-1">nl80211</a></li>
+<li><a href="#sec-9-2">p2p问题分析思路</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">WiFi P2P概述</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-sec-1-1" class="outline-3">
+<h3 id="sec-1-1">WiFi P2P技术基本要求</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+WiFi P2P技术要求支持P2P的设备具备如下能力：
+</p>
+<ol class="org-ol">
+<li>至少支持802.11g, 包含支持WPA2安全协议(RSN/WPA2 with AES-CCMP encryption)。
+</li>
+<li>支持WPS。
+</li>
+<li>支持WMM(Wi-Fi MultiMedia Quality of Service)。
+</li>
+<li>可以连接到其他的P2P设备。
+</li>
+<li>作为GO的能力
+<ul class="org-ul">
+<li>NOT support P2P communication with 802.11b devices
+</li>
+<li>Support WMM AP functionality
+</li>
+<li>Support WMM-PS AP functionality
+</li>
+<li>Function as WPS internal registrar
+</li>
+<li>Form temporary P2P Groups
+</li>
+<li>Provide IP address (DHCP) to ONE P2P Client
+</li>
+<li>Support P2P Client Discovery
+</li>
+<li>Supply SSID and passphrase for manual configuration of
+legacy client
+</li>
+</ul>
+</li>
+<li>作为GC的能力
+<ul class="org-ul">
+<li>Join existing P2P Group
+</li>
+<li>Leave a P2P Group
+</li>
+</ul>
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-1-2" class="outline-3">
+<h3 id="sec-1-2">可选的能力要求</h3>
+<div class="outline-text-3" id="text-1-2">
+<ol class="org-ol">
+<li>5GHz support
+</li>
+<li>P2P Group Owner Functionality
+<ul class="org-ul">
+<li>Support multiple Client connections
+</li>
+<li>Concurrency
+</li>
+<li>Cross-Connection
+</li>
+<li>Data Distribution
+</li>
+<li>Form or <code>re-invoke</code> PersistentP2P Groups
+<ul class="org-ul">
+<li>Support P2P Invitation Procedure
+</li>
+</ul>
+</li>
+<li>Ability to remove/reject devices from P2P network
+</li>
+<li>Coexistence parameters
+</li>
+<li>IF 5GHz, support for DFS (Dynamic Frequency Selection)
+</li>
+</ul>
+</li>
+<li>Support of Service Discovery
+</li>
+<li>Ability to be a Managed P2P device
+</li>
+<li>Mechanism to switch P2P function on/off
+</li>
+<li>Mechanism to prioritize selection of P2P Group Owner or Client
+roles
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-1-3" class="outline-3">
+<h3 id="sec-1-3">参考资料</h3>
+<div class="outline-text-3" id="text-1-3">
+<ol class="org-ol">
+<li>WiFi P2P V1.2
+</li>
+<li>WPS V1.0
+</li>
+<li>WMM V1.2
+</li>
+<li>WPA2 V3.1
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-1-4" class="outline-3">
+<h3 id="sec-1-4">WiFi P2P技术概述</h3>
+<div class="outline-text-3" id="text-1-4">
+<p>
+A Wi-Fi P2P network is a non-infrastructure connection of Wi-Fi CERTIFIED devices. 
+</p>
+</div>
+
+<div id="outline-container-sec-1-4-1" class="outline-4">
+<h4 id="sec-1-4-1">Key features of Wi-Fi P2P networks</h4>
+<div class="outline-text-4" id="text-1-4-1">
+<ul class="org-ul">
+<li>与Infrastructure网络相同的一些特征：
+<ul class="org-ul">
+<li>Full, robust WPA2™ security using AES
+</li>
+<li>Typical WiFi data rates (up to 802.11n)
+</li>
+<li>Typical WiFi range
+</li>
+<li>Support for 2.4GHz and 5GHz devices
+</li>
+<li>Simple, secure device authentication and enrollment via WiFi Protected Setup™ (WPS)
+</li>
+<li>Excellent <code>co-existence</code> with neighboring networks
+</li>
+<li>Compatible with existing WiFi CERTIFIED™ devices
+</li>
+</ul>
+</li>
+<li>Additional features
+<ul class="org-ul">
+<li>IP address based
+</li>
+<li>Automatic device discovery
+</li>
+<li>Device service advertisement
+</li>
+<li>Support for device power management
+</li>
+<li>Support for temporary (<code>one-time</code>) and persistent (<code>many-time</code>) network connections
+</li>
+<li>Optional <code>cross-connection</code> to infrastructure network
+</li>
+<li>Enterprise manageability
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">WiFi P2P Framework</h2>
+<div class="outline-text-2" id="text-2">
+<ul class="org-ul">
+<li>A P2P Group is a WiFi P2P network that may include two types
+of devices
+<ul class="org-ul">
+<li>P2P Device 
+WiFi CERTIFIED™ device that is compliant with
+the WiFi P2P specification 
+</li>
+<li>Legacy device 
+WiFi CERTIFIED™ device that is not compliant
+with the WiFi P2P specification
+</li>
+</ul>
+</li>
+<li>P2P devices must be capable of two different roles in a P2P
+Group
+<ul class="org-ul">
+<li>P2P Group Owner : An <code>AP-like</code> capability that controls a
+WiFi P2P Group and enables P2P Device connectivity 
+</li>
+<li>P2P Client : A WiFi <code>P2P-compliant</code> device that may connect to
+a P2P Group Owner
+</li>
+</ul>
+</li>
+<li>Note : Legacy devices may only function as clients in a P2P
+Group. They see P2P Group Owners as APs.
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">WiFi P2P Architecture</h2>
+<div class="outline-text-2" id="text-3">
+<ul class="org-ul">
+<li>A P2P Device is the fundamental component of a P2P Group
+<ul class="org-ul">
+<li>Capable of either an infrastructure or a P2P connection
+</li>
+<li>Can always connect with another P2P Device
+</li>
+<li>Supports both P2P Group Owner and P2P Client roles
+</li>
+<li>Negotiates P2P Group Ownership with other P2P Devices
+</li>
+<li>Must be WiFi CERTIFIED™ for WiFi Protected Setup™
+</li>
+<li>Must be WiFi CERTIFIED™ for WMM®
+</li>
+<li>Must Support P2P Discovery mechanisms
+</li>
+<li>Must Support P2P Power Management mechanisms
+</li>
+<li>May support Managed P2P Device operation
+</li>
+<li>May support WLAN and P2P Group operation at the same time
+</li>
+<li>May operate as a member of multiple P2P Groups simultaneously
+<ul class="org-ul">
+<li>Functionality is out of scope for this spec
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>A P2P Group is a WiFi P2P network made of at least two WiFi
+enabled devices
+<ul class="org-ul">
+<li>One device mustbe a P2P Group Owner
+</li>
+<li>The other device(s) are Clients (P2P Clients and/or Legacy
+Clients)
+</li>
+</ul>
+</li>
+<li>Two types of P2P Groups
+<ul class="org-ul">
+<li>1:1 P2P Group
+<ul class="org-ul">
+<li>One P2P Group Owner and one Client
+</li>
+</ul>
+</li>
+<li>1:n P2P Group
+<ul class="org-ul">
+<li>One P2P Group Owner and n Clients (where n may be any
+combination of P2P Clients and Legacy Clients)
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>A P2P Group functions similarly to an infrastructure BSS
+<ul class="org-ul">
+<li>Has a single SSID (the P2P wildcard SSID) and a single
+security domain
+</li>
+<li>May have only one P2P Group Owner
+</li>
+<li>P2P Group Owner has a similar role as an Access Point (AP)
+</li>
+<li>Client(s) have similar roles as station(s) (STAs)
+</li>
+</ul>
+</li>
+<li>Each P2P Group has a unique P2P Group ID
+</li>
+<li>Each P2P Group may be temporary(single-use) or
+persistent(repeated use)
+</li>
+<li>Key P2P Group Owner capabilities
+<ul class="org-ul">
+<li>Must provide BSS functionality and services for Clients (P2P
+and Legacy) associated to a P2P Group
+</li>
+<li>Must provide WiFi Protected Setup™ Internal Registrar
+functionality for a P2P Group
+</li>
+<li>May enable facilitated or direct communication between Clients
+in a P2P Group
+</li>
+<li>May support P2P Concurrent Device capability
+<ul class="org-ul">
+<li>Ability to maintain simultaneous infrastructure (WLAN)
+connection in parallel with functioning as Group Owner of a
+P2P Group
+</li>
+</ul>
+</li>
+<li>May also support Cross-Connection (as added capability to P2P
+Concurrent Device)
+<ul class="org-ul">
+<li>Ability to provide Clients in a P2P Group with access to a
+simultaneous WLAN connection
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Key P2P Client capabilities
+<ul class="org-ul">
+<li>Must have the ability to join/function in infrastructure
+networks as typical STA
+</li>
+<li>Must support WPS Enrollee functionality
+</li>
+</ul>
+</li>
+<li>WiFi P2P protocol communication based on
+<ul class="org-ul">
+<li>P2P Information Element (P2P IE)
+</li>
+<li>P2P Action frame
+<ul class="org-ul">
+<li>Group Owner Discoverability; P2P Presence; Group Owner
+Notice of Absence
+</li>
+</ul>
+</li>
+<li>P2P Public Action frame
+<ul class="org-ul">
+<li>Group Owner Negotiation; P2P Invitation; Device
+Discoverability; Provision Discovery
+</li>
+</ul>
+</li>
+<li>Extension to 802.11 Management Frames
+<ul class="org-ul">
+<li>Beacon, Probe Request, Probe Response,
+Association/Reassociation
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Formats utilize the Vendor Specific Information Element and
+Vendor Specific Action frame in IEEE Std 802.11-2007
+<ul class="org-ul">
+<li>Each P2P Group has a single SSID and a single security domain
+</li>
+<li>Each P2P Group has a unique P2P Group ID
+</li>
+<li>WiFi P2P has a WiFi Alliance-specific OUI
+</li>
+<li>OUI type indicates a WiFi P2P specification version
+</li>
+</ul>
+</li>
+<li>A Number of P2P Attributes are defined
+<ul class="org-ul">
+<li>A Single P2P IE carries one or more P2P Attributes
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4">WiFi P2P Protocol Overview</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1">基本流程概述</h3>
+<div class="outline-text-3" id="text-4-1">
+<ol class="org-ol">
+<li>User discovers P2P Devices in range
+</li>
+<li>User selects which of the discovered P2P Devices to connect to
+and enters Provisioning information (e.g. WPS PIN)
+</li>
+<li>Negotiate which device shall become P2P Group Owner (AP-like
+entity)
+</li>
+<li>Use authentication in WPS to ensure that these are correct
+devices (same PIN)
+<ul class="org-ul">
+<li>P2P Group Owner supplies P2P SSID &amp; WPA2 PSK using WPS
+</li>
+</ul>
+</li>
+<li>P2P Group Owner starts P2P Group session and Client joins P2P
+GroupDevice
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2">P2P Device Discovery</h3>
+<div class="outline-text-3" id="text-4-2">
+<ul class="org-ul">
+<li>P2P Discovery is comprised of three primary parts:
+<ul class="org-ul">
+<li>Device Discovery facilitates two P2P Devices arriving on a
+common channel and exchanging device information
+</li>
+<li>Group Formation forms a new P2P Group and determines which P2P
+Device will serve as the P2P Group Owner
+</li>
+<li>P2P Invitation has two uses
+<ul class="org-ul">
+<li>Invite a P2P Device to join an existing P2P Group
+</li>
+<li>Invokes a previously formed Persistent P2P Group
+</li>
+</ul>
+</li>
+<li>(Optional)Service Discovery for discovering higher-layer services prior
+to establishing a P2P device connection
+</li>
+<li>Occurs only on three Social Channels(Channel 1,6,11 in the 2.4GHz
+band)
+</li>
+</ul>
+</li>
+<li>Uses Probe Request and Probe Response frames to exchange device
+information
+</li>
+<li>Two P2P-specific Device Discovery states
+<ul class="org-ul">
+<li>Search state: transmit one or more Probe Request frames on
+each Social Channel
+</li>
+<li>Listen state : wait on a specific Social Channel (the Listen
+Channel) to receive Probe Request frames
+</li>
+</ul>
+</li>
+<li>Scan for a P2P Device advertising P2P service
+</li>
+<li>Device transmits one or more Probe Request frames on each Social
+Channel
+<ul class="org-ul">
+<li>Probe Request frame contents
+<ul class="org-ul">
+<li>P2P IE
+</li>
+<li>WPS IE
+</li>
+<li>SSID field = P2P Wildcard SSID
+</li>
+<li>BSSID field = Wildcard BSSID
+</li>
+</ul>
+</li>
+<li>Destination Address
+<ul class="org-ul">
+<li>Destination Address must be either the Broadcast Address or
+the P2P Device Address of the listening device
+</li>
+</ul>
+</li>
+<li>Optionally
+<ul class="org-ul">
+<li>Specific Device Type attribute in the WPS IE, or
+</li>
+<li>Specific P2P Device ID attribute in the P2P IE.
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>P2P Device monitors a specific Social Channel, advertising P2P
+service
+<ul class="org-ul">
+<li>Monitoring for Probe Request frame containing
+<ul class="org-ul">
+<li>P2P IE, P2P Wildcard SSID, Wildcard BSSID, and Destination
+Address
+<ul class="org-ul">
+<li>Destination Address matches either Broadcast Address or
+P2P Device Address of listening device
+</li>
+</ul>
+</li>
+<li>Optionally
+<ul class="org-ul">
+<li>Device Type value that matches any Requested Device Type
+attribute in the WPS IE, or
+</li>
+<li>Device Address matches the Device Address in the P2P IE
+Device ID attribute
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Listen State restrictions
+<ul class="org-ul">
+<li>P2P Devices in the Find Phase
+<ul class="org-ul">
+<li>Must Listen for specific time periods and be constantly
+available during these periods
+</li>
+</ul>
+</li>
+<li>P2P Devices not in Find Phase
+<ul class="org-ul">
+<li>May stay in the Listen State for an extended period
+<ul class="org-ul">
+<li>Should be available to Listen for at least a contiguous
+period of 500ms every 5s
+</li>
+<li>Shorter Listen duration or interruption of Listen State
+may result in lengthened or unreliable device discovery
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Probe Request/Probe Response discovers device type,
+manufacturer, device name, etc.
+</li>
+<li>One or more P2P IE and WPS IE are included in the Probe Response
+<ul class="org-ul">
+<li>A probe request intended only for P2P Devices shall include a
+P2P IE
+</li>
+<li>Searches can be narrowed to a specific P2P Device
+<ul class="org-ul">
+<li>Include the P2P Device ID attribute in the P2P IE
+</li>
+</ul>
+</li>
+<li>Searches can be narrowed to specific device types (i.e.,
+search for all printers)
+<ul class="org-ul">
+<li>Include one or more Requested Device Type attributes in the
+WPS IE
+</li>
+</ul>
+</li>
+<li>The WPS IE also allows a P2P Device to advertise
+human-readable device-specific information such as a
+meaningful device description
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+<div id="outline-container-sec-4-2-1" class="outline-4">
+<h4 id="sec-4-2-1">Scan Phase</h4>
+<div class="outline-text-4" id="text-4-2-1">
+<ul class="org-ul">
+<li>Collects information about surrounding devices and/or networks
+on all channels supported by the P2P Device
+<ul class="org-ul">
+<li>Uses scanning process as defined in IEEE std 802.11-2007
+</li>
+<li>Identifies other P2P Devices and established P2P Groups
+</li>
+<li>Identifies the best potential Operating Channel for
+establishing a new P2P Group
+</li>
+<li>P2P Devices may scan for P2P Groups and 802.11 infrastructure
+networks simultaneously
+</li>
+</ul>
+</li>
+<li>Scan Filter Methods
+<ul class="org-ul">
+<li>Scan only for P2P Devices and P2P Groups
+</li>
+<li>Scan for specific P2P device type(s), e.g., all Printers
+</li>
+<li>Scan for specific P2P Device (either by address or friendly
+name)
+</li>
+</ul>
+</li>
+<li>Optional Scan Enhancement
+<ul class="org-ul">
+<li>Use Service Discovery to ensure compatible services exist on a
+device (e.g., a desired print method or display type)
+</li>
+</ul>
+</li>
+<li>Used to ensures that two simultaneously searching P2P Devices
+will arrive on a common channel to establish communications
+<ul class="org-ul">
+<li>P2P Devices cycle between Listen and Search states
+<ul class="org-ul">
+<li>P2P Device waits on one of three Social Channels for Probe
+Request Frames (Listen)
+</li>
+<li>P2P Device sends Probe Request Frames on each of the three
+Social Channels (Search)
+</li>
+</ul>
+</li>
+<li>Time spent in each cycle of the Listen State is randomized to
+prevent lock-stepping between two devices and ensure
+convergence
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-4-2-2" class="outline-4">
+<h4 id="sec-4-2-2">创建一个连接</h4>
+<div class="outline-text-4" id="text-4-2-2">
+<ul class="org-ul">
+<li>Users can select which device to connect to based on its device
+name, services, and so on
+</li>
+<li>If the target P2P Device is not part of a P2P Group, a new P2P
+Group is formed using the P2P Group Formation Procedure
+</li>
+<li>If the target P2P Device is already part of a P2P Group, the
+searching P2P Device may seek to join the group
+<ul class="org-ul">
+<li>Use WiFi Protected Setup™ (WPS) to obtain credentials and
+authenticate
+<ul class="org-ul">
+<li>WPS handshakes take place on the Operating Channel of the
+P2P Group Owner
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-4-3" class="outline-3">
+<h3 id="sec-4-3">P2P Group Formation</h3>
+<div class="outline-text-3" id="text-4-3">
+<ul class="org-ul">
+<li>Group Formation procedure involves two phases
+<ul class="org-ul">
+<li>Determination of the P2P Group Owner
+<ul class="org-ul">
+<li>Negotiated –Two P2P Devices negotiate for P2P Group Owner
+role based on their desires/capabilities to be a P2P Group
+Owner, OR
+</li>
+<li>Selected –P2P Group Owner role “established” at formation or
+at an application-level
+</li>
+</ul>
+</li>
+<li>Provisioningof the P2P Group
+<ul class="org-ul">
+<li>Establishment of the P2P Group session using the appropriate credentials
+</li>
+<li>Uses WiFi Protected Setup™ to exchange credentials
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+<div id="outline-container-sec-4-3-1" class="outline-4">
+<h4 id="sec-4-3-1">Special Provisioning Consideration</h4>
+<div class="outline-text-4" id="text-4-3-1">
+<ul class="org-ul">
+<li>Completion of P2P Group Formation procedure is required within
+<code>15 seconds</code>
+</li>
+<li>Special consideration required to meet the time limit for P2P
+Group Formation
+<ul class="org-ul">
+<li>Up to <code>two minutes</code> required for completion of WiFi Protected
+Setup™ when waiting for user input
+</li>
+</ul>
+</li>
+<li>P2P Device must obtain any information required to execute
+provisioning in advance of P2P Group Formation
+<ul class="org-ul">
+<li>Use the information supplied, during the Listen state, in the
+WPS ConfigMethods attribute of a Probe Response to determine
+information to retrieve from user
+<ul class="org-ul">
+<li>E.g., PIN from a label, PIN from a display, etc
+</li>
+</ul>
+</li>
+<li>P2P Device may trigger the required user action by sending a
+Provision Discovery Request with the appropriate ConfigMethods
+bit set
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-4-3-2" class="outline-4">
+<h4 id="sec-4-3-2">P2P Group Owner Role</h4>
+<div class="outline-text-4" id="text-4-3-2">
+<ul class="org-ul">
+<li>All P2P Groups require a P2P Device to take on the role of P2P
+Group Owner
+</li>
+<li>Some key responsibilities of P2P Group Owners
+<ul class="org-ul">
+<li>Assigns a globally unique P2P Group ID for the P2P Group at
+formation
+</li>
+<li>Determine the SSID for each P2P Group
+</li>
+<li>Select the Operating Channel of the P2P Group
+<ul class="org-ul">
+<li>Must follow any procedures required for operation in a
+certain frequency band in a particular regulatory domain
+</li>
+</ul>
+</li>
+<li>Determine the credentials required and be the authenticator
+for joining a P2P Group
+<ul class="org-ul">
+<li>Use WPA2-PSK Authentication, AES Encryption, Network Key
+Type of 64 Hex characters
+</li>
+<li>Maintain a WPA-PSK passphrase for delivery to Legacy Clients
+</li>
+</ul>
+</li>
+<li>Serve as the WiFi Protected Setup™ Registrar
+</li>
+<li>Be capable of acting as a DHCP server
+<ul class="org-ul">
+<li>Support IPv4 at a minimum
+</li>
+<li>Support assignment of IP address, subnet mask and default
+gateway
+</li>
+</ul>
+</li>
+<li>Advertise the device information of the P2P Clients connected
+to a P2P Group
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-4-3-3" class="outline-4">
+<h4 id="sec-4-3-3">Group Owner Negotiation</h4>
+<div class="outline-text-4" id="text-4-3-3">
+<ul class="org-ul">
+<li>Two P2P Devices forming a P2P Group negotiate which will be the
+Group Owner
+<ul class="org-ul">
+<li>A P2P Device may decline Group Owner Negotiation for any
+reason
+</li>
+<li>Group Owner negotiation relies on an Group Owner Intent
+attribute value and a Tie breaker bit to resolve the decision
+quickly
+</li>
+<li>Group Owner Negotiation (and Group Formation) fails if both
+P2P Devices MUST be the Group Owner
+</li>
+<li>P2P Devices remain on the common social channel until Group
+Owner Negotiation completes
+</li>
+</ul>
+</li>
+<li>Device that wins the negotiation assumes the AP/Registrar role
+and becomes the P2P Group Owner
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-4-3-4" class="outline-4">
+<h4 id="sec-4-3-4">Provisioning</h4>
+<div class="outline-text-4" id="text-4-3-4">
+<ul class="org-ul">
+<li>Newly established P2P Group Owner starts a P2P Group session
+using the credentials determined
+</li>
+<li>Uses the Operating Channel indicated during Group Owner
+Negotiation
+<ul class="org-ul">
+<li>If not available, will use another channel from the Channel
+List
+</li>
+<li>P2P Client may have to scan to find the P2P Group Owner if the
+Operating Channel is not available
+</li>
+</ul>
+</li>
+<li>WiFi Protected Setup™ sequence executes in the following manner
+<ul class="org-ul">
+<li>P2P Group Owner serves as the AP with Internal Registrar
+<ul class="org-ul">
+<li>It shall only allow association by P2P Device with which it
+is in Group Formation with
+</li>
+<li>Since the user has entered the WPS PIN or triggered WPS
+pushbutton functionality on both devices, the registrar
+shall send M2 in response to M1
+</li>
+</ul>
+</li>
+<li>P2P Client shall serve as the STA enrollee
+<ul class="org-ul">
+<li>It shall associate to the P2P Group Owner device with which
+it is in Group Formation
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-4-3-5" class="outline-4">
+<h4 id="sec-4-3-5">Autonomous P2P Group</h4>
+<div class="outline-text-4" id="text-4-3-5">
+<ul class="org-ul">
+<li>P2P Group Formation starts with determination of the P2P Group
+Owner
+<ul class="org-ul">
+<li>P2P group owners may be determined
+<ul class="org-ul">
+<li>Through Group Owner Negotiation process, or
+</li>
+<li>Through configuration (autonomous)
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Autonomous P2P Groups
+<ul class="org-ul">
+<li>P2P Device starts an autonomous P2P Group by assuming the P2P
+Group Owner role
+<ul class="org-ul">
+<li>Group characteristics are determined by the P2P Device
+without negotiation with other devices
+</li>
+</ul>
+</li>
+<li>Some use cases for autonomous P2P Groups
+<ul class="org-ul">
+<li>Providing a P2P connection for Legacy Client(s)
+<ul class="org-ul">
+<li>A P2P Group must already exist for a Legacy Device to
+discover it
+</li>
+</ul>
+</li>
+<li>To offer a Cross Connection to a WLAN
+</li>
+<li>Offering / managing higher-level services
+<ul class="org-ul">
+<li>i.e., public kiosk offering applications or upper layer
+services
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-4-4" class="outline-3">
+<h3 id="sec-4-4">P2P Group Session</h3>
+<div class="outline-text-3" id="text-4-4">
+</div><div id="outline-container-sec-4-4-1" class="outline-4">
+<h4 id="sec-4-4-1">Communication within a P2P Group</h4>
+<div class="outline-text-4" id="text-4-4-1">
+<ul class="org-ul">
+<li>Communication within a P2P Group shall employ WPA2-Personal
+security with AES-CCMP as the encryption cipher
+<ul class="org-ul">
+<li>After a successful association, the resulting temporal keys
+shall be used to encrypt unicast and broadcast/multicast
+frames exchanged between the P2P Group Owner and its Clients
+</li>
+<li>Same mechanism used in standard 802.11 communications
+</li>
+</ul>
+</li>
+<li>To support higher layer data services using IP, the P2P Group
+Owner shall provide IP addresses through a DHCP server (IPv4
+minimum)
+<ul class="org-ul">
+<li>P2P Clients that use IP services shall be capable of acting as
+a DHCP Client
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-4-4-2" class="outline-4">
+<h4 id="sec-4-4-2">P2P Group Session Credentials</h4>
+<div class="outline-text-4" id="text-4-4-2">
+<ul class="org-ul">
+<li>P2P Group operation closely resembles infrastructure BSS
+operation per IEEE Std 802.11-2007
+<ul class="org-ul">
+<li>P2P Group Owner assumes the role of an AP
+</li>
+<li>P2P Client assumes the role of an STA
+</li>
+</ul>
+</li>
+<li>Credentials
+<ul class="org-ul">
+<li>WPA2-PSK / AES
+</li>
+<li>Network Key of 64 hex characters
+</li>
+<li>WPA2-PSK pass-phrase for Legacy Clients; at least 8 random
+ASCII letters/numbers
+</li>
+<li>Delivery of a pass-phrase to Legacy Clients that do not
+support WPS is allowed but implementation is out of scope of
+the P2P specification
+</li>
+</ul>
+</li>
+<li>SSID
+<ul class="org-ul">
+<li>Of the format <code>DIRECT-xy</code>
+</li>
+<li>Where <code>xy</code> is two random ASCII letters/numbers
+</li>
+</ul>
+</li>
+<li>P2P Group ID
+<ul class="org-ul">
+<li>Assigned by the P2P Group Owner; globally unique for each P2P
+Group formed
+<ul class="org-ul">
+<li>Contains the globally unique P2P Device Address of P2P Group Owner
+</li>
+<li>Remains the same throughout the life of a P2P Group
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-4-4-3" class="outline-4">
+<h4 id="sec-4-4-3">P2P Group Owner Responsibilities</h4>
+<div class="outline-text-4" id="text-4-4-3">
+<ul class="org-ul">
+<li>Transmit Probe Responses in response to Probe Requests
+</li>
+<li>Transmit beacons advertising
+<ul class="org-ul">
+<li>the TSF (for timing synchronization)
+</li>
+<li>Required operational parameters, supported capabilities,
+membership and services available within the P2P Group
+</li>
+</ul>
+</li>
+<li>Respond to any Probe Request Frame containing the P2P IE with a
+Probe Response Frame containing the P2P IE
+<ul class="org-ul">
+<li>Set the SSID to the SSID of the P2P Group for all Probe
+Responses that it sends
+</li>
+<li>Include WPS IE in all transmitted Beacon, Probe Request and
+Probe Response frames
+</li>
+<li>Conform to relevant sections of IEEE Std 802.11-2007 when
+operating at 5GHz
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-4-4-4" class="outline-4">
+<h4 id="sec-4-4-4">P2P Client Discovery</h4>
+<div class="outline-text-4" id="text-4-4-4">
+<ul class="org-ul">
+<li>P2P Client Discovery is a capability that enables a P2P Group
+Owner to advertise the device information for each P2P Client
+currently connected to a P2P Group
+<ul class="org-ul">
+<li>Information included in Probe Response frames as part of the
+P2P Group Info attribute
+</li>
+<li>P2P Clients that leave a P2P Group are no longer advertised
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-4-4-5" class="outline-4">
+<h4 id="sec-4-4-5">P2P Invitation</h4>
+<div class="outline-text-4" id="text-4-4-5">
+<ul class="org-ul">
+<li>P2P Invitation
+<ul class="org-ul">
+<li>P2P Group Owner may invite a P2P Device to become a P2P Client
+in its P2P Group
+</li>
+<li>A P2P Client may invite another P2P Device to join the P2P
+Group to which it belongs so it may use a supported service
+</li>
+<li>A P2P Device may request a provisioned Persistent P2P Group to
+be invoked
+</li>
+</ul>
+</li>
+<li>P2P Devices rely on an optional P2P Invitation Procedure
+signaling mechanism to achieve this invitation
+<ul class="org-ul">
+<li>P2P Invitation Request frame is transmitted by a P2P Group
+Owner or a P2P Client in that P2P Group
+</li>
+<li>Upon receipt of the P2P Invitation Request, a P2P Device that
+supports the P2P Invitation Procedure signaling mechanism
+transmits a P2P Invitation Response frame
+</li>
+<li>The decision to accept the invitation is left to the invited
+P2P Device
+<ul class="org-ul">
+<li>Invited P2P Devices may also pass the invitation request to
+higher application layers for evaluation
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-4-4-6" class="outline-4">
+<h4 id="sec-4-4-6">Persistent Groups</h4>
+<div class="outline-text-4" id="text-4-4-6">
+<ul class="org-ul">
+<li>Unlike Temporary P2P Groups that exist for only a single
+session, a P2P Persistent Group may be re-invoked at a future
+time to start additional sessions after its initial formation
+</li>
+<li>P2P Persistent Groups may be restarted without repeating
+Provisioning
+<ul class="org-ul">
+<li>P2P Devices in a successfully provisioned P2P Persistent Group
+must store the associated P2P Group ID and Credentials
+<ul class="org-ul">
+<li>Eliminates the need for users to repeat provisioning such as
+WPS PIN, etc.
+</li>
+</ul>
+</li>
+<li>P2P Group Owner remains the same in subsequent sessions
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-4-4-7" class="outline-4">
+<h4 id="sec-4-4-7">Invoking a Persistent P2P Group</h4>
+<div class="outline-text-4" id="text-4-4-7">
+<ul class="org-ul">
+<li>A P2P Group Owner may invoke a Persistent P2P Group at any time
+<ul class="org-ul">
+<li>Autonomously, such as in response to request from a higher
+layer
+</li>
+<li>After a successful P2P Invitation Request and Response
+exchange with a member of the Persistent Group
+</li>
+</ul>
+</li>
+<li>A P2P Client may re-invoke a Persistent P2P Group
+<ul class="org-ul">
+<li>P2P Device must first discover the P2P Group Owner for the
+Persistent P2P Group
+<ul class="org-ul">
+<li>The operating channel for the group may not be available so
+the requesting Device may need to scan the channels in the
+Channel List to find the P2P Group Owner
+</li>
+</ul>
+</li>
+<li>After Discovery, the P2P Device must then successfully
+complete a P2P Invitation exchange with the P2P Group Owner 
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-4-4-8" class="outline-4">
+<h4 id="sec-4-4-8">P2P Persistent Group Reconnection</h4>
+<div class="outline-text-4" id="text-4-4-8">
+<ul class="org-ul">
+<li>A P2P Group Owner may invoke previously formed P2P Persistent
+Groups without user intervention
+<ul class="org-ul">
+<li>Capability advertised via Persistent Reconnect bit in P2P
+Group capabilities list
+</li>
+<li>The P2P Group Owner device may use the Listen state to remain
+discoverable
+</li>
+</ul>
+</li>
+<li>A P2P Persistent Group is ended when the P2P Group Owner deletes
+the stored Credentials for the P2P Persistent Group
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-4-4-9" class="outline-4">
+<h4 id="sec-4-4-9">P2P Discovery and Group Formation Examples</h4>
+<div class="outline-text-4" id="text-4-4-9">
+<ul class="org-ul">
+<li>User and P2P Protocol Interactions
+
+
+<div class="figure">
+<p><img src="/images/2016/2016011101.png" alt="2016011101.png" />
+</p>
+</div>
+</li>
+
+<li>Forming a Group between two P2P Devices
+
+
+<div class="figure">
+<p><img src="/images/2016/2016011102.png" alt="2016011102.png" />
+</p>
+</div>
+
+<ul class="org-ul">
+<li>User discovers P2P Devices within range
+</li>
+
+<li>User selects a discovered P2P device to connect to and enters
+Provisioning Information such as a WPS PIN
+</li>
+
+<li>P2P Devices negotiate P2P Group Ownership
+
+<ul class="org-ul">
+<li>Most appropriate device becomes P2P Group Owner (e.g. TV)
+</li>
+</ul>
+</li>
+
+<li>Use authentication in WPS to ensure that the correct devices
+(WPS PIN) are connected
+
+<ul class="org-ul">
+<li>WPS PIN has already been entered to speed provisioning
+</li>
+
+<li>P2P Group Owner (TV) supplies SSID and WPA2 PSK using WPS
+</li>
+</ul>
+</li>
+
+<li>P2P Group Owner starts P2P Group session and P2P Client joins
+P2P Group
+</li>
+</ul>
+</li>
+
+<li>Adding a P2P Device to an existing Group
+
+
+<div class="figure">
+<p><img src="/images/2016/2016011103.png" alt="2016011103.png" />
+</p>
+</div>
+
+<ul class="org-ul">
+<li>New P2P Device discovers presence of existing P2P Group
+
+<ul class="org-ul">
+<li>P2P Group Owner responds to Probe Request during scan
+</li>
+</ul>
+</li>
+
+<li>P2P Group Owner provisions credentials to Client using WPS
+
+<ul class="org-ul">
+<li>Must use PIN or PBC method
+</li>
+</ul>
+</li>
+
+<li>New Client joins the P2P Group
+</li>
+</ul>
+</li>
+
+<li>Discovering a Device in a P2P Group: Forming a Direct Connection
+
+
+<div class="figure">
+<p><img src="/images/2016/2016011104.png" alt="2016011104.png" />
+</p>
+</div>
+
+<ul class="org-ul">
+<li>Camera is searching for a Printer that is already in a P2P
+Group
+</li>
+
+<li>P2P Group Owner responds with P2P Client Info Descriptors of
+P2P Devices in its Group
+
+<ul class="org-ul">
+<li>P2P Client does not respond to Probe Requests
+</li>
+</ul>
+</li>
+
+<li>Camera may communicate directly with Printer after receiving
+P2P Device Address to perform Service Discovery, Group
+Formation, data exchange, etc.
+</li>
+</ul>
+</li>
+
+<li>Adding a Device to a Group by Invitation
+
+
+<div class="figure">
+<p><img src="/images/2016/2016011105.png" alt="2016011105.png" />
+</p>
+</div>
+
+<ul class="org-ul">
+<li>Group Owner searches for a device of a specific type (printer)
+</li>
+
+<li>Printer is in Listen mode and responds to Probe Requests
+</li>
+
+<li>P2P Group Owner invites Printer to join the P2P Group
+</li>
+
+<li>Group Owner supplies SSID and WPA2 PSK using WPS
+</li>
+
+<li>Printer joins the P2P group
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5">Power Management and WiFi P2P Technology</h2>
+<div class="outline-text-2" id="text-5">
+</div><div id="outline-container-sec-5-1" class="outline-3">
+<h3 id="sec-5-1">P2P Power Management</h3>
+<div class="outline-text-3" id="text-5-1">
+<ul class="org-ul">
+<li>P2P supports power saving mechanisms for P2P Group Owners and P2P
+Clients
+<ul class="org-ul">
+<li>Based on legacy PS and WMM-PS power management mechanisms
+</li>
+<li>Adapted mechanisms are referred to as P2P-PS and P2P-WMM-PS
+</li>
+</ul>
+</li>
+<li>Two adaptations allow for P2P Group Owner absence periods
+<ul class="org-ul">
+<li>Opportunistic Power Save
+</li>
+<li>Notice of Absence
+</li>
+</ul>
+</li>
+<li>Addresses requirements of target use cases:
+<ul class="org-ul">
+<li>Burst traffic (i.e., file transfer, synchronization, printing)
+</li>
+<li>WMM Traffic Streams and other latency-sensitive traffic
+</li>
+<li>Absence signaling for off-channel activities (concurrent use,
+scanning, etc.)
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-5-2" class="outline-3">
+<h3 id="sec-5-2">P2P Power Management:Impact on Availability</h3>
+<div class="outline-text-3" id="text-5-2">
+<ul class="org-ul">
+<li>P2P Power Management saves power at the expense of
+<ul class="org-ul">
+<li>Reduced P2P Group Owner availability
+</li>
+<li>Delays in Discoverability
+</li>
+<li>Increased latency in upstream and downstream P2P Client
+transmissions
+</li>
+</ul>
+</li>
+<li>P2P Clients may influence the use of P2P Power Saving by
+submitting a P2P Presence Request
+<ul class="org-ul">
+<li>A P2P Group Owner shall not use Opportunistic Power Save while
+it has active P2P Presence Requests
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-5-3" class="outline-3">
+<h3 id="sec-5-3">Discovery Considerations</h3>
+<div class="outline-text-3" id="text-5-3">
+<ul class="org-ul">
+<li>Searching devices must be aware that P2P power saving techniques
+may impact communication between searching and target P2P devices
+<ul class="org-ul">
+<li>Device Discoverability Responses may take multiple beacon
+periods
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-5-4" class="outline-3">
+<h3 id="sec-5-4">Availability for Discoverability</h3>
+<div class="outline-text-3" id="text-5-4">
+<ul class="org-ul">
+<li>To maintain P2P Device Discoverability, a P2P Group Owner must be
+present for an availability period called the CTWindow(Client
+Traffic Window)
+<ul class="org-ul">
+<li>The P2P Group Owner determines an appropriate CTWindow
+<ul class="org-ul">
+<li>CTWindow is an integral number of TU and is always less than
+the beacon interval
+</li>
+<li>A P2P Group Owner that desires to be discoverable should
+select a CTWindow of at least 10 TU
+</li>
+</ul>
+</li>
+<li>P2P Group Owners will signal the CTWindow size and use of
+Opportunistic Power Save in Beacon frames and, where
+appropriate, Probe Response frames
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-5-5" class="outline-3">
+<h3 id="sec-5-5">Opportunistic Power Save</h3>
+<div class="outline-text-3" id="text-5-5">
+<ul class="org-ul">
+<li>Opportunistic Power Save allows a P2P Group Owner to save power
+on an opportunistic basis
+<img src="/images/2016/2016011106.png" alt="2016011106.png" />
+</li>
+
+<li>After the end of each CTWindow, if the P2P Group Owner determines
+that all connected P2P Clients are in Doze state
+
+<ul class="org-ul">
+<li>The P2P Group Owner shall complete delivery of all queued
+broadcast/multicast frames
+</li>
+
+<li>The P2P Group Owner may then enter Doze state until the next
+TBTT
+</li>
+</ul>
+</li>
+
+<li>The P2P Group Owner will remain awake as long as any Client is
+determined to be awake. A P2P Client is considered awake if:
+
+<ul class="org-ul">
+<li>1) It is in active mode
+</li>
+
+<li>2) It is in Power Save Mode and has a WMM Unscheduled Service
+Period in progress or an unanswered PS-Poll
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-5-6" class="outline-3">
+<h3 id="sec-5-6">Notice of Absence</h3>
+<div class="outline-text-3" id="text-5-6">
+<ul class="org-ul">
+<li>P2P Group Owners signal a planned absence with a Notice of
+Absence
+<ul class="org-ul">
+<li>May be used to signal a single absence or a periodic absence
+</li>
+<li>Periodic absences are either limited in count or continuous
+(count = 255)
+</li>
+<li>Notice of Absence timing may be altered by the P2P Group Owner
+at any time
+</li>
+</ul>
+</li>
+<li>Addresses requirements of target use cases. For example:
+<ul class="org-ul">
+<li>Use a single absence to allow occasional off-channel scanning
+</li>
+<li>Use periodic absence to power save
+<ul class="org-ul">
+<li>When a WMM Traffic Stream is established
+</li>
+<li>For concurrent WLAN/P2P Group operation on different channels
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-5-7" class="outline-3">
+<h3 id="sec-5-7">P2P Client Power Management</h3>
+<div class="outline-text-3" id="text-5-7">
+<ul class="org-ul">
+<li>P2P Clients use P2P PS or P2P WMM-PS as a non-AP STA
+</li>
+<li>P2P PS is the same as 802.11 PS except
+<ul class="org-ul">
+<li>When the Group Owner is using Opportunistic Power Save, P2P
+Clients may transition out of Power Save mode only at the
+beginning of a CTWindow
+</li>
+</ul>
+</li>
+<li>P2P WMM-PS is the same as 802.11 WMM-PS except
+<ul class="org-ul">
+<li>P2P Devices shall not initiate a frame exchange that cannot be
+completed prior to the start of a scheduled absence period
+</li>
+<li>P2P Clients shall generally not send frames to a P2P Group
+Owner during periods of absence
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6">Additional WiFi P2P Technology Capabilities</h2>
+<div class="outline-text-2" id="text-6">
+</div><div id="outline-container-sec-6-1" class="outline-3">
+<h3 id="sec-6-1">Service Discovery</h3>
+<div class="outline-text-3" id="text-6-1">
+<ul class="org-ul">
+<li>Optional Service Discovery procedure enables advertisement of
+supported services by higher layer applications (e.g., Bonjour,
+UPnP, Web Service Discovery) to other P2P devices
+<ul class="org-ul">
+<li>Frame exchange that can be performed at any time with any other
+discovered P2P Device
+</li>
+<li>Leverages Generic Advertisement Service (GAS) protocol/exchange
+from IEEE P802.11u
+</li>
+</ul>
+</li>
+<li>Service Discovery can be used to ensure that two devices have
+compatible services
+<ul class="org-ul">
+<li>Get list of all services offered by a P2P Device
+</li>
+<li>Get information about single or multiple services offered by a
+P2P Device
+</li>
+<li>Communicate an update to the services offered by a P2P Device
+</li>
+</ul>
+</li>
+<li>The decision to perform Service Discovery is
+implementation-specific and beyond the scope of the P2P spec
+</li>
+<li>Service Discovery Query issued by requesting device
+<ul class="org-ul">
+<li>Via Vendor-Specific content field of GAS Initial Request action
+frame
+</li>
+</ul>
+</li>
+<li>Service Discovery Response issued by targeted device
+<ul class="org-ul">
+<li>Via Vendor-Specific content field of GAS Initial Response
+action frame
+</li>
+</ul>
+</li>
+<li>Service Update Indicator support required for all P2P Devices
+that support Discovery
+<ul class="org-ul">
+<li>Counter sent in each Service Discovery Query and Service
+Discovery Response frame
+<ul class="org-ul">
+<li>Incremented every time a change occurs in the service
+information of the P2P Device sending the frame
+</li>
+</ul>
+</li>
+<li>Enables P2P Devices to cache service information of other P2P
+Devices
+<ul class="org-ul">
+<li>Receipt of Updated Indicator prompts the receiving device to
+flush and rewrite the cached service information for the
+sending device
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-6-2" class="outline-3">
+<h3 id="sec-6-2">Concurrency: P2P and WLAN</h3>
+<div class="outline-text-3" id="text-6-2">
+<ul class="org-ul">
+<li>A P2P device that can operate concurrently with a WLAN
+(infrastructure network) is considered a P2P Concurrent Device
+<ul class="org-ul">
+<li>Example : Laptop participating as P2P Client and simultaneously
+using a wireless LAN connection
+<ul class="org-ul">
+<li>Single radio can manage multiple connections
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>A P2P Group may operate in the same channel (and regulatory
+class) as a concurrently operating WLAN BSS
+<img src="/images/2016/2016011107.png" alt="2016011107.png" />
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-6-3" class="outline-3">
+<h3 id="sec-6-3">Managed P2P Device Capability</h3>
+<div class="outline-text-3" id="text-6-3">
+<ul class="org-ul">
+<li>Intended to protect Enterprise deployments from accidental
+creation of security risks by an unaware user of a P2P Device
+</li>
+<li>A WLAN AP may optionally manage P2P devices
+<ul class="org-ul">
+<li>WLAN AP advertises P2P Management capability in Beacon, Probe
+Response and (Re) Association Response frames
+</li>
+</ul>
+</li>
+<li>A P2P device may optionally be a Managed P2P device
+<ul class="org-ul">
+<li>P2P Device advertises P2P Management capability in Probe
+Request and (Re) Assoc Request frames
+</li>
+</ul>
+</li>
+<li>A P2P Device also reports its P2P Device address and P2P
+Interface addresses to the WLAN AP at association to help with
+monitoring
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-7" class="outline-2">
+<h2 id="sec-7">Additional WiFi P2P Technology Considerations</h2>
+<div class="outline-text-2" id="text-7">
+</div><div id="outline-container-sec-7-1" class="outline-3">
+<h3 id="sec-7-1">WiFi P2P WLAN Coexistence</h3>
+<div class="outline-text-3" id="text-7-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016011108.png" alt="2016011108.png" />
+</p>
+</div>
+
+<ul class="org-ul">
+<li>P2P Devices shall coexist well with nearby WiFi networks, both
+legacy and P2P
+<ul class="org-ul">
+<li>Follow standard W-Fi Alliance practices for protection of
+overlapping networks
+</li>
+</ul>
+</li>
+<li>Primary and Secondary P2P Coexistence Parameters provided to
+assist with fine tuning coexistence behaviors
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-7-2" class="outline-3">
+<h3 id="sec-7-2">WiFi P2P Spectrum Coexistence in 5GHz</h3>
+<div class="outline-text-3" id="text-7-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016011109.png" alt="2016011109.png" />
+</p>
+</div>
+
+<ul class="org-ul">
+<li>with AP‟s, P2P Devices that may operate as P2P Group Owners in
+the 5GHz band must be compliant with appropriate country
+regulations regarding coexistence with radar systems
+<ul class="org-ul">
+<li>Support for DFS (Dynamic Frequency Selection) may be required
+depending on supported channels.
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-8" class="outline-2">
+<h2 id="sec-8">Summary: Minimum Requirements for WiFi P2P Devices</h2>
+<div class="outline-text-2" id="text-8">
+<ul class="org-ul">
+<li>2.4GHz, 802.11g support
+</li>
+<li>Device certified for WPA2, WMM and WPS
+</li>
+<li>Ability to connect to other P2P Devices
+</li>
+<li>Ability to function as a P2P Group Owner [for one(1) Client
+connection]
+<ul class="org-ul">
+<li>NOT support P2P communication with 802.11b devices
+</li>
+<li>Support WMM AP functionality
+</li>
+<li>Support WMM-PS AP functionality
+</li>
+<li>Function as WPS internal registrar
+</li>
+<li>Form temporaryP2P Groups
+</li>
+<li>Provide IP address (DHCP) to ONE P2P Client
+</li>
+<li>Support P2P Client Discovery
+</li>
+<li>Supply SSID and passphrase for manual configuration of legacy
+client
+</li>
+</ul>
+</li>
+<li>Able to function as a P2P Client
+<ul class="org-ul">
+<li>Join existing P2P Group
+</li>
+<li>Leave a P2P Group
+</li>
+</ul>
+</li>
+<li>5GHz support
+</li>
+<li>P2P Group Owner Functionality
+<ul class="org-ul">
+<li>Support multiple Client connections
+</li>
+<li>Concurrency
+</li>
+<li>Cross-Connection
+</li>
+<li>Data Distribution
+</li>
+<li>Form/re-invoke Persistent P2P Groups
+<ul class="org-ul">
+<li>Support P2P Invitation Procedure
+</li>
+</ul>
+</li>
+<li>Ability to remove/reject devices from P2P network
+</li>
+<li>Coexistence parameters
+</li>
+<li>IF 5GHz, support for DFS (Dynamic Frequency Selection)
+</li>
+</ul>
+</li>
+<li>Support of Service Discovery
+</li>
+<li>Ability to be a Managed P2P device
+</li>
+<li>Mechanism to switch P2P function on/off
+</li>
+<li>Mechanism to prioritize selection of P2P Group Owner or Client
+roles
+</li>
+</ul>
+</div>
+</div>
+
+
+
+
+<div id="outline-container-sec-9" class="outline-2">
+<h2 id="sec-9">附录</h2>
+<div class="outline-text-2" id="text-9">
+</div><div id="outline-container-sec-9-1" class="outline-3">
+<h3 id="sec-9-1">nl80211</h3>
+<div class="outline-text-3" id="text-9-1">
+<p>
+p2p相关的扩展有：
+</p>
+<ul class="org-ul">
+<li><code>NL80211_CMD_REMAIN_ON_CHANNEL</code>
+</li>
+<li><code>NL80211_CMD_CANCEL_REMAIN_ON_CHANNEL</code>
+This indicates to the device that it should stay on a given
+channel for a given time, to implement a P2P listen phase. Can
+also be canceled, since it is also used to implement off-channel
+TX for group negotiation or invitation
+</li>
+<li><code>NL80211_CMD_FRAME</code>
+previously <code>NL80211_CMD_ACTION</code>
+Transmit a management frame, with channel checking. This can be
+used during a <code>remain-on-channel</code> phase to transmit frames on that
+channel, or at other times to transmit on the operating
+channel. This also allows <code>off-channel</code> transmission, i.e. transmit
+on a given channel and wait for a response for a given time
+(including the ability to cancel the wait) which in a sense
+combines <code>REMAIN_ON_CHANNEL</code> and <code>MGMT_TX</code> into just a single <code>MGMT_TX</code>
+for some operations.
+</li>
+<li><code>NL80211_CMD_REGISTER_FRAME</code>
+Allow a userspace application to register for receiving a given
+type of (management) frame through nl80211, and also replying to
+it. Applications can also specify a filter so for example they
+don't have to handle all the different action frames but just a
+subset. For action frames, a side effect is that the kernel will
+not reply to unknown action frames when they are registered by
+userspace. Used by <code>wpa_supplicant</code> for P2P also for probe
+requests.
+
+<p>
+Related events:
+<code>NL80211_CMD_FRAME</code> , <code>NL80211_CMD_FRAME_TX_STATUS</code>
+</p>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-sec-9-2" class="outline-3">
+<h3 id="sec-9-2">p2p问题分析思路</h3>
+<div class="outline-text-3" id="text-9-2">
+<p>
+当GO与GC两种角色下，问题是否一样？
+</p>
+
+<p>
+打印Wifi状态变化情况。
+while true; do sleep 1; iwpriv wlan0 stat; done
+</p>
+</div>
+</div>
+</div>
+</div>
