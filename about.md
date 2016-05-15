@@ -20,13 +20,11 @@ permalink: /about/
 
 另外，也了解一些Javascript和Lisp语言的相关知识。
 
-我使用emacs做为我的主要文本编辑器，使用Org-mode来做为我的任务管理工具。
 
 如下是我的网上两个主要去处:        
 - CSDN Blog  <http://blog.csdn.net/fuyajun01>    
 - Github Home Page: <https://github.com/fuyajun1983cn>
 
-有兴趣的朋友可以通过如下二维码在移动设备上访问本站：   
-<img src="{{site.url}}/images/qr_code.png"/>   
+如果您也是一名技术爱好者，或者您正在为公司寻找相关人才，请扫描如下二维码加我微信：
 
-欢迎大家光临本站，并就相关话题进行交流和讨论。
+![wemedia](/images/wemedia.png)
