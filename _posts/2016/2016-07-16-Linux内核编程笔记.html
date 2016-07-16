@@ -1,0 +1,6250 @@
+---
+layout: post
+title:  "Linux内核编程笔记"
+author: 山庄来客
+date:   2015-07-16
+update: 2016-07-16
+categories: 软件开发 kernel
+---
+<div id="content">
+<h1 class="title">Linux内核编程笔记</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">知识点1 内核线程</a></li>
+<li><a href="#sec-2">知识点2 内核错误码处理宏</a></li>
+<li><a href="#sec-3">知识点3 内核数据结构之链表</a></li>
+<li><a href="#sec-4">知识点4 内核中的通知链</a></li>
+<li><a href="#sec-5">知识点5 条件编译在内核中的使用</a></li>
+<li><a href="#sec-6">知识点6 procfs文件系统编程</a></li>
+<li><a href="#sec-7">知识点7 内核中的几种内存分配器</a></li>
+<li><a href="#sec-8">知识点8 内核同步机制——原子操作</a></li>
+<li><a href="#sec-9">知识点9 内核同步机制——自旋锁</a></li>
+<li><a href="#sec-10">知识点10 内核同步机制——信号量</a></li>
+<li><a href="#sec-11">知识点11 内核同步机制——互斥量</a></li>
+<li><a href="#sec-12">知识点12 内核同步机制——完成量</a></li>
+<li><a href="#sec-13">知识点13 进程管理</a></li>
+<li><a href="#sec-14">知识点14 内核热插拔管理</a></li>
+<li><a href="#sec-15">知识点15 系统调用</a></li>
+<li><a href="#sec-16">知识点16 等待队列——休眠与唤醒</a></li>
+<li><a href="#sec-17">知识点17 内核数据结构之队列</a></li>
+<li><a href="#sec-18">知识点18 内核数据结构之映射</a></li>
+<li><a href="#sec-19">知识点19 内核数据结构之红黑树</a></li>
+<li><a href="#sec-20">知识点20 内核中断处理</a></li>
+<li><a href="#sec-21">知识点21 内核中断下半部机制</a></li>
+<li><a href="#sec-22">知识点22下半部机制之软中断</a></li>
+<li><a href="#sec-23">知识点23下半部机制之微线程</a></li>
+<li><a href="#sec-24">知识点24 内核线程ksoftirqd</a></li>
+<li><a href="#sec-25">知识点25下半部机制之工作队列</a></li>
+<li><a href="#sec-26">知识点26内核变量——Jiffies</a></li>
+<li><a href="#sec-27">知识点27内核定时器与延时</a></li>
+<li><a href="#sec-28">知识点28内存管理</a></li>
+<li><a href="#sec-29">知识点29 每-CPU变量</a></li>
+<li><a href="#sec-30">知识点30 进程地址空间</a></li>
+<li><a href="#sec-31">知识点31 内存文件系统——sysfs</a></li>
+<li><a href="#sec-32">知识点32 Direct I/O</a></li>
+<li><a href="#sec-33">知识点33 大块数据申请及DMA</a></li>
+<li><a href="#sec-34">知识点34 I/O端口和I/O内存</a></li>
+<li><a href="#sec-35">知识点35 framebuffer API</a></li>
+<li><a href="#sec-36">知识点36 PCI设备驱动接口</a></li>
+<li><a href="#sec-37">知识点37 platform设备驱动</a></li>
+<li><a href="#sec-38">知识点37 debugfs接口</a></li>
+<li><a href="#sec-39">知识点38 <code>seq_file</code> 接口的使用</a></li>
+<li><a href="#sec-40">知识点39 libfs内核接口</a></li>
+<li><a href="#sec-41">知识点40 内存映射</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">知识点1 内核线程</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+内核线程可以用户两种方法实现：
+</p>
+<ol class="org-ol">
+<li>古老的方法
+创建内核线程：
+<pre class="example">
+ret = kernel_thread(mykthread, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGHAND | SIGCHLD);
+</pre>
+
+<p>
+内核线程方法的实现
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">static DECLARE_WAIT_QUEUE_HEAD(myevent_waitqueue);
+rwlock_t myevent_lock;
+extern unsigned int myevent_id;
+
+static int mykthread(void *unused)
+{
+  unsigned int event_id = 0;
+  DECLARE_WAITQUEUE(wait, current);
+  //将此线程作为kthreadd的子进程，成为一个内核线程，不占用用户资源
+  daemonize(“mykthread”);
+
+  //daemonize()默认阻塞所有信号，所以…
+  allow_signal(SIGKILL);
+
+  add_wait_queue(&amp;myevent_waitqueue, &amp;wait);
+
+  for ( ; ;)
+    {
+      set_current_state(TASK_INTERRUPTIBLE);
+      schedule();
+      if ( signal_pending(current) )
+        break;
+
+      read_lock(&amp;myevent_lock);
+      if ( myevent_id)
+        {
+          event_id = myevent_id;
+          read_unlock(&amp;myevent_lock);
+          run_umode_handler(event_id);
+        }
+      else
+        {
+          read_unlock(&amp;myevent_lock);
+        }
+    }
+
+  set_current_state(TASK_RUNNING);
+  remove_wait_queue(&amp;myevent_waitqueue, &amp;wait);
+  return 0;
+}
+</pre>
+</div>
+</li>
+
+<li>现代方法（从2.6.23起）
+创建内核线程更现代的方法是辅助函数 <code>kthread_create</code>
+函数原型：
+<div class="org-src-container">
+
+<pre class="src src-c">struct task_struct *kthread_create(int (*threadfin)(void *data), 
+                                   　　void *data, 
+                                   const char namefmt[], 
+                                   …)
+</pre>
+</div>
+
+<p>
+例子如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;linux/kthread.h&gt;   // kernel thread helper interface
+#include &lt;linux/completion.h&gt;
+#include &lt;linux/module.h&gt;
+#include &lt;linux/sched.h&gt;
+#include &lt;linux/init.h&gt;
+
+MODULE_LICENSE("Dual BSD/GPL");
+MODULE_AUTHOR("fuyajun1983cn@yahoo.com.cn");
+
+struct task_struct *my_task;                      
+
+/* Helper thread */
+static int
+my_thread(void *unused)
+{
+
+  while (!kthread_should_stop()) {
+
+    set_current_state(TASK_INTERRUPTIBLE);
+    schedule();
+    printk("I am still running\n");
+
+  }
+
+  /* Bail out of the wait queue */
+  __set_current_state(TASK_RUNNING);
+
+  return 0;
+}
+
+/* Module Initialization */
+static int __init
+my_init(void)
+{
+  /* ... */
+
+  /*   my_task = kthread_create(my_thread, NULL, "%s", "my_thread");
+       if (my_task) wake_up_process(my_task);
+  */
+  /*kthread_run会调用kthread_create函数创建新进程，并立即唤醒它*/
+  kthread_run(my_thread, NULL, "%s", "my_thread");*/
+
+    /* ... */
+
+
+    /* ... */
+    return 0;
+}
+
+/* Module Release */
+static void __exit
+my_release(void)
+{
+  /* ... */
+  kthread_stop(my_task);
+  /* ... */
+}
+
+module_init(my_init);
+module_exit(my_release);
+</pre>
+</div>
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">知识点2 内核错误码处理宏</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+　　Linux有时候在操作成功时需要返回指针，而在失败时则返回错误码。但
+是C语言每个函数只允许一个直接的返回值，因此，任何有关可能错误的信息
+都必须编码到指针中。虽然一般而言，指针可以指向内存中的任意位置，而
+Linux支持的每个体系结构的虚拟地址空间中都有一个从虚拟地址0到至少4K的
+区域，该区域中没有任何有意义的信息。因此内核可以重用该地址范围来的编
+码错误码。
+</p>
+
+<p>
+<code>ERR_PTR</code> 是一个辅助宏，用于将数值常数编码为指针。相关的宏如下：
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">宏名称</th>
+<th scope="col" class="left">意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left"><code>IS_ERR()</code></td>
+<td class="left">返回值是否是错误码</td>
+</tr>
+
+<tr>
+<td class="left"><code>PTR_ERR()</code></td>
+<td class="left">将返回值转化为错误码</td>
+</tr>
+
+<tr>
+<td class="left"><code>ERR_PTR()</code></td>
+<td class="left">根据错误码返回对错误的描述</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+判断内核版本号的宏如下：
+</p>
+<pre class="example">
+#if LINUX_VERSION_CODE &lt; KERNEL_VERSION(2,6,27)
+</pre>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">知识点3 内核数据结构之链表</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+    内核中的许多数据结构都是通过链表来的维护的， Linux内核提供了链表的通
+用处理操作，供内核中其他数据结构使用。只需将链表结构嵌入到目标数据结
+构，就可以利用通用的链表操作目标数据结构了
+</p>
+
+<p>
+数据结构定义：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;linux/list.h&gt;
+/*内核中的通用链表数据结构定义*/
+struct list_head
+{
+  struct list_head *next, *prev;
+};
+/*内嵌了通用链表数据结构的自定义的数据结构*/
+struct mydatastructure
+{
+  struct list_head mylist;   /* Embed */
+  /*  …   */           /* Actual Fields */
+};
+</pre>
+</div>
+
+<p>
+内核中链表的常用操作：
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">宏或函数</th>
+<th scope="col" class="left">意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left"><code>INIT_LIST_HEAD()</code></td>
+<td class="left">初始化链表头</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>list_add()</code></td>
+<td class="left">将元素增加到链表头后</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>list_add_tail()</code></td>
+<td class="left">将元素添加到链表尾</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>list_del()</code></td>
+<td class="left">从链表中删除一个元素</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>list_replace()</code></td>
+<td class="left">将链表中的元素替换为另一个</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>list_entry()</code></td>
+<td class="left">遍历链表中的每一个元素</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>list_for_each_entry()</code></td>
+<td class="left">简化链表迭代接口</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>list_for_each_entry_safe()</code></td>
+<td class="left">如果迭代过程中需要删除结点，则用这个</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>list_empty()</code></td>
+<td class="left">检查链表是否为空</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>list_splice()</code></td>
+<td class="left">将两个链表合并</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+一个例子：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">/*用于同步，以及串联逻辑数据结构的辅助结构*/
+static struct _mydrv_wq {
+  struct list_head mydrv_worklist; /* Work List 链头*/
+  spinlock_t lock;                 /* Protect the list */
+  wait_queue_head_t todo;          /* Synchronize submitter
+                                      and worker */
+} mydrv_wq;
+
+/*逻辑相关的数据结构*/
+struct _mydrv_work {
+  struct list_head mydrv_workitem; /* The work chain */
+  void (*worker_func)(void *);     /* Work to perform */
+  void *worker_data;               /* Argument to worker_func */
+  /* ... */                        /* Other fields */
+} mydrv_work;
+
+//Initialize Data Structures
+static int __init
+mydrv_init(void)
+{
+  /* Initialize the lock to protect against
+     concurrent list access */
+  spin_lock_init(&amp;mydrv_wq.lock);
+
+  /* Initialize the wait queue for communication
+     between the submitter and the worker */
+  init_waitqueue_head(&amp;mydrv_wq.todo);
+
+  /* Initialize the list head */
+  INIT_LIST_HEAD(&amp;mydrv_wq.mydrv_worklist);
+
+  /* Start the worker thread. See Listing 3.4 */
+  kernel_thread(mydrv_worker, NULL,
+                  CLONE_FS | CLONE_FILES | CLONE_SIGHAND | SIGCHLD);
+  return 0;
+}
+</pre>
+</div>
+
+<p>
+<b>哈希链表</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct hlist_head
+{
+  struct hlist_node *first;
+};
+
+struct hlist_node
+{
+  struct hlist_node *next, **pprev;
+};
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4">知识点4 内核中的通知链</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+通知链(Notifier Chains)：
+    通知链用于向请求通知的代码区发送状态变化消息，消息只在內核模塊間傳遞。
+有四種類型的通知鏈：
+</p>
+<ol class="org-ol">
+<li>Atomic notifier chains: Chain callbacks run in interrupt/atomic
+context. Callouts are not allowed to block.
+</li>
+<li>Blocking notifier chains: Chain callbacks run in process
+context. Callouts are allowed to block.
+</li>
+<li>Raw notifier chains: There are no restrictions on callbacks,
+registration, or unregistration.  All locking and protection must
+be provided by the caller.
+</li>
+<li>SRCU notifier chains: A variant of blocking notifier chains, with
+the same restrictions. 一般用於通知鏈被經常調用，而很少被刪除的情
+形。
+</li>
+</ol>
+
+<p>
+有几个内核中预定义的通知器：
+</p>
+<ul class="org-ul">
+<li>Die Notification: 当一个内核函数触发了一个由“opps”引起的陷阱或错误
+时。
+</li>
+<li>Net device notification：当一个网卡禁用或启用时
+</li>
+<li>CPU frequency notification：当处理器频率发生变化时
+</li>
+<li>Internet address notification：当一个网卡IP地址发生变化时
+</li>
+</ul>
+
+<p>
+自定义通知链：
+　　使用 <code>BLOCKING_NOTIFIER_HEAD()</code> 初始化，通过
+<code>blocking_notifier_chain_register()</code> 来注册通知链。在中断上下文中，使用
+<code>ATOMIC_NOTIFIER_HEAD()</code> 初始化，通过
+<code>atomic_notifier_chain_register()</code> 来注册
+通知链。
+</p>
+
+<p>
+代码示例：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;linux/notifier.h&gt;
+#include &lt;linux/kdebug.h&gt;
+#include &lt;linux/netdevice.h&gt;
+#include &lt;linux/inetdevice.h&gt;
+
+extern int register_die_notifier(struct notifier_block *nb);
+extern int unregister_die_notifier(struct notifier_block *nb);
+
+/* Die notification event handler */
+int my_die_event_handler(struct notifier_block *self, unsigned long val, void *data)
+{
+  struct die_args *args = (struct die_args *)data;
+
+  if (val == 1) { /* '1' corresponds to an "oops" */
+    printk("my_die_event: OOPs! at EIP=%lx\n", args-&gt;regs-&gt;eip);
+  } /* else ignore */
+  return 0;
+}
+
+/* Die Notifier Definition */
+static struct notifier_block my_die_notifier = {
+  .notifier_call = my_die_event_handler,
+};
+
+
+
+/* Net Device notification event handler */
+int my_dev_event_handler(struct notifier_block *self,
+                         unsigned long val, void *data)
+{
+  printk("my_dev_event: Val=%ld, Interface=%s\n", val,
+         ((struct net_device *) data)-&gt;name);
+  return 0;
+}
+
+/* Net Device notifier definition */
+static struct notifier_block my_dev_notifier = {
+  .notifier_call = my_dev_event_handler,
+};
+
+
+/* User-defined notification event handler */
+int my_event_handler(struct notifier_block *self,
+                     unsigned long val, void *data)
+{
+  printk("my_event: Val=%ld\n", val);
+  return 0;
+}
+
+/* User-defined notifier chain implementation */
+static BLOCKING_NOTIFIER_HEAD(my_noti_chain);
+
+static struct notifier_block my_notifier = {
+  .notifier_call = my_event_handler,
+};
+
+/* Driver Initialization */
+static int __init
+my_init(void)
+{
+  /* ... */
+
+  /* Register Die Notifier */
+  register_die_notifier(&amp;my_die_notifier);
+
+  /* Register Net Device Notifier */
+  register_netdevice_notifier(&amp;my_dev_notifier);
+
+  /* Register a user-defined Notifier */
+  blocking_notifier_chain_register(&amp;my_noti_chain, &amp;my_notifier);
+
+  /* ... */
+  return 0;
+}
+
+//驱动模块初始化函数
+static int __init hello3_init(void)
+{
+  my_init();
+  blocking_notifier_call_chain(&amp;my_noti_chain, 100, NULL);
+  return 0;
+}
+
+module_init(hello3_init);
+//驱动模块注册函数
+static void __exit hello3_exit(void)
+{
+  unregister_die_notifier(&amp;my_die_notifier);
+  unregister_netdevice_notifier(&amp;my_dev_notifier);
+  blocking_notifier_chain_unregister(&amp;my_noti_chain, &amp;my_notifier);
+}
+
+module_exit(hello3_exit);
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5">知识点5 条件编译在内核中的使用</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+    当需要根据编译时配置，以不同方式执行某一任务时，一种可能的方法是，使
+用两个不同的函数，每次调用时，根据某些预处理器条件来的选择正确的一个：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">void do_somehting()
+{
+  …
+#ifdef CONFIG_WORK_HARD
+    do_work_fast();
+#else
+  do_work_at_your_leisure();
+#endif
+  …
+}
+</pre>
+</div>
+
+<p>
+由于这需要在每次调用函数时都使用预处理器，内核开发者认为这种方法代表
+了糟糕的风格，更优雅的一个方案是根据选择不同的配置，来定义函数自身：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#ifdef CONFIG_WORK_HARD
+void do_work()
+{
+…
+}
+#else
+void do_work()
+{
+…
+}
+#endif
+void do_something()
+{
+…
+do_work();
+…
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6">知识点6 procfs文件系统编程</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+    proc文件系统是一种虚拟的文件系统，它只存在于内存当中，一般用来在内核
+中输出一些信息到用户层，通常可以利用其来打印内核程序中的一些调试信息，
+具体的操作如下代码。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;linux/kernel.h&gt;
+#include &lt;linux/module.h&gt;
+#include &lt;linux/uaccess.h&gt;
+#include &lt;linux/proc_fs.h&gt;
+
+MODULE_LICENSE("Dual BSD/GPL");
+MODULE_AUTHOR("fu.yajun@byd.com");
+
+// Entries for /proc/gdl and /proc/gdl/memory
+static struct proc_dir_entry * mm_proc_mem; //对应目录项
+static struct proc_dir_entry * mm_proc_dir;  //对应文件
+
+static ssize_t procfs_test1_write(struct file * file, 
+                                  const char  __user * buffer, 
+                                  size_t count, 
+                                  loff_t *        data)
+{
+  unsigned char file_name[80];
+  size_t   size_to_copy;
+  size_to_copy = count;
+  memset(file_name, 0x0, 80);
+  copy_from_user(file_name, buffer, size_to_copy);
+  printk("%s", file_name);
+  return size_to_copy;
+}
+
+static const struct file_operations procfs_test1_fops = {
+  .write = procfs_test1_write,
+};
+
+//----------------------------------------------------------------------------
+// Initialize proc filesystem
+//----------------------------------------------------------------------------
+static int __init mm_procfs_init(void)
+{
+  mm_proc_dir = 0;
+  mm_proc_mem = 0;
+
+  mm_proc_dir = proc_mkdir("gdl",0);//在/proc下创建一个目录
+  if (mm_proc_dir == 0)
+    {
+      printk(KERN_ERR "/proc/gdl/ creation failed\n");
+      return -1;
+    }
+  //创建/proc/gdl/memory文件
+  　　mm_proc_mem = proc_create("memory", 
+                                　　                           S_IFREG|S_IRWXU|S_IRWXG|S_IRWXO, 
+                                　　                         mm_proc_dir, &amp;procfs_test1_fops);
+  if (mm_proc_mem == 0) {
+    printk(KERN_ERR "/proc/gdl/memory creation failed\n");
+    proc_remove(mm_proc_dir);
+    mm_proc_dir = 0;
+    return -1;
+  }
+  if (mm_proc_mem == 0)
+    {
+      printk(KERN_ERR "/proc/gdl/memory creation failed\n");
+      remove_proc_entry("gdl", 0);
+      mm_proc_dir = 0;
+      return -1;
+    }
+
+  return 0;
+}
+
+
+//----------------------------------------------------------------------------
+// De-initialize proc filesystem
+//----------------------------------------------------------------------------
+static int __exit mm_procfs_deinit(void)
+{
+  if (mm_proc_dir != 0)
+    {
+      if (mm_proc_mem != 0)
+        {
+          proc_remove(mm_proc_mem);
+          mm_proc_mem = 0;
+        }
+
+      proc_remove(mm_proc_dir);
+      mm_proc_dir = 0;
+    }
+
+  return 0;
+}
+
+module_init(mm_procfs_init);
+module_exit(mm_procfs_deinit);
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-7" class="outline-2">
+<h2 id="sec-7">知识点7 内核中的几种内存分配器</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+内存管理是内核是最复杂同时也是最重要的一部分，其中就涉及到了多种内存
+分配器，如果内核初始化阶段使用的bootmem分配器，分配大块内存的伙伴系
+统，以及其分配较小块内存的slab、slub和slob分配器。
+</p>
+
+<ol class="org-ol">
+<li>bootmem分配器
+bootmem分配器用于在启动阶段早期分配内存。该分配器用一个位图来管理
+页，位图比特位的数目与系统中物理内存页的数目相同。比特位为1表示已
+用页，比特位为0，表示空闲页。在需要分配内存时，分配器逐位扫描位图，
+直至找到一个能提供足够连续页的位置，即所谓的最先最佳或最先适配位
+置。
+
+<p>
+该分配提供了如下内核接口：
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">内核接口</th>
+<th scope="col" class="left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left"><code>alloc_bootmem</code></td>
+<td class="left">按指定大小在 <code>ZONE_NORMAL</code> 内存域分配内存</td>
+</tr>
+
+<tr>
+<td class="left"><code>alloc_bootmem_pages(size)</code></td>
+<td class="left">&#xa0;</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>alloc_bootmem_low</code></td>
+<td class="left">功能同上，只是从 <code>ZONE_DMA</code> 内存域分配内存。</td>
+</tr>
+
+<tr>
+<td class="left"><code>alloc_bootmem_low_pages(size)</code></td>
+<td class="left">&#xa0;</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>free_bootmem</code></td>
+<td class="left">释放内存</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+每个分配器必须实现一组特定的函数，用于内存分配和缓存：
+<code>kmalloc</code> 、 <code>__kmalloc</code> 和 <code>kmalloc_node</code> 是一般的内存分配函数。
+<code>kmem_cache_alloc</code> 、 <code>kmem_cache_alloc_node</code> 提供特定类型的内核
+缓存。
+</p>
+</li>
+
+<li>slab分配器
+功能：提供小的内存块，也可用作一个缓存。
+    分配和释放内存在内核代码上很常见。为了使频繁分配和释放内存所导致
+的开销尽量变小，程序员通常使用空闲链表。当分配的内在块不再需要时，
+将这块内存插入到空闲链表中，而不是真正的释放掉，这种空闲链表相当
+于内存块缓冲区。但这种方法的不足之处是，内核没有一种手段能够全局
+地控制空闲链表的大小，实时地更新这些空闲链表的大小。事实上，内核
+根本也不可能知道有多少空闲链表存在。
+
+<p>
+为了解决上述问题，内核心提供了slab层或slab分配器。它作为一个通用
+的内核数据结构缓冲层。slab层使用了以下几个基本原理：
+</p>
+<ul class="org-ul">
+<li>经常使用的数据结构一般来说会被经常分配或释放，所以应该缓存它们。
+</li>
+
+<li>频繁地分配和释放内存会导致内在碎片（不能找到合适的大块连续的物
+理地址空间）。为了防止这种问题，缓冲后的空闲链表被存放到连续的
+物理地址空间上。由于被释放的数据结构返回到了空闲链表，所以没有
+导致碎片。
+</li>
+
+<li>在频繁地分配和释放内存空间在情况下，空闲链表保证了更好的性能。
+因为被释放的对象空间可立即用于下次的分配中。
+</li>
+
+<li>如果分配器能够知道诸如对象大小、页大小和总的缓冲大小时，它可以
+作出更聪明的决定。
+</li>
+
+<li>如果部分缓冲区为每-CPU变量，那么，分配和释放操作可以不需要SMP锁。
+</li>
+
+<li>如果分配器是非一致内存，它能从相同的内存结点中完成分配操作。
+</li>
+
+<li>存储的对象可以被着色，以防止多个对象映射到同一个缓冲。
+</li>
+</ul>
+<p>
+　　linux中的slab层就是基于上述前提而实现的。
+slab层将不同的对象进行分组，称之为“缓冲区(cache)”。一个缓冲区存储
+一种类型的对象。每种类型的对象有一个缓冲区。kmalloc()的实现就是基
+于slab层之上的，使用了一族通用的缓冲区。这些缓冲区被分成了一些
+slab。这些slab是由一个或多个物理上连续的页组成的。每个缓冲区可包
+含多个slab。
+</p>
+
+<p>
+　　每个slab包含有一些数量的对象，也即被缓冲的数据结构。每个slab
+问量处于三种状态之间：满、部分满、空。当内核请求一个新的对象时，
+它总是先查看处于部分满状态的slab，查看是否有合适的空间，如果没有，
+则在空的slab中分配空间。
+</p>
+
+
+<div class="figure">
+<p><img src="./images/2016/2016071401.png" alt="2016071401.png" />
+</p>
+</div>
+
+<p>
+每个缓冲区由一个 <code>kmem_cache</code> 结构来表示。该结构包含了三个链表：
+<code>slabs_full</code>, <code>slabs_partial</code> 和 <code>slabs_emppty</code> 。存储在一个
+<code>kmem_list</code> 结构中。
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption class="t-above"><span class="table-number">Table 1:</span> slab分配器接口</caption>
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">接口名称</th>
+<th scope="col" class="left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left"><code>kmem_cache_create</code></td>
+<td class="left">分配一个cache</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>kmem_cache_destroy</code></td>
+<td class="left">销毁一个cache</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>kmem_cache_alloc</code></td>
+<td class="left">从一个cache中分配一个对象空间</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>kmem_cache_free</code></td>
+<td class="left">释放一个对象空间到cache中</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+这些接口不宜在中断上下文中使用。
+</p>
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-8" class="outline-2">
+<h2 id="sec-8">知识点8 内核同步机制——原子操作</h2>
+<div class="outline-text-2" id="text-8">
+<p>
+内核为原子操作提供了两组接口。一组操作整数，一个组操作比特位。
+</p>
+<ol class="org-ol">
+<li>整数原子操作
+数据类型为：
+<div class="org-src-container">
+
+<pre class="src src-c">typedef struct {
+  volatile int counter;
+} atomic_t;
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="./images/2016/2016071402.png" alt="2016071402.png" />
+</p>
+</div>
+
+<p>
+为了保持内核在各个平台兼容，以前规定 <code>atomic_t</code> 的值不能超过24位（都是
+SPARC惹的祸），不过现在该规定已经不需要了。
+</p>
+
+<p>
+相关操作如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">void atomic_set(atomic_t *v, int i);
+atomic_t v = ATOMIC_INIT(0);//设置原子变量v的值 为整数i。
+int atomic_read(atomic_t *v);//返回原子变量当前的值
+void atomic_add(int i, atomic_t *v);//将i加到原子变量上
+void atomic_sub(int i, atomic_t *v)//从原子变量的值中减去i
+void atomic_inc(atomic_t *v);//增加原子变量的值
+void atomic_dec(atomic_t *v);//减少原子变量的值
+</pre>
+</div>
+
+<p>
+执行相关的操作后测试原子变量的值是否为0
+Perform the specified operation and test the result; if, after
+the operation, the atomic value is 0, then the return value is
+true; otherwise, it is false. Note that there is no
+<code>atomic_add_and_test</code>.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">int atomic_inc_and_test(atomic_t *v);
+int atomic_dec_and_test(atomic_t *v);
+int atomic_sub_and_test(int i, atomic_t *v);
+</pre>
+</div>
+
+<p>
+Add the integer variable i to v. The return value is true if the
+result is negative,false otherwise.
+</p>
+<pre class="example">
+int atomic_add_negative(int i, atomic_t *v);
+</pre>
+
+<p>
+Behave just like <code>atomic_add</code> and friends, with the exception that
+they return the new value of the atomic variable to the caller.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">int atomic_add_return(int i, atomic_t *v);
+int atomic_sub_return(int i, atomic_t *v);
+int atomic_inc_return(atomic_t *v);
+int atomic_dec_return(atomic_t *v);
+</pre>
+</div>
+
+<p>
+最近的内核也提供了64位的版本，即 <code>atomic64_t</code> ，方法和用法与32位类似，
+方法名相应的地方换为atomic64。
+</p>
+</li>
+
+<li>位操作
+Sets bit number nr in the data item pointed to by addr.
+<pre class="example">
+void set_bit(nr, void *addr);
+</pre>
+
+<p>
+Clears the specified bit in the unsigned long datum that lives at
+addr. Its semantics are otherwise the same as <code>set_bit</code>.
+</p>
+<pre class="example">
+void clear_bit(nr, void *addr);
+void change_bit(nr, void *addr); // Toggles the bit.
+</pre>
+
+<p>
+This function is the only bit operation that doesn’t need to be
+atomic; it simply returns the current value of the bit.
+</p>
+<pre class="example">
+test_bit(nr, void *addr);  
+</pre>
+
+<p>
+Behave atomically like those listed previously, except that they
+also return the previous value of the bit.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">int test_and_set_bit(nr, void *addr);
+int test_and_clear_bit(nr, void *addr);
+int test_and_change_bit(nr, void *addr);
+</pre>
+</div>
+
+<p>
+使用场景：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">/* try to set lock */
+while (test_and_set_bit(nr, addr) != 0)
+  wait_for_a_while( );
+/* do your work */
+/* release lock, and check... */
+if (test_and_clear_bit(nr, addr) = = 0)
+  something_went_wrong( ); /* already released: error */
+</pre>
+</div>
+
+<p>
+内核也提供了一套非原子位操作函数，函数名就是原子版函数前面加两下
+划线。
+</p>
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-9" class="outline-2">
+<h2 id="sec-9">知识点9 内核同步机制——自旋锁</h2>
+<div class="outline-text-2" id="text-9">
+<p>
+由于关键代码区可以跨越了多个函数或数据结构，需要有更通用的同步方法：锁。
+内核中最常见的一种锁就是自旋锁。相同的锁可用于多处。
+</p>
+
+<p>
+自旋锁可用在不可睡眠的场景，如中断处理函数。自旋锁是一种互斥设备，只
+有两个值 ：“锁定”和“非锁定”。它通常实现为一个整数值的某个比特位。想
+获取某个锁的代码首先测试相关的位，如果锁可得，则该位的“锁定”位被置位，
+代码继续执行，反之，代码将进入一个紧凑的循环，不停地检测锁定位直至自
+旋锁变得可得。该循环是自旋锁的“旋转”部分。 自旋锁主要用于多处理器的
+情况下。
+</p>
+
+<ol class="org-ol">
+<li>通用自旋锁
+相关操作：
+<ul class="org-ul">
+<li>定义
+<div class="org-src-container">
+
+<pre class="src src-c">DEFINE_SPINLOCK(mr_lock)
+spinlock_t my_lock = SPIN_LOCK_UNLOCKED;//静态初始化
+//或
+void spin_lock_init(spinlock_t *lock);//动态初始化
+</pre>
+</div>
+</li>
+
+<li>获取自旋锁
+<pre class="example">
+void spin_lock(spinlock_t *lock);//不可中断的
+</pre>
+</li>
+
+<li>释放自旋锁
+<pre class="example">
+void spin_unlock(spinlock_t *lock);
+</pre>
+</li>
+</ul>
+<p>
+使用自旋锁时要禁止中断，禁止睡眠，并且应当尽可能减少占用自旋锁的
+时间
+</p>
+
+<p>
+其他函数
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">void spin_lock(spinlock_t *lock);
+//在获取自旋锁之前，禁止中断
+void spin_lock_irqsave(spinlock_t *lock, unsigned long flags);
+void spin_lock_irq(spinlock_t *lock);
+//禁止软件中断，但允许硬件中断
+void spin_lock_bh(spinlock_t *lock)
+</pre>
+</div>
+
+<p>
+对应的解锁函数如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">void spin_unlock(spinlock_t *lock);
+void spin_unlock_irqrestore(spinlock_t *lock, unsigned long flags);
+void spin_unlock_irq(spinlock_t *lock);
+void spin_unlock_bh(spinlock_t *lock);
+</pre>
+</div>
+
+<p>
+非阻塞自旋锁操作（成功返回非0,允许中断）
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">int spin_trylock(spinlock_t *lock);
+int spin_trylock_bh(spinlock_t *lock);
+</pre>
+</div>
+
+<p>
+　　如果被保护的共享资源只在进程上下文访问和软中断上下文访问，那
+么当在进程上下文访问共享资源时，可能被软中断打断，从而可能进入软
+中断上下文来对被保护的共享资源访问，因此对于这种情况，对共享资源
+的访问必须使用 <code>spin_lock_bh</code> 和 <code>spin_unlock_bh</code> 来保护。当然使
+用 <code>spin_lock_irq</code> 
+和 <code>spin_unlock_irq</code> 以及 <code>spin_lock_irqsave</code> 和
+<code>spin_unlock_irqrestore</code> 也可以，
+它们失效了本地硬中断，失效硬中断隐式地也失效了软中断。但是使用
+<code>spin_lock_bh</code> 和 <code>spin_unlock_bh</code> 是最恰当的，它比其他两个快。
+</p>
+
+<p>
+　　如果被保护的共享资源只在进程上下文和tasklet或timer上下文访问，
+那么应该使用与上面情况相同的获得和释放锁的宏，因为tasklet和timer
+是用软中断实现的。
+</p>
+
+<p>
+　　如果被保护的共享资源只在一个tasklet或timer上下文访问，那么不
+需要任何自旋锁保护，因为同一个tasklet或timer只能在一个CPU上运行，
+即使是在SMP环境下也是如此。实际上tasklet在调用 <code>tasklet_schedule</code> 标记
+其需要被调度时已经把该tasklet绑定到当前CPU，因此同一个tasklet决不
+可能同时在其他CPU上运行。timer也是在其被使用 <code>add_timer</code> 添加到timer队
+列中时已经被帮定到当前CPU，所以同一个timer绝不可能运行在其他CPU上。
+当然同一个tasklet有两个实例同时运行在同一个CPU就更不可能了。
+</p>
+
+<p>
+如果被保护的共享资源只在两个或多个tasklet或timer上下文访问，那么
+对共享资源的访问仅需要用 <code>spin_lock</code> 和 <code>spin_unlock</code> 来保护，不
+必使用 <code>_bh</code> 版本，因为当tasklet或timer运行时，不可能有其他tasklet或timer在当前
+CPU上运行。如果被保护的共享资源只在一个软中断（tasklet和timer除外）
+上下文访问，那么这个共享资源需要用 <code>spin_lock</code> 和 <code>spin_unlock</code> 来保护，因
+为同样的软中断可以同时在不同的CPU上运行。
+</p>
+
+<p>
+如果被保护的共享资源在两个或多个软中断上下文访问，那么这个共享资
+源当然更需要用 <code>spin_lock</code> 和 <code>spin_unlock</code> 来保护，不同的软中断能够同时在
+不同的CPU上运行。
+</p>
+
+<p>
+　　如果被保护的共享资源在软中断（包括tasklet和timer）或进程上下
+文和硬中断上下文访问，那么在软中断或进程上下文访问期间，可能被硬
+中断打断，从而进入硬中断上下文对共享资源进行访问，因此，在进程或
+软中断上下文需要使用 <code>spin_lock_irq</code> 和 <code>spin_unlock_irq</code> 来保护对共享资源的
+访问。而在中断处理句柄中使用什么版本，需依情况而定，如果只有一个
+中断处理句柄访问该共享资源，那么在中断处理句柄中仅需要 <code>spin_lock</code>
+和 <code>spin_unlock</code> 来保护对共享资源的访问就可以了。因为在执行中断处理句柄
+期间，不可能被同一CPU上的软中断或进程打断。但是如果有不同的中断处
+理句柄访问该共享资源，那么需要在中断处理句柄中使用 <code>spin_lock_irq</code> 和
+<code>spin_unlock_irq</code> 来保护对共享资源的访问。
+</p>
+
+<p>
+　　在使用 <code>spin_lock_irq</code> 和 <code>spin_unlock_irq</code> 的情况下，完全可以用
+<code>spin_lock_irqsave</code> 和 <code>spin_unlock_irqrestore</code> 取代，那具体应该使用哪一个也
+需要依情况而定，如果可以确信在对共享资源访问前中断是使能的，那么
+使用 <code>spin_lock_irq</code> 更好一些，因为它比 <code>spin_lock_irqsave</code> 要快一些，但是如
+果你不能确定是否中断使能，那么使用 <code>spin_lock_irqsave</code> 和
+<code>spin_unlock_irqrestore</code> 更好，因为它将恢复访问共享资源前的中断标志而
+不是直接使能中断。当然，有些情况下需要在访问共享资源时必须中断失
+效，而访问完后必须中断使能，这样的情形使用 <code>spin_lock_irq</code> 和
+<code>spin_unlock_irq</code> 最好。
+</p>
+</li>
+
+<li>读/写自旋锁： <code>rwlock_t</code>
+头文件：&lt;linux/spinlock.h&gt;
+说明：读写自旋锁是一种比自旋锁粒度更小的锁机制，它保留了“自旋”的
+概念，但是在写操作方面，只能最多有一个写进程，在读操作方面，同时
+可以有多个读执行单元。当然，读写操作不能同时进行。
+
+<p>
+<b>初始化</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">rwlock_t my_rwlock = RW_LOCK_UNLOCKED; /* Static way */
+rwlock_t my_rwlock;
+rwlock_init(&amp;my_rwlock);  /* Dynamic way */
+</pre>
+</div>
+
+<p>
+<b>读</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">void read_lock(rwlock_t *lock);
+void read_lock_irqsave(rwlock_t *lock, unsigned long flags);
+void read_lock_irq(rwlock_t *lock);
+void read_lock_bh(rwlock_t *lock);
+void read_unlock(rwlock_t *lock);
+void read_unlock_irqrestore(rwlock_t *lock, unsigned long flags);
+void read_unlock_irq(rwlock_t *lock);
+void read_unlock_bh(rwlock_t *lock);
+</pre>
+</div>
+
+<p>
+<b>写</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">void write_lock(rwlock_t *lock);
+void write_lock_irqsave(rwlock_t *lock, unsigned long flags);
+void write_lock_irq(rwlock_t *lock);
+void write_lock_bh(rwlock_t *lock);
+int write_trylock(rwlock_t *lock);
+void write_unlock(rwlock_t *lock);
+void write_unlock_irqrestore(rwlock_t *lock, unsigned long flags);
+void write_unlock_irq(rwlock_t *lock);
+void write_unlock_bh(rwlock_t *lock);
+</pre>
+</div>
+</li>
+
+<li>顺序锁：seqlocks
+　　对读写锁的一种优化。使用顺序锁，读执行单元绝不会被写执行单元
+阻塞，也就是说，读执行单元可以在写执行单元对被顺序锁保护的共享资
+源进行写操作时仍然可以继续读，而不必等待写执行单元完成操作，写操
+作也不需要等待所有读执行单元完成读操作才去进行写操作。用于受保护
+的资源很小，简单且经常访问，适用于写操作很少但必须很快的场景。不
+能保护有指针成员变量的数据结构。 
+
+<p>
+头文件：&lt;linux/seqlock.h&gt;
+<b>示例</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">seqlock_t lock1 = SEQLOCK_UNLOCKED;
+seqlock_t lock2;
+seqlock_init(&amp;lock2);
+unsigned int seq;
+do {
+  seq = read_seqbegin(&amp;the_lock);
+  /* Do what you need to do */
+ } while (read_seqretry(&amp;the_lock, seq));
+</pre>
+</div>
+
+<p>
+在中断处理函数中使用seqlock，则应当使用IRQ安全的版本：
+</p>
+<pre class="example">
+unsigned int read_seqbegin_irqsave(seqlock_t *lock, unsigned long flags);
+int read_seqretry_irqrestore(seqlock_t *lock, unsigned int seq, unsigned long flags);
+</pre>
+
+<p>
+获取一个写保护：
+</p>
+<pre class="example">
+void write_seqlock(seqlock_t *lock);
+</pre>
+<p>
+释放：
+</p>
+<pre class="example">
+void write_sequnlock(seqlock_t *lock);
+</pre>
+<p>
+类似函数:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">void write_seqlock_irqsave(seqlock_t *lock, unsigned long flags);
+void write_seqlock_irq(seqlock_t *lock);
+void write_seqlock_bh(seqlock_t *lock);
+void write_sequnlock_irqrestore(seqlock_t *lock, unsigned long flags);
+void write_sequnlock_irq(seqlock_t *lock);
+void write_sequnlock_bh(seqlock_t *lock);
+</pre>
+</div>
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-10" class="outline-2">
+<h2 id="sec-10">知识点10 内核同步机制——信号量</h2>
+<div class="outline-text-2" id="text-10">
+<ol class="org-ol">
+<li>通用版
+信号量用于对一个或多个资源进行互斥访问。基本操作如下：
+<pre class="example">
+void sema_init(struct semaphore *sem, int val);//信号量初始化函数
+</pre>
+<p>
+静态初始化：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">DECLARE_MUTEX(name);//初始化为1
+DECLARE_MUTEX_LOCKED(name);//初始化为0
+</pre>
+</div>
+
+<p>
+动态初始化：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">void init_MUTEX(struct semaphore *sem);
+void init_MUTEX_LOCKED(struct semaphore *sem);
+</pre>
+</div>
+
+<p>
+在linux中， P函数称为down， V函数称为up。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">void down(struct semaphore *sem);//不可中断版本
+int down_interruptible(struct semaphore *sem);//可中断版本
+int down_trylock(struct semaphore *sem);//不等待版本， 立即返回，0表示成功。
+</pre>
+</div>
+
+<p>
+一般情况下使用 <code>down_interruptible</code> 函数，它允许一个在信号量上等待的
+用户空间进程被用户打断。不过在使用该函数时必须记住要检查它的返回
+值,并做出相应的处理。该函数被中断时返回一个非零值。
+</p>
+
+<pre class="example">
+void up(struct semaphore *sem); //释放占用的信号量
+</pre>
+</li>
+
+<li>读写信号量
+读/写信号量: <code>rw_semaphore</code>
+说明：允许一个进程写，多个进程读
+头文件：&lt;linux/rwsem.h&gt;
+<b>初始化函数：</b>
+<pre class="example">
+void init_rwsem(struct rw_semaphore *sem);
+</pre>
+
+<p>
+<b>相关操作：</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">void down_read(struct rw_semaphore *sem);
+Int down_read_trylock(struct rw_semaphore *sem);//非0表示成功
+void up_read(struct rw_semaphore *sem);
+void down_write(struct rw_semaphore *sem);
+int down_write_trylock(struct rw_semaphore *sem);
+void up_write(struct rw_semaphore *sem);
+void downgrade_write(struct rw_semaphore *sem);
+</pre>
+</div>
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-11" class="outline-2">
+<h2 id="sec-11">知识点11 内核同步机制——互斥量</h2>
+<div class="outline-text-2" id="text-11">
+<p>
+<b>互斥量</b>
+数组结构：struct mutex.
+静态定义：
+</p>
+<pre class="example">
+DEFINE_MUTEX(name);
+</pre>
+<p>
+动态初始化：
+</p>
+<pre class="example">
+mutex_init(&amp;mutex);
+</pre>
+<p>
+操作：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">mutex_lock(&amp;mutex);
+/* critical region ... */
+mutex_unlock(&amp;mutex);
+mutex_trylock(struct mutex *)
+mutex_is_locked (struct mutex *)
+</pre>
+</div>
+
+<p>
+互斥量有如下一些特性：
+</p>
+<ol class="org-ol">
+<li>每次只能有一个任务可以获得互斥量。
+</li>
+<li>谁获得，谁释放，不能在一个上下文中获得锁，在另一个上下文中释放锁。
+</li>
+<li>不支持嵌套。
+</li>
+<li>进程在获得互斥量时不能退出。
+</li>
+<li>中断上下文中不能使用。
+</li>
+<li>只能使用以上的一些API操作互斥量。
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-12" class="outline-2">
+<h2 id="sec-12">知识点12 内核同步机制——完成量</h2>
+<div class="outline-text-2" id="text-12">
+<p>
+内核中的许多部分初始化某些活动为单独的执行线程，然后等待这些线程完成。
+完成接口是一种有效并简单的方式来实现这样的代码模式。
+</p>
+
+<p>
+<b>对象创建</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">DECLARE_COMPLETION(my_completion);
+//或
+struct completion my_completion;/* ... */
+init_completion(&amp;my_completion);
+</pre>
+</div>
+
+<p>
+<b>操作</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">void wait_for_completion(struct completion *c); //执行一个不可中断的等待
+void complete(struct completion *c);//唤醒一个线程
+void complete_all(struct completion *c);//唤醒多个线程i
+</pre>
+</div>
+
+<p>
+当调用 complete时，可重用completion对象，当调用 <code>complete_all</code> 时，需要重
+新初始化后才能重用complete对象，可使用宏 <code>INIT_COMPLETION=(struct
+  completion c)</code>
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">/***********************************************************************/
+//完成接口
+//内核中的许多部分初始化某些活动为单独的执行线程，然后等待这些线程完成。
+//完成接口是一种有效并简单的方式来实现这样的代码模式。
+/***********************************************************************/
+
+#include &lt;linux/completion.h&gt;
+#include &lt;linux/module.h&gt;
+#include &lt;linux/sched.h&gt;
+#include &lt;linux/init.h&gt;
+
+
+static DECLARE_COMPLETION(my_thread_exit);      /* Completion */
+static DECLARE_WAIT_QUEUE_HEAD(my_thread_wait); /* Wait Queue */
+int pink_slip = 0;                              /* Exit Flag */
+
+/* Helper thread */
+static int
+my_thread(void *unused)
+{
+  DECLARE_WAITQUEUE(wait, current);
+
+  daemonize("my_thread");
+  add_wait_queue(&amp;my_thread_wait, &amp;wait);
+
+  while (1) {
+    /* Relinquish processor until event occurs */
+    set_current_state(TASK_INTERRUPTIBLE);
+    schedule();
+    /* Control gets here when the thread is woken
+       up from the my_thread_wait wait queue */
+
+    /* Quit if let go */
+    if (pink_slip) {
+      break;
+    }
+    /* Do the real work */
+    /* ... */
+
+  }
+
+  /* Bail out of the wait queue */
+  __set_current_state(TASK_RUNNING);
+  remove_wait_queue(&amp;my_thread_wait, &amp;wait);
+
+  /* Atomically signal completion and exit */
+  complete_and_exit(&amp;my_thread_exit, 0);
+}
+
+/* Module Initialization */
+static int __init
+my_init(void)
+{
+  /* ... */
+
+  /* Kick start the thread */
+  kernel_thread(my_thread, NULL,
+                CLONE_FS | CLONE_FILES | CLONE_SIGHAND | SIGCHLD);
+
+  /* ... */
+  return 0;
+}
+
+/* Module Release */
+static void __exit
+my_release(void)
+{
+  /* ... */
+  pink_slip = 1;                        /* my_thread must go */
+  wake_up(&amp;my_thread_wait);             /* Activate my_thread */
+  wait_for_completion(&amp;my_thread_exit); /* Wait until my_thread
+                                           quits */
+  /* ... */
+}
+
+module_init(my_init);
+module_exit(my_release);
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-13" class="outline-2">
+<h2 id="sec-13">知识点13 进程管理</h2>
+<div class="outline-text-2" id="text-13">
+<p>
+    进程创建使用系统调用fork()或vfork()，在内核中，这些函数是通过clone()
+系统调用完成的。进程通过系统调用exit()退出。父进程通过系统调用
+wait4()系统调用来查询一个停止的子进程的状态。基于wait4()系统调用的C
+函数有wait(),waitpid(),wait3()和wait4()。
+</p>
+
+<p>
+　　进程采用数据结构 <code>task_struct</code> 描述， <code>struct thread_info</code> 为进程的一个辅
+助数据结构，一般存储在进程栈的边界处，通过它可以引用实现的进程数据结
+构地址。进程描述符是进程的唯一标识。最大进程数可通过
+<code>/proc/sys/kernel/pid_max</code>.来修改，默认为32768.
+</p>
+
+<p>
+　　宏current引用当前的进程，在X86上，它等于
+<code>current_thread_info()-&gt;task</code> 。 进程的状态可以通过如下函数进行设置：
+</p>
+<pre class="example">
+set_task_state(task, state);
+</pre>
+
+<p>
+　　方法 <code>set_current_state(state)</code> 等同于 <code>set_task_state(current,
+  state)</code> 。进程上下文是指当内核代表某个用户进程执行某个操作时，就称其
+处于进程上下文中。
+</p>
+
+<p>
+<b>进程树</b>
+ 获取当前进程的父进程的代码如下：
+</p>
+<pre class="example">
+struct task_struct *my_parent = current-&gt;parent;
+</pre>
+
+<p>
+遍历一个进程的子进程的代码如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct task_struct *task;
+struct list_head *list;
+list_for_each(list, &amp;current-&gt;children) {
+　task = list_entry(list, struct task_struct, sibling);
+　/* task now points to one of current’s children */
+　　}
+</pre>
+</div>
+
+<p>
+初如任务进程的描述符静态分配为 <code>init_task</code> 。如下代码永远成功：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct task_struct *task;
+for (task = current; task != &amp;init_task; task = task-&gt;parent)
+;
+/* task now points to init */
+</pre>
+</div>
+
+<p>
+获取任务列表中的下一个任务的代码如下：
+</p>
+<pre class="example">
+list_entry(task-&gt;tasks.next, struct task_struct, tasks)
+</pre>
+
+<p>
+获取任务列表中的前一个任务代码如下：
+</p>
+<pre class="example">
+list_entry(task-&gt;tasks.prev, struct task_struct, tasks)
+</pre>
+
+<p>
+上述代码段分别对应宏 <code>next_task(task)</code> 和 <code>prev_task(task)</code>
+宏 <code>for_each_process(task)</code>, 遍历整个任务列表，在每次迭代中，task指
+向列表中的下一个任务：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct task_struct *task;
+for_each_process(task) {
+　/* this pointlessly prints the name and PID of each task */
+　　printk(“%s[%d]\n”, task-&gt;comm, task-&gt;pid);
+　}
+</pre>
+</div>
+
+<p>
+<b>创建线程</b>
+创建线程采用的系统调用：
+</p>
+<pre class="example">
+clone(CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND, 0);
+</pre>
+<p>
+普通fork()调用：
+</p>
+<pre class="example">
+clone(SIGCHLD, 0);
+</pre>
+<p>
+vfork()调用：
+</p>
+<pre class="example">
+clone(CLONE_VFORK | CLONE_VM | SIGCHLD, 0);
+</pre>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">Flag</th>
+<th scope="col" class="left">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_FILES</code></td>
+<td class="left">Parent and child share open files.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_FS</code></td>
+<td class="left">Parent and child share filesystem information.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_IDLETASK</code></td>
+<td class="left">Set PID to zero (used only by the idle tasks).</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_NEWNS</code></td>
+<td class="left">Create a new namespace for the child.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_PARENT</code></td>
+<td class="left">Child is to have same parent as its parent.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_PTRACE</code></td>
+<td class="left">Continue tracing child.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_SETTID</code></td>
+<td class="left">Write the TID back to user-space.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_SETTLS</code></td>
+<td class="left">Create a new TLS for the child.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_SIGHAND</code></td>
+<td class="left">Parent and child share signal handlers and blocked signals.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_SYSVSEM</code></td>
+<td class="left">Parent and child share System V <code>SEM_UNDO</code> semantics.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_THREAD</code></td>
+<td class="left">Parent and child are in the same thread group.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_VFORK</code></td>
+<td class="left">vfork() was used and the parent will sleep until the child wakes it.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_UNTRACED</code></td>
+<td class="left">Do not let the tracing process force CLONE<sub>PTRACE</sub> on the child.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_STOP</code></td>
+<td class="left">Start process in the <code>TASK_STOPPED</code> state.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_SETTLS</code></td>
+<td class="left">Create a new TLS (thread-local storage) for the child.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_CHILD_CLEARTID</code></td>
+<td class="left">Clear the TID in the child.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_CHILD_SETTID</code></td>
+<td class="left">Set the TID in the child.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_PARENT_SETTID</code></td>
+<td class="left">Set the TID in the parent.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>CLONE_VM</code></td>
+<td class="left">Parent and child share address space.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-sec-14" class="outline-2">
+<h2 id="sec-14">知识点14 内核热插拔管理</h2>
+<div class="outline-text-2" id="text-14">
+<p>
+在可插拔的总线如USB（和Cardbus PCI）中，终端用户在主机运行时将设备插
+入到总线上。在大部分情况下，用户期望设备立即可用。这意味着系统必须作
+许多事情，包括：
+</p>
+<ul class="org-ul">
+<li>找到一个可以处理设备的驱动。它可能包括装载一个内核模块，较新的驱动
+可以用模块初始化工具将设备的支持发布到用户应用工具集中。
+</li>
+<li>将一个驱动绑定到该设备中。总线框架使用设备驱动的probe()函数来为该
+设备绑定一个驱动。
+</li>
+<li>告诉其他的子系统配置新的设备。打印队列可能被使能，网络被开启，磁盘
+分区被挂载等等。在一些情况下，还会有一些驱动相关的动作。
+</li>
+</ul>
+
+<p>
+Policy Agent：是指当发生热插拔事件时，被内核触发的用户空间程序（如
+/sbin/hotplug）。通常这些程序是一些shell脚本，通过该脚本去调用更多的
+管理工具。
+</p>
+
+<p>
+这种机制主要是通过kobject对象模型来实现的。
+</p>
+
+<p>
+<b>热插拔相关接口函数：</b>
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">/**
+ * kobject_uevent - notify userspace by ending an uevent
+ *
+ * @action: action that is happening
+ * @kobj: struct kobject that the action is happening to
+ *
+ * Returns 0 if kobject_uevent() is completed with success or the
+ * corresponding error when it fails.
+ */
+int kobject_uevent(struct kobject *kobj, enum kobject_action action);
+//相当于kobject_uevent_env(kobj, action, NULL);
+/**
+ * kobject_uevent_env - send an uevent with environmental data
+ *
+ * @action: action that is happening
+ * @kobj: struct kobject that the action is happening to
+ * @envp_ext: pointer to environmental data
+ *
+ * Returns 0 if kobject_uevent() is completed with success or the
+ * corresponding error when it fails.
+ */
+int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
+                        char *envp[]);
+/**
+ * add_uevent_var - add key value string to the environment buffer
+ * @env: environment buffer structure
+ * @format: printf format for the key=value pair
+ *
+ * Returns 0 if environment variable was added successfully or -ENOMEM
+ * if no space was available.
+ */
+int add_uevent_var(struct kobj_uevent_env *env, const char *format, ...)
+        __attribute__((format (printf, 2, 3)));
+
+/**
+ * kobject_action_type - translate action string to numeric type
+ *
+ * @buf: buffer containing the action string, newline is ignored
+ * @len: length of buffer
+ * @type: pointer to the location to store the action type
+ *
+ * Returns 0 if the action string was recognized.
+ */
+int kobject_action_type(const char *buf, size_t count,
+                        enum kobject_action *type);
+</pre>
+</div>
+
+<p>
+相关数据结构：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">enum kobject_action {
+        KOBJ_ADD,
+        KOBJ_REMOVE,
+        KOBJ_CHANGE,
+        KOBJ_MOVE,
+        KOBJ_ONLINE,
+        KOBJ_OFFLINE,
+        KOBJ_MAX
+};
+/* the strings here must match the enum in include/linux/kobject.h */
+static const char *kobject_actions[] = {
+        [KOBJ_ADD] =            "add",
+        [KOBJ_REMOVE] =         "remove",
+        [KOBJ_CHANGE] =         "change",
+        [KOBJ_MOVE] =           "move",
+        [KOBJ_ONLINE] =         "online",
+        [KOBJ_OFFLINE] =        "offline",
+};
+struct kobj_uevent_env {
+        char *envp[UEVENT_NUM_ENVP];
+        int envp_idx;
+        char buf[UEVENT_BUFFER_SIZE];
+        int buflen;
+};
+//热插拔事件相关操作
+struct kset_uevent_ops {
+        int (*filter)(struct kset *kset, struct kobject *kobj);//事件过滤函数
+        const char *(*name)(struct kset *kset, struct kobject *kobj);//获取总线名称，如USB
+        int (*uevent)(struct kset *kset, struct kobject *kobj,
+                      struct kobj_uevent_env *env);//提交热插拔事件
+};
+</pre>
+</div>
+
+<p>
+相关函数：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct kset *kset_create_and_add(const char *name,
+                                 struct kset_uevent_ops *uevent_ops,
+                                 struct kobject *parent_kobj);
+</pre>
+</div>
+
+<p>
+其中 <code>struct kset_uevent_ops</code> 中指定具体的uevent函数。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-15" class="outline-2">
+<h2 id="sec-15">知识点15 系统调用</h2>
+<div class="outline-text-2" id="text-15">
+<p>
+用户程序请求内核程序为其服务主要通过以下几种方式：
+</p>
+<ul class="org-ul">
+<li>中断
+</li>
+<li>系统调用
+</li>
+<li>信号
+</li>
+</ul>
+
+<p>
+其中，系统调用是一种常见方式，它在用户进程与硬件之间提供了一个层，该
+层主要提供以下三个目的：
+</p>
+<ol class="org-ol">
+<li>它为用户空间提供了一个抽象的硬件接口
+</li>
+<li>它确保了系统的安全与稳定性。
+</li>
+<li>为虚拟化系统的实现提供支持。
+</li>
+</ol>
+
+<p>
+操作系统内核提供了许多系统调用接口，一个典型的系统调用过程如下：
+<img src="./images/2016/2016071403.png" alt="2016071403.png" />
+</p>
+
+<p>
+在x86平台上，系统调用是通过软件中断来实现的，中断号为128（或0x80）。
+系统调用需要提供系统调用号（传递给eax）以及一些参数（依次传递给ebx,
+ecx, edx, esi, edi）, 系统调用处理函数通常名为system<sub>call</sub>()， 定义在
+entry.S 或entry<sub>64</sub>.S中。它会检查系统调用号的合法性，即是否大于
+<code>NR_syscalls</code> ， 如果是的话，返回-ENOSYS， 否则调用对应的函数：
+</p>
+<pre class="example">
+call  *sys_call_table(,%rax,8)
+</pre>
+
+
+<div class="figure">
+<p><img src="./images/2016/2016071404.png" alt="2016071404.png" />
+</p>
+</div>
+
+<p>
+<b>自定义一个系统调用</b> 
+</p>
+
+<p>
+在Linux中实现一个系统调用不用户关心系统调用处理函数的行为，因此增加
+一个系统调用非常容易
+<code>SYSCALL_DEFINE0~6</code> 分别声明一个参数为0~6个的系统调用。
+定义完系统调用函数后， 剩下的工作就是将其注册为一个内核系统调用函数：
+</p>
+<ul class="org-ul">
+<li>在系统调用表中末尾添加一项，通常赋给该系统调用一个调用号（即在
+entry.S中的ENTRY( <code>sys_call_table</code>)）。
+</li>
+<li>对每个支持的平台，在&lt;asm/unistd.h&gt;中定义系统调用号。
+</li>
+<li>将系统调用编译到内核镜像中（而不是编译成一个模块），可以将系统调用
+函数放在kernel/sys.c文件中。
+</li>
+</ul>
+
+<p>
+例子如下，我们要定义一个foo系统调用函数：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">/*
+ * sys_foo – everyone’s favorite system call.
+ *
+ * Returns the size of the per-process kernel stack.
+ */
+asmlinkage long sys_foo(void)// SYSCALL_DEFINE0(sys_foo)
+{
+  　　return THREAD_SIZE;
+}
+</pre>
+</div>
+
+<p>
+添加foo到entry.S文件中：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">ENTRY(sys_call_table)
+.long sys_restart_syscall /* 0 */
+.long sys_exit
+.long sys_fork
+.long sys_read
+.long sys_write
+.long sys_open /* 5 */
+
+        …
+.long sys_rt_tgsigqueueinfo /* 335 */
+.long sys_perf_event_open
+.long sys_recvmmsg
+.long sys_foo
+</pre>
+</div>
+
+<p>
+我们的系统调用号为：338
+在&lt;asm/unistd.h&gt;
+增加宏定义：
+</p>
+<pre class="example">
+#define __NR_foo 338
+</pre>
+
+<p>
+在用户空间中调用， _syscall0~6对应不同参数个数的系统调用
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#define __NR_foo 283
+__syscall0(long, foo)
+int main ()
+{
+  long stack_size;
+  stack_size = foo ();
+  printf (“The kernel stack size is %ld\n”, stack_size);
+  return 0;
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-16" class="outline-2">
+<h2 id="sec-16">知识点16 等待队列——休眠与唤醒</h2>
+<div class="outline-text-2" id="text-16">
+<p>
+　　内核中的休眠是通过等待队列来处理的。等待队列是一个由正在等待某个
+事件发生的进程组成的一个简单链表。在内核用 <code>wait_queue_head_t</code> 来表
+示。
+</p>
+
+<p>
+定义：
+</p>
+<pre class="example">
+DECLARE_WAITQUEUE() （静态定义）
+</pre>
+<p>
+或
+</p>
+<pre class="example">
+init_waitqueue_head()  （动态定义）
+</pre>
+
+<p>
+在内核中实现休眠的方法有点复杂，实现的模板如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">  　　/* ‘q’ is the wait queue we wish to sleep on */ 
+  　　DEFINE_WAIT(wait); 
+  　　add_wait_queue(q, &amp;wait); //这个函数调用是可选
+  　　while (!condition) { /* condition is the event that we are waiting for */ 
+    　　prepare_to_wait(&amp;q, &amp;wait, TASK_INTERRUPTIBLE); 
+    　　if (signal_pending(current)) 
+      　　/* handle signal */ 
+      　　schedule(); 
+    　　} 
+  　　finish_wait(&amp;q, &amp;wait);
+</pre>
+</div>
+
+<p>
+一个进程执行如下步骤将自己加入到一个等待队列中：
+</p>
+<ul class="org-ul">
+<li>通过宏 <code>DEFINE_WAIT()</code> 来创建一个等待队列项。
+</li>
+<li>通过函数 <code>add_wait_queue()</code> 将该项加入到一个等待队列中。当等待的事件（条
+件）为真时，等待队列会唤醒该进程项。当然，需要在其他地方调用
+<code>wake_up()</code> 函数。
+</li>
+<li>调用 <code>prepare_to_wait()</code> 函数将进程的状态改为 <code>TASK_INTERRUPTIBLE</code> 或
+<code>TASK_UNINTERRUPTIBLE</code> 。该函数也会在必要的时候将进程加回到等待队列中，
+在后续的迭代中会用到（提示：第二个步骤可选，因为该函数在任务列表为
+空的时候也会将当前任务项加入到等待队列中）。
+</li>
+<li>如果状态设置为 <code>TASK_INTERRUPTIBLE</code> ，一个信号会唤醒该进程。这称为伪休
+眠。因此要检测和处理信号。
+</li>
+<li>当进程被唤醒，它再次检测条件是否为真。如果为真，它会退出循环。否则，
+再次调用schedule()然后重复上述过程。
+</li>
+<li>当条件为真，该进程会将其状态设为 <code>TASK_RUNNING</code> 并将自己通过
+<code>finish_wait()</code> 从等待队列中删除。
+</li>
+</ul>
+
+<p>
+一个例子：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">static ssize_t inotify_read(struct file *file, char __user *buf,
+                            size_t count, loff_t *pos)
+{
+  struct fsnotify_group *group;
+  struct fsnotify_event *kevent;
+  char __user *start;
+  int ret;
+  DEFINE_WAIT(wait);
+
+  start = buf;
+  group = file-&gt;private_data;
+
+  while (1) {
+    prepare_to_wait(&amp;group-&gt;notification_waitq, &amp;wait, TASK_INTERRUPTIBLE);
+
+    mutex_lock(&amp;group-&gt;notification_mutex);
+    kevent = get_one_event(group, count);
+    mutex_unlock(&amp;group-&gt;notification_mutex);
+
+    if (kevent) {
+      ret = PTR_ERR(kevent);
+      if (IS_ERR(kevent))
+        break;
+      ret = copy_event_to_user(group, kevent, buf);
+      fsnotify_put_event(kevent);
+      if (ret &lt; 0)
+        break;
+      buf += ret;
+      count -= ret;
+      continue;
+    }
+
+    ret = -EAGAIN;
+    if (file-&gt;f_flags &amp; O_NONBLOCK)
+      break;
+    ret = -EINTR;
+    if (signal_pending(current))
+      break;
+
+    if (start != buf)
+      break;
+
+    schedule();
+  }
+
+  finish_wait(&amp;group-&gt;notification_waitq, &amp;wait);
+  if (start != buf &amp;&amp; ret != -EFAULT)
+    ret = buf - start;
+  return ret;
+}
+</pre>
+</div>
+
+<p>
+另一种模板
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">/* Helper thread */
+static int
+my_thread(void *unused)
+{
+  DECLARE_WAITQUEUE(wait, current);
+
+  daemonize("my_thread");
+  add_wait_queue(&amp;my_thread_wait, &amp;wait);
+
+  while (1) {
+    /* Relinquish processor until event occurs */
+    　　set_current_state(TASK_INTERRUPTIBLE);
+    　　if (signal_pending(current))
+      　　/*##handle singal event##*/
+      schedule();
+    /* Control gets here when the thread is woken
+       up from the my_thread_wait wait queue */
+
+    /* Quit if let go */
+    if (pink_slip) {
+      break;
+    }
+    /* Do the real work */
+    /* ... */
+
+  }
+
+  /* Bail out of the wait queue */
+  __set_current_state(TASK_RUNNING);
+  remove_wait_queue(&amp;my_thread_wait, &amp;wait);
+
+  /* Atomically signal completion and exit */
+  complete_and_exit(&amp;my_thread_exit, 0);
+}
+</pre>
+</div>
+
+<p>
+唤醒
+　　通过函数 <code>wake_up()</code> 唤醒，它将唤醒所有在特定等待队列上等待的进程。一
+般情况下默认的唤醒函数为： <code>default_wake_function()</code> 。它会调用
+<code>try_to_wake_up()</code> ，将被唤醒的进程状态设置为 <code>TASK_RUNNING</code> ，然后调用
+<code>enqueue_task()</code> 将该进程加入到红黑树中，如果被唤醒的进程的优先级大于当
+前进程的优先级，设置 <code>need_resched</code> 为1。休眠与唤醒之间的关系如下：
+</p>
+
+
+<div class="figure">
+<p><img src="./images/2016/2016071405.png" alt="2016071405.png" />
+</p>
+<p><span class="figure-number">Figure 4:</span> 休眠与唤醒之间的关系图</p>
+</div>
+
+<p>
+　　伪唤醒是指进程是因为接收到某个信号而被唤醒， 而不是等待事件发生
+而导致其被唤醒。
+</p>
+
+<p>
+　　在最新的内核代码中，一般会使用更高层的接口： <code>wait_event</code> 或
+<code>wait_event_timeout</code> 接口。使用 <code>wake_up_all</code> 唤醒所有添加到某个等待队列链表中
+的等待队列。使用模板如下：
+</p>
+<ol class="org-ol">
+<li>初始化一个等待队列头：
+<pre class="example">
+init_waitqueue_head(&amp;ret-&gt;wait_queue);
+</pre>
+<p>
+注： 判断队列是否为空： <code>waitqueue_active(...)</code> ， 返回false即表
+示队列为空.
+</p>
+</li>
+<li>等待某个条件发生：
+<code>wait_event(...)</code> 或 <code>wait_event_timeout(...)</code>
+</li>
+<li>唤醒队列
+<code>wake_up_all(...)</code>
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-17" class="outline-2">
+<h2 id="sec-17">知识点17 内核数据结构之队列</h2>
+<div class="outline-text-2" id="text-17">
+<p>
+　　在操作系统内核中，一个常见的编程模式就是生产者和消费者。实现这种
+模式的最容易的方式就是队列。生产者将数据插入队列，消费者将数据移出队
+列。消费者以数据进队的顺序消费数据。
+</p>
+
+<p>
+　　内核中通用队列的实现称为kfifo，其实现文件位于kernel/kfifo.c中。
+本部分讨论的API接口是基于2.6.33的。Linux的kfifo工作方式与其他队列一
+样，提供两个主要的操作：enqueue()和dequeue()。kfifo对象维护了两个偏
+移量：入口偏移量和出口偏移量。入口偏移量是下次进队发生的位置，出口偏
+移量是出队发生的位置。出口偏移量问题小于或等于入口偏移量。enqueue操
+作从入口偏移量处开始，将数据拷贝到队列中，操作完成后，入口偏移量相应
+的增加（拷进的数据长度）。dequeue操作从出口偏移量处开始，将数据拷贝
+出队列，操作完成后，出口偏移量相应地增加（拷出的数据长度）。
+</p>
+
+<ul class="org-ul">
+<li>创建一个队列
+<pre class="example">
+int kfifo_alloc(struct kfifo *fifo, unsigned int size, gfp_t gfp_mask);
+</pre>
+<p>
+该函数创建和初始化一个大小为size字节的队列。
+例子：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct kfifo fifo;
+int ret;
+ret = kfifo_alloc(&amp;kifo, PAGE_SIZE, GFP_KERNEL);
+if (ret)
+  return ret;
+</pre>
+</div>
+</li>
+
+<li>自建队列函数
+<pre class="example">
+int kfifo_alloc(struct kfifo *fifo, unsigned int size, gfp_t gfp_mask);
+</pre>
+</li>
+
+<li>静态定义一个队列
+<div class="org-src-container">
+
+<pre class="src src-c">DECLARE_KFIFO(name, size);
+INIT_KFIFO(name);
+</pre>
+</div>
+
+<p>
+其中，队列的大小必须是2的指数。
+</p>
+</li>
+
+<li>入队
+<pre class="example">
+unsigned int kfifo_in(struct kfifo *fifo, const void *from, unsigned int len);
+</pre>
+</li>
+
+<li>出队
+<div class="org-src-container">
+
+<pre class="src src-c">unsigned int kfifo_out(struct kfifo *fifo, void *to, unsigned int len);
+unsigned int kfifo_out_peek(struct kfifo *fifo, void *to, unsigned int len,
+                                　　unsigned offset);
+</pre>
+</div>
+</li>
+
+<li>获取队列的大小
+<div class="org-src-container">
+
+<pre class="src src-c">static inline unsigned int kfifo_size(struct kfifo *fifo);
+//该函数用于获取用于存储kfifo队列的缓冲区的总大小。
+static inline unsigned int kfifo_len(struct kfifo *fifo);
+//该函数用于获取进入kfifo队列的字节数。
+static inline unsigned int kfifo_avail(struct kfifo *fifo);
+//队列中可用于写入的剩余缓冲区的大小。
+static inline int kfifo_is_empty(struct kfifo *fifo);
+static inline int kfifo_is_full(struct kfifo *fifo);
+//上述两个函数分别用于判断队列是否为空或满。
+</pre>
+</div>
+</li>
+
+<li>重置和销毁队列
+<pre class="example">
+static inline void kfifo_reset(struct kfifo *fifo);
+</pre>
+</li>
+
+<li>重置一个队列
+<pre class="example">
+void kfifo_free(struct kfifo *fifo);
+</pre>
+
+<p>
+释放一个kfifo，与 <code>kfifo_alloc()</code> 对应。
+如果创建kfifo的时候使用的是 <code>kfifo_init()</code> 函数，那么提供相应的函
+数来释放缓冲区，而不是用户 <code>kfifo_free()</code> 。
+</p>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-18" class="outline-2">
+<h2 id="sec-18">知识点18 内核数据结构之映射</h2>
+<div class="outline-text-2" id="text-18">
+<p>
+　　映射也称之为关联数组，它是一组唯一键的集合，每个键与特定的值相关。
+一般支持至少三个操作：
+</p>
+<ul class="org-ul">
+<li>Add(key, value)
+</li>
+<li>Remove(key)
+</li>
+<li>value=Lookup(key)
+
+<p>
+　　Linux提供了一个简单而有效的映射数据结构，它不是通用目的的映射，
+而是为特殊用例设计的：将UID（唯一标识号）映射到一个指针。除了提供
+三个主要的映射操作，还基于add操作的基础上提供了一个allocate操作。
+allocate操作不仅将添加一个UID/值对到映射中，还产生了一个UID。
+</p>
+
+<p>
+　　idr数据结构用于映射用户空间的UID，例如inotify监视描述符到它们
+相关的内核数据结构中，如 <code>inotify_watch</code> 。
+</p>
+
+<ol class="org-ol">
+<li>初始化idr
+先静态定义或动态定义一个idr结构，然后调用
+<pre class="example">
+void idr_init(struct idr *idp);
+</pre>
+<p>
+如：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct idr id_huh; /* statically define idr structure */
+idr_init(&amp;id_huh); /* initialize provided idr structure */
+</pre>
+</div>
+</li>
+
+<li>分配一个新的UID
+分两步进行，第一步告诉idr需要分配一个新的UID，使得它能在必要时
+重置后备树的大小，对应的函数为：
+<pre class="example">
+int idr_pre_get(struct idr *idp, gfp_t gfp_mask);
+</pre>
+
+<p>
+第二步，请求新的UID，相应的函数为：
+</p>
+<pre class="example">
+int idr_get_new(struct idr *idp, void *ptr, int *id);
+</pre>
+
+<p>
+例子如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">int id; 
+do { 
+　if (!idr_pre_get(&amp;idr_huh, GFP_KERNEL)) 
+　　return -ENOSPC; 
+　ret = idr_get_new(&amp;idr_huh, ptr, &amp;id); 
+　} while (ret == -EAGAIN);
+</pre>
+</div>
+
+<pre class="example">
+int idr_get_new_above(struct idr *idp, void *ptr, int starting_id, int *id);
+</pre>
+<p>
+该函数的工作方式与 <code>idr_get_new()</code> 一样，不过它保证了新的UID大于或等
+于 <code>starting_id</code> 。它确保某个UID不被重用，并且保证了分析的UID在系统
+运行期间都是唯一的。
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">int id;
+do {
+  if (!idr_pre_get(&amp;idr_huh, GFP_KERNEL))
+    return -ENOSPC;
+  ret = idr_get_new_above(&amp;idr_huh, ptr, next_id, &amp;id);
+ } while (ret == -EAGAIN);
+if (!ret)
+  next_id = id + 1;
+</pre>
+</div>
+</li>
+
+<li>查找一个UID
+<pre class="example">
+void *idr_find(struct idr *idp, int id);
+</pre>
+<div class="org-src-container">
+
+<pre class="src src-c">struct my_struct *ptr = idr_find(&amp;idr_huh, id); 
+if (!ptr) 
+  return -EINVAL; /* error */
+</pre>
+</div>
+</li>
+
+<li>删除一个UID
+<pre class="example">
+void idr_remove(struct idr *idp, int id);
+</pre>
+</li>
+
+<li>销毁一个udr
+<pre class="example">
+void idr_destroy(struct idr *idp);
+</pre>
+<p>
+如果想强制删除所有的UID，使用如下函数：
+</p>
+<pre class="example">
+void idr_remove_all(struct idr *idp);
+</pre>
+<p>
+不过在调用 <code>idr_destroy()</code> 之前，要先在该idr上调用
+<code>idr_remove_all()</code> ，确
+保所有的idr内存被释放。
+</p>
+</li>
+</ol>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-19" class="outline-2">
+<h2 id="sec-19">知识点19 内核数据结构之红黑树</h2>
+<div class="outline-text-2" id="text-19">
+<p>
+　　红黑树是一种自平衡的二叉查找树，是Linux主要的二叉树结构。红黑树
+有一个特殊的颜色属性，要么红色，要么黑色。红黑树通过强制以下条件来保
+证红黑树仍然是半平衡的。
+</p>
+<ul class="org-ul">
+<li>所有结点要是红色或黑色的。
+</li>
+<li>叶子结点是黑色的。
+</li>
+<li>叶子结点不包含数据。
+</li>
+<li>所有非叶子结点有两个孩子。
+</li>
+<li>如果一个结点是红色，那么它的两个孩子都为黑色。
+</li>
+<li>从某个结点出发，到达任何叶子结点的路径中包含的黑色结点相同。
+</li>
+</ul>
+
+<p>
+　　上述属性表明，最深的叶子的深度不会超过最浅的叶子的深度的二倍。这
+样，该树总是半平衡的。
+</p>
+
+<p>
+　　在Linux中，红黑树称为rbtree。分别声明和定义在&lt;linux/rbtree.h&gt;和
+lib/rbtree.c中。一个rbtree的根总是由结构 <code>rb_root</code> 来表示。为了创建一个新
+的红黑树，我们要分配一个新的 <code>rb_root</code> 并将其初始化为特殊值 <code>RB_ROOT</code>
+</p>
+<pre class="example">
+struct rb_root  root = RB_ROOT
+</pre>
+
+<p>
+　　单个结点由结构 <code>rb_node</code> 来表示。由于C语言不支持泛型编程，所以rbtree
+并没有提供查找和插入程序，编程人员必须自行定义，不过可以使用rbtree已
+经提供的一些帮助函数。
+</p>
+
+<div class="org-src-container">
+<label class="org-src-name">红黑树查找程序实现的一个例子</label>
+<pre class="src src-c">struct page * rb_search_page_cache(struct inode *inode,
+                                   unsigned long offset)
+{
+  struct rb_node *n = inode-&gt;i_rb_page_cache.rb_node;
+  while (n) {
+    struct page *page = rb_entry(n, struct page, rb_page_cache);
+    if (offset &lt; page-&gt;offset)
+      n = n-&gt;rb_left;
+    else if (offset &gt; page-&gt;offset)
+      n = n-&gt;rb_right;
+    else
+      return page;
+  }
+  return NULL;
+}
+</pre>
+</div>
+
+<div class="org-src-container">
+<label class="org-src-name">红黑树插入程序实现的一个例子</label>
+<pre class="src src-c">struct page * rb_insert_page_cache(struct inode *inode,
+                                   unsigned long offset,
+                                   struct rb_node *node)
+{
+  struct rb_node **p = &amp;inode-&gt;i_rb_page_cache.rb_node;
+  struct rb_node *parent = NULL;
+  struct page *page;
+  while (*p) {
+    parent = *p;
+    page = rb_entry(parent, struct page, rb_page_cache);
+    if (offset &lt; page-&gt;offset)
+      p = &amp;(*p)-&gt;rb_left;
+    else if (offset &gt; page-&gt;offset)
+      p = &amp;(*p)-&gt;rb_right;
+    else
+      return page;
+  }
+  rb_link_node(node, parent, p);
+  rb_insert_color(node, &amp;inode-&gt;i_rb_page_cache);
+  return NULL;
+}
+</pre>
+</div>
+
+<p>
+<b>总结：何时，何地使用什么数据结构？</b>   
+</p>
+
+<p>
+  　　如果，主要的操作是迭代访问数据，使用链表。当性能不是很重要时，也
+  可考虑使用链表。当数据项目总数相对较少时，或需要与其他内核代码进行交互
+  时，使用链表。 
+　  　如果代码符合生产者/消费者模式，使用队列，特别是你想要一个固定大小的缓冲区。
+　　  如果需要将一个UID映射到一个对象，使用映射。
+      如果需要存储大量的数据并要有效地查找数据，使用红黑树。但是如果这些操作
+  不是对时间要求很高的，那么最好用链表。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-20" class="outline-2">
+<h2 id="sec-20">知识点20 内核中断处理</h2>
+<div class="outline-text-2" id="text-20">
+<p>
+  　中断又叫异步中断， 由硬件触发。而异常又称为同步中断，由软件触发。
+　　中断服务程序（中断处理函数）是一种处理中断响应的函数，它是一种遵循
+特定原型声明的C函数，它运行在中断上下文中，也称为原子上下文，代码运行
+在此上下文中是不能被阻塞的。中断服务程序必须运行非常快，它最基本的工作
+就是告诉硬件已经收到了它发出的中断，但通常还执行大量其他的工作。为此，
+一般中断服务程序分为两半，一半是数据恢复处理函数，称为上半部，它只执行
+那些可以很快执行的代码，如向硬件确认已经收到中断号等，其他的工作要延迟
+到下半部去执行。
+</p>
+
+<p>
+　　执行在中断上下文中的代码需要注意的一些事项：
+</p>
+<ul class="org-ul">
+<li>中断上下文中的代码不能进入休眠。
+</li>
+<li>不能使用mutex，只能使用自旋锁， 且仅当必须时。
+</li>
+<li>中断处理函数不能直接与用户空间进行数据交换。
+</li>
+<li>中断处理程序应该尽快结束。
+</li>
+<li>中断处理程序不需要是可重入的，因为相同的中断处理函数不能同时在多个处
+理器上运行。
+</li>
+<li>中断处理程序可能被一个优先级更高的中断处理程序所中断。 为了避免这种
+情况，可以要求内核将中断处理程序标记为一个快速中断处理程序（将本地
+CPU上的所有中断禁用）， 不过在采取这个动作前要慎重考虑对系统的影响。
+
+<p>
+<b>注册中断处理函数</b> 
+</p>
+</li>
+</ul>
+
+<p>
+在Linux中，注册一个中断处理函数使用 <code>request_irq()</code> ，原型为：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">/* request_irq: allocate a given interrupt line */ 
+int request_irq(unsigned int irq, //中断号
+                irq_handler_t handler, //中断处理函数
+                unsigned long flags, 
+                const char *name, 
+                void *dev)
+</pre>
+</div>
+
+<p>
+第一个参数表示要分配的中断号，第二个参数是一个指向实际中断处理程序的指针。
+第三个参数irqflags值可为0， 第四个参数设备名， 第五个参数主要用于共享
+中断。
+</p>
+
+<p>
+中断处理函数原型为：
+</p>
+<pre class="example">
+typedef irqreturn_t (*irq_handler_t)(int, void *)
+</pre>
+
+<p>
+中断处理函数的一些标记
+</p>
+<ul class="org-ul">
+<li><code>IRQF_DISABLED</code> ：禁用其他所有的中断，该标志用于性能好且执行快的中断
+处理函数。该标志也表明中断处理函数为一个快速中断处理函数。
+</li>
+<li><code>IRQF_SAMPLE_RANDOM</code> ：设备产生的中断对内核熵池有贡献。如果设备以一
+个可预测的速率引发中断， 不要使用该标志。
+</li>
+<li><code>IRQF_TIMER</code> ：表明该中断处理函数为系统计时器中断处理函数。
+</li>
+<li><code>IRQF_SHARED</code> ：表明该中断号是共享的。
+</li>
+<li><code>IRQF_TRIGGER_RISING</code> ：边沿触发。
+</li>
+<li><code>IRQF_TRIGGER_HIGH</code> ：水平触发。
+</li>
+</ul>
+
+<p>
+例子：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#define ROLLER_IRQ 7
+static irqreturn_t roller_interrupt(int irq, void *dev_id);
+
+if (request_irq(ROLLER_IRQ, roller_interrupt, IRQF_DISABLED | IRQF_TRIGGER_RISING, “roll”, NULL);
+  {
+    printk(KERN_ERR  “Roll: Can’t register IRQ %d\n”, ROLLER_IRQ);
+    return –EIO;
+  }
+</pre>
+</div>
+
+<p>
+释放一个中断处理函数
+</p>
+<pre class="example">
+void free_irq(unsigned int irq, void *dev)
+</pre>
+
+<p>
+编写中断处理器
+</p>
+<pre class="example">
+static irqreturn_t intr_handler(int irq, void *dev)
+</pre>
+
+<p>
+中断处理器的返回值的类型为irqreturn<sub>t。中断处理器可以返回两个特殊值</sub>
+<code>IRQ_HANDLED</code> 和 <code>IRQ_NONE</code> 。也可以使用 <code>IRQ_RETVAL(val)</code> 。通常中断处理器标记为
+static，表明它不能在其他的文件中被调用。
+</p>
+
+<p>
+<b>中断控制</b> 
+</p>
+
+<p>
+禁止和使能中断
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">local_irq_disable();
+/* interrupts are disabled .. */
+local_irq_enable();
+</pre>
+</div>
+
+<p>
+更安全的版本：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">unsigned long flags;
+local_irq_save(flags); /* interrupts are now disabled */
+/* ... */
+local_irq_restore(flags); /* interrupts are restored to their previous state */
+</pre>
+</div>
+
+<p>
+ <b>注意：flags不能传递给另一个函数，所以上述两个函数必须在同一个函数内调
+用。</b>
+</p>
+
+<p>
+上述的函数都可以在中断和进程上下文中调用。
+</p>
+
+<p>
+<b>禁用和中断某个特定的中断</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">void disable_irq(unsigned int irq);
+void disable_irq_nosync(unsigned int irq);
+void enable_irq(unsigned int irq);
+void synchronize_irq(unsigned int irq);
+</pre>
+</div>
+
+<p>
+前面两个函数禁用一个指定的中断线。此外， <code>disable_irq()</code> 在中断处理器执行完
+成后才返回，而 <code>disable_irq_nosync()</code> 会立即返回。函数 <code>synchronize_irq()</code> 在返回
+前等待某个特定的中断处理器退出。
+</p>
+
+<p>
+<b>中断系统的状态</b>
+</p>
+
+<p>
+<code>irqs_disabled()</code> 函数返回0，如果本地处理器上的中断系统禁用的话。
+有两个宏检查当前的上下文状态
+函数 <code>in_interrupt()</code> 用于决断此时代码执行的上下文是否处理中断上下文。
+<code>in_irq()</code> 仅当内核正在执行一个中断处理函数时才返回非0。
+设备初始化处不适合请求IRQ， 在打开设备时请求IRQ比较合宜。关闭设备时释
+放中断。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-21" class="outline-2">
+<h2 id="sec-21">知识点21 内核中断下半部机制</h2>
+<div class="outline-text-2" id="text-21">
+<p>
+下半部的主要任务就是执行中断相关的，不在中断处理器中执行的工作。如何将
+中断任务分为上下两部分分别执行呢，如下提供一些参考：
+</p>
+<ul class="org-ul">
+<li>如果工作对时间敏感，那么在中断处理器中执行。
+</li>
+<li>如果工作与硬件相关，在中断处理器中执行。
+</li>
+<li>如果工作需要确保另一个中断不能打断它，在中断处理器中执行。
+</li>
+<li>对于其他的情况，一般考虑在下半部中执行。
+</li>
+</ul>
+
+<p>
+　　通常就尽量使中断处理程序快速完成，将一些不需要迅速处理的工作推迟到
+下半部中去执行。推迟是指现在暂时不执行，也不是在将来的某个特定时刻执行，
+而是在系统不是很忙的时候再执行。总的来说，上半部代码执行时一些或所有中
+断被禁用，而下半部代码在执行的时候所有的中断是打开的。
+</p>
+
+<p>
+　　另一种推迟工作的机制是内核计时器，与下半部机制不同，计时器将工作推
+迟到某个指定的时间去执行。历史上和现在正在使用的下半部机制如下表所示：
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">Bottom Half</th>
+<th scope="col" class="left">Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">BH</td>
+<td class="left">在2.5中被移除</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left">Task queues Softirq</td>
+<td class="left">在2.5中被移除</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left">Tasklet(微线程)</td>
+<td class="left">2.3中开始出现</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left">Work queues(工作队列)</td>
+<td class="left">2.5中开始出现</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+微线程与软中断不同的地方是：微线程在同一时刻只能在一个处理器上运行。另
+外，不同的微线程可同时运行于不同的处理器上。
+</p>
+
+<p>
+<b>下半部之间的同步</b> 
+</p>
+
+<p>
+微线程相对自己来说是串行的，即相同的微线程不会同时运行，即便是在不同的处理器上。所有只需考虑微线程之间的同步。
+软中断没有提供串行化，所以所有共享的数据需要适当的锁定。
+在进程上下文中，访问下半部共享数据，需要禁用下半部处理并在访问数据之前获得一个锁。
+在中断上下文中，访问下半部共享数据，需要禁用中断并在访问数据之前获得一个锁。
+任何在一个工作队列中的共享数据也需要锁定。
+</p>
+
+<p>
+<b>禁用下半部</b>  
+</p>
+
+<p>
+通常情况下，仅仅禁用下半部是不够的，需要获得一个锁，并禁用下半部，特别
+是在驱动程序中。对于内核核心代码，只需要禁用下半部就行了。
+</p>
+
+<p>
+禁用下半部的一些函数如下：
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">Method</th>
+<th scope="col" class="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left"><code>void local_bh_disable()</code></td>
+<td class="left">Disables softirq and tasklet processing on the local processor</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>void local_bh_enable()</code></td>
+<td class="left">Enables softirq and tasklet processing on the local</td>
+</tr>
+
+<tr>
+<td class="left">&#xa0;</td>
+<td class="left">processor</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+这些调用可以被嵌套，当然它们调用的次数应该相同。即 <code>local_bh_disable()</code> 与
+<code>local_bh_enable()</code> 函数之间的调用次数应该相同。这些函数通过
+<code>preempt_count</code> （内核抢占也用户相同的计数器）来维护每个任务的计数器。这些
+函数对每个支持的平台来说是唯一的，下面是一些相同代码：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">/*
+ * disable local bottom halves by incrementing the preempt_count
+ */
+void local_bh_disable(void)
+{
+  　　struct thread_info *t = current_thread_info();
+  　　t -&gt;preempt_count += SOFTIRQ_OFFSET;
+}
+/*
+ * decrement the preempt_count - this will ‘automatically’ enable
+ * bottom halves if the count returns to zero
+ *
+ * optionally run any bottom halves that are pending
+ */
+void local_bh_enable(void)
+{
+  　　struct thread_info *t = current_thread_info();
+  　　t-&gt;preempt_count -= SOFTIRQ_OFFSET;
+  /*
+   * is preempt_count zero and are any bottom halves pending?
+   * if so, run them
+   */
+  　　if (unlikely(!t-&gt;preempt_count &amp;&amp; softirq_pending(smp_processor_id())))
+    　　　　do_softirq();
+}
+</pre>
+</div>
+
+<p>
+这些函数只对软中断和微线程有意义。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-22" class="outline-2">
+<h2 id="sec-22">知识点22下半部机制之软中断</h2>
+<div class="outline-text-2" id="text-22">
+<p>
+    软中断(softirq)是用软件方式模拟硬件中断的概念，实现宏观上的异步执行效
+果。softirq是基本的下半部机制， 需要互斥使用。一般很少直接使用。通常只
+用在少数性能比较关键的子系统中。它是可重入的，允许一个softirq的不同实
+例可同时运行在不同的处理器上。软中断的代码位于kernel/softirq.c。
+</p>
+
+<p>
+软中断在编译时静态分配，不能动态注册和销毁。软中断一般用
+<code>sofirq_action</code> 结构来表示，定义在&lt;linux/interrupt.h&gt;中：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct softirq_action {
+　　void (*action)(struct softirq_action *);
+};
+</pre>
+</div>
+
+<p>
+一个具有32个元素的访结构数组声明在kernel/softirq.c中：
+</p>
+<pre class="example">
+static struct softirq_action softirq_vec[NR_SOFTIRQS];
+</pre>
+
+<p>
+每个注册的软中断占据数组的一项，因此，总共有 <code>NR_SOFTIRQS</code> 个注册的软中断。
+软中断的数目是在编译时静态决定的，不能动态更改。内核中软中断个数的限制
+是32个，但在当前内核中，只有9个。
+</p>
+
+<p>
+<b>软中断处理函数</b> 
+</p>
+
+<p>
+软中断处理函数原型如下：
+</p>
+<pre class="example">
+void softirq_handler(struct softirq_action *)  
+</pre>
+<p>
+软中断不会抢占另一个软中断，只有中断处理函数才能抢占一个软中断。
+软中断一般用于处理系统中对时间最苛刻和重要的后半部代码。当前，只有两个
+子系统直接使用了软中断：网络子系统和块设备子系统。另外内核计时器和微线
+程都基于软中断之上。
+</p>
+
+<p>
+<b>执行软中断</b>  
+</p>
+
+<p>
+一个注册的软中断必须被标记后，才能运行。这称之为触发，实质上就是将其标
+记为未决状态。通常，中断处理函数会触发一个软中断，然后返回。在合适的时
+间，软中断会执行。
+检测未决状态下的软中断通常发生在如下几个地方：
+</p>
+<ul class="org-ul">
+<li>从硬件中断代码路径中返回
+</li>
+<li>在ksoftirqd内核线程中
+</li>
+<li>在任何显示地检测并执行未决软中断的代码中，如网络子系统。
+</li>
+</ul>
+<p>
+执行软中断的代码主要发生在函数 <code>__do_softirq()</code> 函数中，由
+<code>do_softirq()</code> 调用。
+主要代码如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">u32 pending; 
+pending = local_softirq_pending(); 
+if (pending) { 
+　　struct softirq_action *h; 
+　　/* reset the pending bitmask */ 
+　　set_softirq_pending(0); 
+　　h = softirq_vec; 
+　　do { 
+　　　　if (pending &amp; 1) 
+　　　　　h-&gt;action(h); 
+　　　　　h++; 
+　　　　　pending &gt;&gt;= 1; 
+　　　} while (pending); 
+}
+</pre>
+</div>
+
+<p>
+其基本步骤如下：
+</p>
+<ol class="org-ol">
+<li>设置本地变量pending的值为宏 <code>local_softirq_pending()</code> 返回的值。它是一个
+32位掩码，如果第n位置1，表示第n个软中断处于未决状态。
+</li>
+<li>清空掩码。
+</li>
+<li>指针h被置为 <code>softirq_vec</code> 的第一项。
+</li>
+<li>如果pending的第一位置位，调用h-&gt;action(h)。
+</li>
+<li>递增指针h，使其指向 <code>softirq_vec</code> 数组的第二项。
+</li>
+<li>掩码pending右移一位。
+</li>
+<li>pointer现在指向数组的第二项，pending掩码的第一个比特位就是原来的第
+二个比特位，重复前述步骤。
+</li>
+<li>重复执行，直到pending为0。
+
+<p>
+<b>使用软中断</b>
+</p>
+</li>
+</ol>
+
+<p>
+在声明一个软中断时，用到了软中断的索引号，它是一个枚举类型，定义在
+&lt;linux/interrupt.h&gt;中。内核使用该索引来作为软中断的相对优先级。值越小，
+优先级越大。创建一个新的软中断时，就包括向该枚举类型添加一个新的项。
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="right" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">Tasklet</th>
+<th scope="col" class="right">Priority</th>
+<th scope="col" class="left">Softirq Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left"><code>HI_SOFTIRQ</code></td>
+<td class="right">0</td>
+<td class="left">High-priority tasklets</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>TIMER_SOFTIRQ</code></td>
+<td class="right">1</td>
+<td class="left">Timers</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>NET_TX_SOFTIRQ</code></td>
+<td class="right">2</td>
+<td class="left">Send network packets</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>NET_RX_SOFTIRQ</code></td>
+<td class="right">3</td>
+<td class="left">Receive network packets</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>BLOCK_SOFTIRQ</code></td>
+<td class="right">4</td>
+<td class="left">Block devices</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>TASKLET_SOFTIRQ</code></td>
+<td class="right">5</td>
+<td class="left">Normal priority tasklets</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>SCHED_SOFTIRQ</code></td>
+<td class="right">6</td>
+<td class="left">Scheduler</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>HRTIMER_SOFTIRQ</code></td>
+<td class="right">7</td>
+<td class="left">High-resolution timers</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>RCU_SOFTIRQ</code></td>
+<td class="right">8</td>
+<td class="left">RCU locking</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+<b>注册软中断处理函数</b> 
+</p>
+
+<p>
+使用 <code>open_softirq()</code> 函数可以注册软中断对应的处理函数，如下例子所示：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">open_softirq(NET_TX_SOFTIRQ, net_tx_action);
+open_softirq(NET_RX_SOFTIRQ, net_rx_action);
+</pre>
+</div>
+
+<p>
+软中断处理函数处于中断上下文中，且所有其他的中断是使能的，不能休眠。当
+一个软中断处理函数运行时，当前处理器的软中断被禁用。但是，另外一个处理
+器可以执行其他的软中断。如果在执行的过程中，触发了相同的软中断，另一个
+处理器可以同时运行它。这意味着，只在软中断处理函数中使用的任何其享的数
+据或全局数据需要进行适当的锁定。这是很重要的一点，也就是为什么尽量使用
+微线程的原因了。仅仅防止软中断不同步运行并不理想。如果一个软中断获得了
+阻止其本身的另一个实例同步运行的锁，就没有任何理由使用软中断了。结果，
+大部分软中断处理函数使用每-处理器数据或其他的技巧以避免显示地使用互斥
+锁。
+</p>
+
+<p>
+<b>触发软中断</b>  
+</p>
+
+<p>
+当一个软中断处理函数通过 <code>open_softirq()</code> 加入到枚举列表后，它就可以运
+行了。调用函数 <code>raise_softirq()</code> 就行了，如下所示：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">raise_softirq(NET_TX_SOFTIRQ);
+</pre>
+</div>
+
+<p>
+该函数首先会在触发软中断之前禁用所有中断，之后将它们恢复成之前的状态。
+如果所有的中断已经关闭，可以使用另外一个函数： <code>raise_softirq_irqoff()</code> ，
+如下所示：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">/*
+* interrupts must already be off!
+*/
+raise_softirq_irqoff(NET_TX_SOFTIRQ);
+</pre>
+</div>
+
+<p>
+softirq使用模板：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">//Using Softirq to Offload work from Interrupt Handlers
+void __init
+roller_init()
+{
+  /* … */
+  open_softirq(ROLLER_SOFT_IRQ, roller_analyze, NULL);
+}
+
+/* The bottom half */
+void
+roller_analyze()
+{
+  /* … */
+}
+
+/* The interrupt handler */
+static irqreturn_t
+roller_interrupt(int irq, void *dev_id)
+{
+  /* … */
+  /* Mark softirq as pending */
+  raise_softirq(ROLLER_SOFT_IRQ);
+  return IRQ_HANDLED;
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-23" class="outline-2">
+<h2 id="sec-23">知识点23下半部机制之微线程</h2>
+<div class="outline-text-2" id="text-23">
+<p>
+　　微线程(tasklet)是一种更通用的下半部机制，大多数情况下应该优先使用
+微线程，只有在对性能要求非常高的时候才考虑使用软中断。然而，微线程是基
+于软中断的，它实际上是一个软中断。内核中的微线程用两个软中断表示：
+<code>HI_SOFTIRQ</code> 和 <code>TASKLET_SOFTIRQ</code> 。两者唯一的区别在于 <code>HI_SOFTIRQ</code> 优
+先级要高些。
+</p>
+
+<p>
+<b>数据结构</b> 
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">struct tasklet_struct {         　　
+    struct tasklet_struct *next;        　　/* next tasklet in the list */ 
+    unsigned long state;        　　/* state of the tasklet */ 
+    atomic_t count;     　　/* reference counter */ 
+    void (*func)(unsigned long);        　　/* tasklet handler function */ 
+    unsigned long data;         　　/* argument to the tasklet function */ 
+};      　　
+</pre>
+</div>
+
+<p>
+状态state的值可为0， <code>TASKLET_STATE_SCHED</code> ,  <code>TASKLET_STATE_RUN</code> 。
+<code>TASKLET_STATE_SCHED</code> 表示某个微线程将被调度运行，而 <code>TASKLET_STATE_RUN</code>
+表示某个微线程正在运行。
+</p>
+
+<p>
+　　count为微线程的引用计数，为非0时表示微线程被禁用，不能运行。为0时
+表示微线程可以运行，且如果标记为未决状态，将可以运行。
+</p>
+
+<p>
+<b>调度微线程</b>  
+</p>
+
+<p>
+　　被调度的微线程存储于两个每-CPU结构中： <code>tasklet_vec</code> (对于普通微线程)和
+<code>tasklet_hi_vec</code> (对于高优先级微线程)。这两个结构都是 <code>tasklet_struct</code> 结构构成
+的链表。链表表中的每个结点代表不同的微线程。调度微线程分别采用
+<code>tasklet_schedule()</code> 和 <code>tasklet_hi_schedule()</code> 。大致步骤如下：
+</p>
+<ol class="org-ol">
+<li>检查微线程的状态是否为 <code>TASKLET_STATE_SCHED</code> 。如果是，该微线程已经被调度，
+函数立即返回。
+</li>
+<li>调用 <code>__tasklet_schedule()</code> 。
+</li>
+<li>保存中断系统的状态，然后禁用所有本地中断。
+</li>
+<li>将被调度的微线程添加到 <code>tasklet_vec</code> 或 <code>tasklet_hi_vec</code> 链表的头部。这些链表
+对每个处理器来说是唯一的。
+</li>
+<li>触发 <code>TASKLET_SOFTIRQ</code> 和 <code>HI_SOFTIRQ</code> 软中断，这样使得
+<code>do_softirq()</code> 能在将来的某个时刻执行该微线程。（实质上就是将微线程
+标记为一个未决的软中断）
+</li>
+<li>恢复中断到之前的状态，然后返回。
+</li>
+</ol>
+
+<p>
+这样， <code>do_softirq()</code> 在某个时刻会运行这些未决的软中断，并执行相关的处理函
+数，即 <code>tasklet_action()</code> 和 <code>tasklet_hi_action()</code> 。这两个函数是微线程处理的核心。
+执行的步骤如下：
+</p>
+<ol class="org-ol">
+<li>禁用本地中断，获取本处理器上的 <code>tasklet_vec</code> 和 <code>tasklet_hi_vec</code> 链表。
+</li>
+<li>清除链表。
+</li>
+<li>启动本地中断。
+</li>
+<li>遍历链表中的每个未决微线程。
+</li>
+<li>如果是处理器机器，检测微线程是否运行于另外一个处理器，即检测
+<code>TASKLET_STATE_RUN</code> 标志。如果是，跳过，处理下一个微线程。
+</li>
+<li>如果否，设置 <code>TASKLET_STATE_RUN</code> ，这样就不会在另一个处理器上运行。
+</li>
+<li>检测微线程的引用数是否为0，以确认微线程是否使能。如果否，跳过，处理
+下一个微线程。
+</li>
+<li>执行微线程处理函数。
+</li>
+<li>清除微线程state域的 <code>TASKLET_STATE_RUN</code> 标记。
+</li>
+<li>重复上述过程，直到完毕。
+
+<p>
+<b>使用微线程</b> 
+</p>
+</li>
+</ol>
+
+<p>
+静态声明
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">DECLARE_TASKLET(name, func, data)
+DECLARE_TASKLET_DISABLED(name, func, data);
+</pre>
+</div>
+
+<p>
+例子如下：
+</p>
+<pre class="example">
+DECLARE_TASKLET(my_tasklet, my_tasklet_handler, dev);
+</pre>
+
+<p>
+等价于：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct tasklet_struct my_tasklet = { NULL, 0, ATOMIC_INIT(0),
+                                     my_tasklet_handler, dev };
+</pre>
+</div>
+
+<p>
+动态声明
+</p>
+<pre class="example">
+tasklet_init(t, tasklet_handler, dev); /* dynamically as opposed to statically */
+</pre>
+
+<p>
+<b>编写自己的微线程处理函数</b>  
+</p>
+
+<p>
+函数原型：
+</p>
+<pre class="example">
+void tasklet_handler(unsigned long data)
+</pre>
+<p>
+跟软中断一样，微线程不能睡眠，所以不能使用户信号量等机制。
+</p>
+
+<p>
+<b>调度微线程</b>  
+</p>
+
+<p>
+调度微线程使用如下函数：
+</p>
+<pre class="example">
+tasklet_schedule(&amp;my_tasklet); /* mark my_tasklet as pending */
+</pre>
+
+<p>
+　　其实质就是将微线程标记为未决状态。
+　　通过函数 <code>tasklet_disable()</code> 来禁用一个微线程，如果被禁用的微线程正在运
+行，函数将等待微线程执行完毕后，返回。函数 <code>tasklet_disable_nosync()</code> 将立即
+返回。函数 <code>tasklet_enable()</code> 使能一个微线程。
+</p>
+
+<div class="org-src-container">
+<label class="org-src-name">tasklet使用模板</label>
+<pre class="src src-c">//Using Tasklets to Offload Work from Interrupt Handlers
+struct roller_device_struct{
+  /* … */
+  struct tasklet_struct tsklt;
+  /* … */
+};
+
+void __init roller_init()
+{
+  struct roller_device_struct *dev_struct;
+  /* … */
+  /* Initialize tasklet */
+  tasklet_init(&amp;dev_struct-&gt;tsklt, roller_analyze, dev);
+}
+
+/* The bottom half */
+void
+roller_analyze()
+{
+  /* … */
+}
+
+/* The interrupt handler */
+static irqreturn_t
+roller_interrupt(int irq, void *dev_id)
+{
+  /* … */
+  /* Mark tasklet as pending */
+  tasklet_schedule(&amp;dev_struct-&gt;tsklt);
+  return IRQ_HANDLED;
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-24" class="outline-2">
+<h2 id="sec-24">知识点24 内核线程ksoftirqd</h2>
+<div class="outline-text-2" id="text-24">
+<p>
+软中断和微线程的处理都依赖于一组每-处理器内核线程，这些内核线程在当系
+统中软中断或微线程处理过于频繁时协助软中断和微线程的处理。
+</p>
+
+<p>
+一个软中断或微线程可以重新激活自己，从来导致其又重新运行，这样会导致用
+户程序无法获得处理器，同时，忽略二次激活也是不可接受的。为了满足这两个
+需求，解决办法是，内核不会立即处理二次激活的软中断或微线程，而是，如果
+软中断或微线程的数目增长过快，内核将唤醒一些内核线程来协助处理，这些内
+核线程执行的优先级为最低（nice值为19），以确保它们不会在更重要的任务之
+前执行。每个处理器都有一个这样的线程，命名为ksoftirqd/n，其中n是处理器
+的编号。比如，对于双核处理器，有两个这样的内核线程：ksoftirqd/0,
+ksoftirqd/1。线程初始化，执行逻辑如下所示：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">for (;;) { 
+　　if (!softirq_pending(cpu)) 
+　　　　schedule(); 
+　　set_current_state(TASK_RUNNING); 
+　　while (softirq_pending(cpu)) { 
+　　　　do_softirq(); 
+　　　　if (need_resched()) 
+　　　　　　schedule(); 
+　　} 
+　　set_current_state(TASK_INTERRUPTIBLE); 
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-25" class="outline-2">
+<h2 id="sec-25">知识点25下半部机制之工作队列</h2>
+<div class="outline-text-2" id="text-25">
+<p>
+工作队列是一种不同于软中断和微线程的一种下半部延迟机制。工作队列将工作
+延迟到一个内核线程中执行，它运行在进程上下文中，它是可调度的，并且可以
+休眠。通常，如果延迟的工作中需要休眠，就使用工作队列，否则使用软中断或
+微线程。由于内核开发者反对创建一个新的内核线程，因此，应当尽量使用工作
+队列，它其实是事先创建了一个内核线程。
+</p>
+
+<p>
+<b>工作队列的实现</b>
+</p>
+
+<p>
+工作队列实际上一种创建内核线程以处理从其他地方入队的任务的接口。这些内
+核线程称为工作者线程。你可以创建一个特殊的工作者线程来处理延迟工作，然
+而，工作队列为我们提供了一个默认的工作者线程。在大多数情况下，直接使用
+该默认工作者线程就可以了。默认的工作都线程称为events/n，其中n为处理器
+的编号。
+</p>
+
+<p>
+<b>代表线程的数据结构</b>
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">struct workqueue_struct { 
+　　struct cpu_workqueue_struct cpu_wq[NR_CPUS]; 
+　　struct list_head list; 
+　　const char *name; 
+　　int singlethread; 
+　　int freezeable; 
+　　int rt; 
+};
+</pre>
+</div>
+
+<p>
+每个处理器对应一个 <code>struct cpu_workqueue_struct</code> 的数据结构。
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">struct cpu_workqueue_struct {   
+　　spinlock_t lock;    /* lock protecting this structure */ 
+　　struct list_head worklist;  /* list of work */ 
+　　wait_queue_head_t more_work;        
+
+        struct work_struct *current_struct; 
+        struct workqueue_struct *wq; /* associated workqueue_struct */ 
+        task_t *thread;         /* associated thread */ 
+};
+</pre>
+</div>
+
+<p>
+<b>代表工作的数据结构</b>
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">struct work_struct { 
+　　　atomic_long_t data; 
+　　　struct list_head entry; 
+　　　work_func_t func; 
+};
+</pre>
+</div>
+
+<p>
+工作者线程的核心代码如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">for (;;) { 
+　　prepare_to_wait(&amp;cwq-&gt;more_work, &amp;wait, TASK_INTERRUPTIBLE); 
+　　if (list_empty(&amp;cwq-&gt;worklist)) 
+　　　　schedule(); 
+　　finish_wait(&amp;cwq-&gt;more_work, &amp;wait); 
+　　run_workqueue(cwq); 
+}
+</pre>
+</div>
+
+<p>
+在函数 <code>run_workqueue（）</code> ，执行实际的延迟工作：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">while (!list_empty(&amp;cwq-&gt;worklist)) { 
+　　struct work_struct *work; 
+　　work_func_t f; 
+　　void *data; 
+　　work = list_entry(cwq-&gt;worklist.next, struct work_struct, entry); 
+　　f = work-&gt;func; 
+　　list_del_init(cwq-&gt;worklist.next); 
+　　work_clear_pending(work); 
+　　f(work); 
+}
+</pre>
+</div>
+
+<p>
+<b>工作队列相关数据结构的关系</b>
+</p>
+
+
+<div class="figure">
+<p><img src="./images/2016/2016071601.png" alt="2016071601.png" />
+</p>
+</div>
+
+<p>
+最上层的工作者线程，可能有多个类型。每个处理器上都有每一种类型的工作者
+线程。内核代码可以根据需要创建工作者线程。默认情况下，工作者线程是
+events。每个工作者线程由结构 <code>cpu_workqueue_struct</code> 来表示。结构
+<code>workqueue_struct</code> 代表每个类型的所有工作者线程。例如，假设除了默认的
+events类型的工作者线程外，还创建了一个falcon类型的工作者线程。假设计算
+机有4个处理器，那么有4个events线程（因而，有4个 <code>cpu_workqueue_struct</code> 结构）
+和4个falcon线程（因而，有另外4个 <code>cpu_workqueue_struct</code> 结构）。有2个
+<code>workqueue_struct</code> ，分别对应events类型和falcon类型。
+</p>
+
+<p>
+<b>使用默认的工作队列</b>  
+</p>
+
+<p>
+创建工作队列
+</p>
+<ol class="org-ol">
+<li>静态方式：
+<pre class="example">
+DECLARE_WORK(name, void (*func)(void *), void *data);
+</pre>
+</li>
+<li>动态方式:
+<pre class="example">
+INIT_WORK(struct work_struct *work, void (*func)(void *), void *data);
+</pre>
+</li>
+<li>工作队列处理函数
+<pre class="example">
+void work_handler(void *data)
+</pre>
+</li>
+<li>调度工作队列：
+<pre class="example">
+schedule_work(&amp;work)或schedule_delayed_work(&amp;work, delay);
+</pre>
+</li>
+<li>Flush工作队列:
+<pre class="example">
+void flush_scheduled_work(void);
+</pre>
+</li>
+</ol>
+
+<p>
+该函数不能取消任何延迟的工作，即被 <code>schedule_delayed_work（）</code> 调度的工作。
+为了取消一个延迟的工作，调用：
+</p>
+<pre class="example">
+int cancel_delayed_work(struct work_struct *work);
+</pre>
+
+<p>
+<b>创建一个新的工作队列</b>  
+</p>
+
+<pre class="example">
+struct workqueue_struct *create_workqueue(const char *name);
+</pre>
+<p>
+name为工作队列的名称，如默认的工作队列名称为events，如下所示：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct workqueue_struct *keventd_wq;
+keventd_wq = create_workqueue(“events”);
+</pre>
+</div>
+
+<p>
+它将为每个处理器创建一个工作者线程，并使之处于就绪状态。
+</p>
+
+<p>
+调度工作队列
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">int queue_work(struct workqueue_struct *wq, struct work_struct *work)
+int queue_delayed_work(struct workqueue_struct *wq, struct work_struct *work, unsigned long delay)
+</pre>
+</div>
+
+<p>
+flush一个工作队列
+</p>
+
+<pre class="example">
+flush_workqueue(struct workqueue_struct *wq)
+</pre>
+
+<p>
+总结如下：
+</p>
+
+<p>
+内核中提供了两个辅助接口来使用工作队列：
+</p>
+<pre class="example">
+workqueue_struct 和 work_struct。
+</pre>
+
+<p>
+使用步骤如下：
+</p>
+<ol class="org-ol">
+<li>创建与一个或多个内核线程关联的工作队列(或一个 <code>workqueue_struct</code> 结构体)。
+为了创建一个服务于某个工作队列的内核线程，使用
+<code>create_singlethread_workqueue()</code> 。创建系统中的一个每-CPU工作者线程，
+使用 <code>create_workqueue()</code> 。 内核也提供了默认的每-CPU工作者线程供你直接
+使用(event/n， 其中n是CPU号)。
+</li>
+<li>创建一个工作单元(或一个 <code>work_struct</code> 变量)。一个 <code>work_struct</code> 变
+量使用 <code>INIT_WORK()</code> 进行初始化。
+</li>
+<li>提交工作单元到工作队列中。使用 <code>queue_work()</code> 将一个工作单元提交到一个专
+门的工作队列中。使用 <code>schedule_work()</code> 将一个工作单元提交给默认的内核工
+作者线程。
+</li>
+</ol>
+
+<div class="org-src-container">
+<label class="org-src-name">工作队列使用模板</label>
+<pre class="src src-c">//Using Workqueue to Offload Work from Interrupt Handlers
+struct roller_device_struct{
+  /* … */
+  struct work_struct wklt;
+  /* … */
+};
+
+void __init roller_init()
+{
+  struct roller_device_struct *dev_struct;
+  /* … */
+  /* Initialize tasklet */
+  INIT_WORK (&amp;dev_struct-&gt; wklt, roller_analyze, dev);
+}
+
+/* The bottom half */
+void
+roller_analyze()
+{
+  /* … */
+}
+
+/* The interrupt handler */
+static irqreturn_t
+roller_interrupt(int irq, void *dev_id)
+{
+  /* … */
+  /* Mark workqueue as pending */
+  schedule_work(&amp;dev_struct-&gt;wklt);
+  return IRQ_HANDLED;
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-26" class="outline-2">
+<h2 id="sec-26">知识点26内核变量——Jiffies</h2>
+<div class="outline-text-2" id="text-26">
+<p>
+全局变量jiffies表示自系统启动以来系统产生的嘀嗒数。当启动时，内核初始
+化该变量为0。每次时钟中断就会增1，所以系统运行时候可以计算为：
+jiffies/HZ秒。
+</p>
+
+<p>
+jiffies变量定义如下：
+</p>
+<pre class="example">
+extern unsigned long volatile jiffies;
+</pre>
+
+<p>
+将jiffies转换为秒：(jiffies / HZ)。将秒换算为jiffies：(seconds*HZ)。
+</p>
+
+<p>
+<b>jiffies比较相关的宏：</b>
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">#define time_after(unknown, known) ((long)(known) - (long)(unknown) &lt; 0)
+#define time_before(unknown, known) ((long)(unknown) - (long)(known) &lt; 0)
+#define time_after_eq(unknown, known) ((long)(unknown) - (long)(known) &gt;= 0)
+#define time_before_eq(unknown, known) ((long)(known) - (long)(unknown) &gt;= 0)
+</pre>
+</div>
+
+<p>
+使用例子：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">unsigned long timeout = jiffies + HZ/2;         /* timeout in 0.5s */ 
+/* ... */       
+if (time_before(jiffies, timeout)) {    
+  /* we did not time out, good ... */   
+ } else {       
+  /* we timed out, error ... */         
+ }
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-27" class="outline-2">
+<h2 id="sec-27">知识点27内核定时器与延时</h2>
+<div class="outline-text-2" id="text-27">
+<p>
+内核需要定时器来实现一定的延时。
+</p>
+
+<p>
+<b>数据结构定义：</b>  
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">struct timer_list {
+  struct list_head entry; /* entry in linked list of timers */
+  unsigned long expires; /* expiration value, in jiffies */
+  void (*function)(unsigned long); /* the timer handler function */
+  unsigned long data; /* lone argument to the handler */
+  struct tvec_t_base_s *base; /* internal timer field, do not touch */
+};
+</pre>
+</div>
+
+<p>
+<b>操作：</b>  
+</p>
+
+<p>
+声明与初始化
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">void init_timer(struct timer_list *timer);
+TIMER_INITIALIZER(_functioin, _expires, _data) //宏用于赋值定时器结构体的function、expires、data和base成员。
+DEFINE_TIMER(_name, _function, _expires, _data)
+//setup_timer()也可用于初始化定时器并赋值其成员。
+</pre>
+</div>
+
+<p>
+增加定时器
+</p>
+<pre class="example">
+void add_timer(struct timer_list *timer);
+</pre>
+
+<p>
+删除定时器
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">int del_timer(struct timer_list *timer);
+int del_timer _sync (struct timer_list *timer);//注：该函数不能用于中断上下文中，其他情况下尽量使用该函数。
+</pre>
+</div>
+
+<p>
+修改定时器的expire
+</p>
+<pre class="example">
+int mod_timer(struct timer_list *timer, unsigned long expires);
+</pre>
+
+<div class="org-src-container">
+<label class="org-src-name">内核定时器模板</label>
+<pre class="src src-c">/*XXX设备结构体*/
+struct xxx_dev
+{
+  struct cdev cdev;
+  …
+  timer_list xxx_timer;/*设备要使用的定时器*/
+};
+
+/*xxx驱动中的某函数*/
+xxx_funcl(…)
+{
+  struct xxx_dev *dev = filp-&gt;private_data;
+  …
+    /*初始化定时器*/
+    init_timer(&amp;dev-&gt;xxx_timer);
+  dev-&gt;xxx_timer.function = &amp;xxx_do_timer;
+  dev-&gt;xxx_timer.data = (unsigned long)dev;
+  /*设备结构体指针作为定时器处理函数参数*/
+  dev-&gt;xxx_timer.expires = jiffies + delay;
+  /*添加（注册）定时器*/
+  add_timer(&amp;dev-&gt;xxx_timer);
+  …
+    };
+
+/*xxx驱动中的某函数*/
+xxx_func2(…)
+{
+  …
+    /*删除定时器*/
+    del_timer(&amp;dev-&gt;xxx_timer);
+  …
+    }
+
+/*定时器处理函数*/
+static void xxx_do_timer(unsigned long arg)
+{
+  struct xxx_device *dev = (struct xxx_device*)(arg);
+  …
+    /*调度定时器再执行*/
+    dev-&gt;xxx_timer.expires = jiffies + delay;
+  add_timer(&amp;dev-&gt;xxx_timer);
+  …
+    }
+</pre>
+</div>
+
+<p>
+<b>延时机制</b>  
+</p>
+
+<ul class="org-ul">
+<li>忙等待，如：
+</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-c">unsigned long timeout = jiffies + 10; /* ten ticks */
+while (time_before(jiffies, timeout))
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>重新调度，如：
+</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-c">unsigned long delay = jiffies + 5*HZ;
+while (time_before(jiffies, delay))
+　　cond_resched();
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>小延时
+</li>
+</ul>
+<p>
+有时，内核代码需要更精确的延时，如小于一个时钟滴答。通常小于1毫秒，基
+于jiffies的延时是不能满足要求的。内核提供了三个函数分别处理微秒，纳秒
+和毫秒，原型如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">void udelay(unsigned long usecs) //微秒
+void ndelay(unsigned long nsecs) //纳秒
+void mdelay(unsigned long msecs) //毫秒
+</pre>
+</div>
+
+<p>
+udelay()实现为一个循环，它能知道一个给定的时间段有多少次迭代。mdelay()
+函数基于udelay()函数实现的。内核知道处理器1秒钟能完成的循环次数。
+udelay()函数仅用于非常小的延迟。超过1毫秒的延迟不要使用udelay()。对于
+较长的延时，使用mdelay()。类似于忙等待，一般情况下，不要使用这些函数，
+除非有必要。
+</p>
+
+<ul class="org-ul">
+<li><code>schedule_timeout()</code>
+</li>
+</ul>
+<p>
+一种更好的延迟执行的方式是使用 <code>schedule_timeout()</code> 函数。该调用将当前任务
+标记为睡眠状态直到指定的时间已经过去。通常，睡眠的时间很难保证与指定指
+定的时间一致。调用方式如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">/* set task’s state to interruptible sleep */
+set_current_state(TASK_INTERRUPTIBLE);
+/* take a nap and wake up in “s” seconds */
+schedule_timeout(s * HZ);
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-28" class="outline-2">
+<h2 id="sec-28">知识点28内存管理</h2>
+<div class="outline-text-2" id="text-28">
+<p>
+内核将物理页作为内存管理的基本单位，而处理器最小的处理单位可能是一个字
+节或一个字。对于内存管理来说，页是最小的管理单元。MMU维护着以页为最小
+粒度的页表。不同的平台页的大小也不同。许多平台支持多种页大小。大部分32
+位平台拥有4KB个页，而64位平台拥有8KB个页。
+</p>
+
+<p>
+<b>区域（Zone）</b>
+</p>
+
+<p>
+由于硬件的限制，内核不能将所有的内存物理页一视同仁。有些物理页的地址只
+能用于特定的任务。正是由于这个原因，内核将物理页划分成区域。内核用区域
+来对具有类似属性的页进行分组。内核有４个主要的内存区域：
+</p>
+<ol class="org-ol">
+<li><code>ZONE_DMA</code> ——可以执行DMA操作的区域。
+</li>
+<li><code>ZONE_DMA32</code> ——与 <code>ZONE_DMA</code> 类似，该区域包含可以执行DMA操作的页。这些页只能
+由32位设备访问
+</li>
+<li><code>ZONE_NORMAL</code> ——该区域包含了普通的、正常映射了的页。
+</li>
+<li><code>ZONE_HIGHMEM</code> ——该区域包含了“高内存”，这些物理页不是永久性地映射到了内
+核的地址空间中。X86平台上的映射情况如下：
+<img src="./images/2016/2016071602.png" alt="2016071602.png" />
+
+<p>
+<b>底层页操作</b>  
+</p>
+</li>
+</ol>
+
+<p>
+内核提供了一种底层机制来请求内存，以及几个访问内存的接口。所有这些接口
+分配的内存的粒度为页大小，声明在&lt;linux/gfp.h&gt;，核心函数为：
+</p>
+<pre class="example">
+struct page * alloc_pages(gfp_t gfp_mask, unsigned int order)
+</pre>
+<p>
+该函数分配了2<sup>order</sup> 个连续的物理页，并返回指向第一个页结构的指针。
+</p>
+
+<pre class="example">
+void * page_address(struct page *page)
+</pre>
+<p>
+该函数返回指向给定物理页当前对应的逻辑地址的指针。
+</p>
+
+<pre class="example">
+unsigned long __get_free_pages(gfp_t gfp_mask, unsigned int order)
+</pre>
+<p>
+与 <code>alloc_pages</code> 类似，只不过返回的是请求页的逻辑地址。
+</p>
+
+<p>
+如果只请求一个页，可使用如下相应的函数：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct page * alloc_page(gfp_t gfp_mask)
+unsigned long __get_free_page(gfp_t gfp_mask)
+</pre>
+</div>
+
+<p>
+如果需要返回零填充的页，使用函数：
+</p>
+<pre class="example">
+unsigned long get_zeroed_page(unsigned int gfp_mask)
+</pre>
+
+<p>
+与函数 <code>__get_free_page()</code> 类似，只不过返回的是零填充后的页。
+</p>
+
+<p>
+<b>释放页</b>  
+</p>
+
+<p>
+下面的一些函数用于释放不再需要的页：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">void __free_pages(struct page *page, unsigned int order)
+void free_pages(unsigned long addr, unsigned int order)
+void free_page(unsigned long addr)
+</pre>
+</div>
+
+<p>
+<b>kmalloc()</b> 
+</p>
+
+<p>
+kmalloc()函数的操作类似于用户空间的malloc()，只是多了一个flags参数。
+kmalloc()函数是一个获取以字节为单位的内核内存的简单接口。
+</p>
+
+<p>
+:void * kmalloc(size<sub>t</sub> size, gfp<sub>t</sub> flags)
+该函数返回指向某个内存区域的指针，该内存区域在物理上是连续的。
+</p>
+
+<p>
+<b>kfree()</b>  
+</p>
+
+<p>
+kfree()释放由kmalloc()分配的内核内存空间，其函数原型如下：
+</p>
+<pre class="example">
+void kfree(const void *ptr)
+</pre>
+
+<p>
+<b>vmalloc()</b>
+</p>
+
+<p>
+vmalloc()分配一段在物理上不连续，但在虚拟地址空间上是连续的内存。它一
+般用于分配较大的内存空间时。其函数原型如下：
+</p>
+<pre class="example">
+void * vmalloc(unsigned long size)
+</pre>
+
+<p>
+该函数可以会休眠，所以不能在中断上下文中使用或其他不能休眠的情形。
+出于性能上的考虑，在内核代码中，分配内存时一般使用kmalloc()函数。
+</p>
+
+<p>
+<b>vfree()</b>  
+</p>
+
+<p>
+该函数用于释放由vmalloc()函数分配的内存空间。其函数原型如下所示：
+</p>
+<pre class="example">
+void vfree(const void *addr)
+</pre>
+
+<p>
+<b>内核栈</b>  
+</p>
+
+<p>
+内核栈占据一个或二个物理页，取决于编译时的配置选项。这些栈的大小从4KB
+到16KB大小不等。历史上，中断处理程序与进程共享一个栈。当单页栈使能后，
+中断处理函数拥有了自己的栈。
+</p>
+
+<p>
+由于内核栈的大小限制，所以在内核函数中，尽量控制栈变量的大小和数量，避
+免在一个函数内部定义很大数组。
+</p>
+
+<p>
+<b>高内存映射</b>
+</p>
+
+<p>
+在X86平台上，物理地址超过896M的都慎于高内存。这些地址并不永久地或自动
+地映射到内核地址空间。这些物理面必须映射到内核的逻辑地址空间。在X86平
+台上，高内存地址通常映射到了处于3G和4G之间的内存地址。
+</p>
+
+<p>
+为了将一个指定的page结构映射到内核的地址空间，使用如下函数：
+</p>
+<pre class="example">
+void *kmap(struct page *page)
+</pre>
+<p>
+该函数可用于低内存地址或高内存地址的物理页映射。当物理页处于低内存，该
+函数返回该页的虚拟地址。当物理页处于高内存时，将创建一个永久映射，并返
+回返回映射后的地址。
+</p>
+
+<p>
+:void kunmap(struct page *page)
+该函数解除映射。kmap()和kunmap()函数均不能用于中断上下文中。
+</p>
+
+<p>
+<b>临时映射</b>
+</p>
+
+<p>
+有时，映射建立必须发生在中断上下文中，这时可以使用另外一对函数。
+</p>
+<pre class="example">
+void *kmap_atomic(struct page *page, enum km_type type)
+</pre>
+<p>
+和
+</p>
+<pre class="example">
+void kunmap_atomic(void *kvaddr, enum km_type type)
+</pre>
+</div>
+</div>
+
+<div id="outline-container-sec-29" class="outline-2">
+<h2 id="sec-29">知识点29 每-CPU变量</h2>
+<div class="outline-text-2" id="text-29">
+<p>
+现代SMP操作系统使用每-CPU数据——这些数据对每个处理器都是唯一的。通常，
+每-CPU数据存储在一个数组中。数组中的每项对应系统上的一个可能的处理器。
+如：
+</p>
+<pre class="example">
+unsigned long my_percpu[NR_CPUS];
+</pre>
+
+<p>
+访问的方式如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">int cpu;
+cpu = get_cpu(); /* get current processor and disable kernel preemption */
+my_percpu[cpu]++; /* ... or whatever */
+printk(“my_percpu on cpu=%d is %lu\n”, cpu, my_percpu[cpu]);
+put_cpu(); /* enable kernel preemption */
+</pre>
+</div>
+
+<p>
+访问每-CPU数据唯一需要考虑的就是内核抢占。内核抢占导致了两个问题，如下
+所示：
+</p>
+<ul class="org-ul">
+<li>如果运行的代码被抢占并被调度到另一个处理器上运行，cpu变量不再合法，
+因为它指向了错误的处理器（通常，代码在获得当前处理器后不能睡眠）。
+</li>
+<li>如果另一个任务抢占了当前运行的代码，它可能并发地访问相同处理器上的
+<code>my_percpu</code> ，从而导致了一个竞态发生。
+</li>
+</ul>
+
+<p>
+然而，任何担心都是多余的，因为 <code>get_cpu()</code> 在返回处理器编号的同时，也会禁用
+内核抢占。=put<sub>cpu</sub>()= 则恢复内核抢占。注意：如果使用 <code>smp_processor_id()</code>
+来获取当前处理器的编号，内核抢占则并不会被禁止。
+</p>
+
+<p>
+<b>新的percpu接口（2.6后）</b>
+</p>
+
+<p>
+2.6内核引入了一个新的接口，称为percpu，，用于创建和操作每-CPU数据。该
+接口扩展了上述例子。新的接口更简单，但旧的接口依然有效。
+</p>
+
+<p>
+定义：
+</p>
+
+<pre class="example">
+DEFINE_PER_CPU(type, name);
+</pre>
+
+<p>
+声明：
+</p>
+
+<pre class="example">
+DECLARE_PER_CPU(type, name);
+</pre>
+
+<p>
+操作变量函数：
+</p>
+
+<pre class="example">
+get_cpu_var()   put_cpu_var()
+</pre>
+
+<p>
+如：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">get_cpu_var(name)++; /* increment name on this processor，同时禁用内核抢占 */
+put_cpu_var(name); /* done; enable kernel preemption */
+</pre>
+</div>
+
+<p>
+访问另一个处理器的每-CPU数据：
+:per<sub>cpu</sub>(name, cpu)++; /* increment name on the given processor */，
+</p>
+
+<p>
+注意，该函数并没有禁用内核抢占。
+</p>
+
+<p>
+<b>动态分配每-CPU数据</b>  
+</p>
+
+<p>
+内核实现了一个动态分配器，类似于kmalloc()，用于创建每-CPU数据。这些函
+数原型如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">void *alloc_percpu(type); /* a macro */
+void *__alloc_percpu(size_t size, size_t align);
+void free_percpu(const void *);
+get_cpu_var(ptr); /* return a void pointer to this processor’s copy of ptr */
+put_cpu_var(ptr); /* done; enable kernel preemption */
+</pre>
+</div>
+
+<p>
+使用例子如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">void *percpu_ptr;
+unsigned long *foo;
+percpu_ptr = alloc_percpu(unsigned long);
+if (!ptr)
+  /* error allocating memory .. */
+  foo = get_cpu_var(percpu_ptr);
+/* manipulate foo .. */
+put_cpu_var(percpu_ptr);
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-30" class="outline-2">
+<h2 id="sec-30">知识点30 进程地址空间</h2>
+<div class="outline-text-2" id="text-30">
+<p>
+进程地址空间包含了某个进程可寻址的虚拟内存以及在此虚拟内存中进程可使用
+的地址。每个进程被分配了一个平坦的32或64位地址空间。不同的进程在各自的
+某个相同的内存地址处可以存储不同的数据。另外，进程之间也可以共享地址空
+间，这样的进程被称为线程。
+</p>
+
+<p>
+虽然一个进程可以寻址多达4G的内存，但它并没有权利访问所有的地址。地址空
+间中有趣的部分是内存地址区间，如08048000-0804c000，进程对处于这个区间
+中的地址有访问权限。这些合法的区间称为内存区。进程可以通过内核动态地向
+它的进程空间增加或删除内存区。
+</p>
+
+<p>
+进程只能访问处于合法内存区的地址。这些内存区域有相关的权限，如可读，可
+写和可执行。任何非法地址或非法访问都将导致“Segmmentation Fault”错误。
+内存区可包含如下一些信息：
+</p>
+<ul class="org-ul">
+<li>可执行文件代码的内存映射，称为代码段。
+</li>
+<li>可执行文件的初始化了的全局变量 ，称为数据段。
+</li>
+<li>零页的内存映射，包含未初始化的全局变量，称为bss段。
+</li>
+<li>用于进程用户空间栈的零页内存映射。
+</li>
+<li>每个共享库附加的代码、数据以及bss段，如C库和动态链接器，被装载到进程
+的地址空间。
+</li>
+<li>任何内存映射文件。
+</li>
+<li>任何共享内存段。
+</li>
+<li>任何匿名的内存映射，如与malloc()相关的内存映射。
+</li>
+</ul>
+
+<p>
+这些内存区域并不重叠。
+</p>
+
+<p>
+<b>内存描述符</b> 
+</p>
+
+<p>
+内核用被称为内存描述符的数据结构来表示一个进程的地址空间。该结构包含了
+所有与进程地址空间相关的信息。内存描述符用struct mm<sub>struct来表示。数据</sub>
+结构如下所示：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct mm_struct {
+  struct vm_area_struct *mmap; /* list of memory areas */
+  struct rb_root mm_rb; /* red-black tree of VMAs */
+  struct vm_area_struct *mmap_cache; /* last used memory area */
+  unsigned long free_area_cache; /* 1st address space hole */
+  pgd_t *pgd; /* page global directory */
+  atomic_t mm_users; /* address space users */
+  atomic_t mm_count; /* primary usage counter */
+  int map_count; /* number of memory areas */
+  struct rw_semaphore mmap_sem; /* memory area semaphore */
+  spinlock_t page_table_lock; /* page table lock */
+  struct list_head mmlist; /* list of all mm_structs */
+  unsigned long start_code; /* start address of code */
+  unsigned long end_code; /* final address of code */
+  unsigned long start_data; /* start address of data */
+  unsigned long end_data; /* final address of data */
+  unsigned long start_brk; /* start address of heap */
+  unsigned long brk; /* final address of heap */
+  unsigned long start_stack; /* start address of stack */
+  unsigned long arg_start; /* start of arguments */
+  unsigned long arg_end; /* end of arguments */
+  unsigned long env_start; /* start of environment */
+  unsigned long env_end; /* end of environment */
+  unsigned long rss; /* pages allocated */
+  unsigned long total_vm; /* total number of pages */
+  unsigned long locked_vm; /* number of locked pages */
+  unsigned long saved_auxv[AT_VECTOR_SIZE]; /* saved auxv */
+  cpumask_t cpu_vm_mask; /* lazy TLB switch mask */
+  mm_context_t context; /* arch-specific data */
+  unsigned long flags; /* status flags */
+  int core_waiters; /* thread core dump waiters */
+  struct core_state *core_state; /* core dump support */
+  spinlock_t ioctx_lock; /* AIO I/O list lock */
+  struct hlist_head ioctx_list; /* AIO I/O list */
+};
+</pre>
+</div>
+
+<p>
+<code>mm_users</code> 表示使用该地址空间的进程数。=mm<sub>count</sub>= 是 <code>mm_struct</code> 的主引用计数。如
+果有9个线程共享一个地址空间，则 <code>mm_users=9</code> ，而 <code>mm_count=1</code>  。当
+<code>mm_users</code> 变为0
+后，则 <code>mm_count</code> 变为0.mmap和 <code>mm_rb</code> 都是用于组织进程空间中的内存区，前者使用
+的链表结构，后者使用的是红黑树。前者主要用于遍历，后者主要用于查找。所
+有的 <code>mm_struct</code> 都是通过mmlist链接到一个双重链表中。
+</p>
+
+<p>
+<b>分配一个内存描述符</b>
+</p>
+
+<p>
+与某个任务相关联的内存描述符存储在任务进程描述符的mm域。current-&gt;mm代
+表当前进程的内存描述符。 <code>copy_mm()</code> 函数复制父进程的内存描述符。
+<code>mm_struct</code> 是
+从 <code>mm_cachep</code> slab缓存中通过 <code>allocate_mm()</code> 分配的。通常，每个进程都有一外唯
+一的 <code>mm_struct</code> ，从而拥有唯一的进程地址空间。
+</p>
+
+<p>
+<b>销毁一个内存描述符</b>
+</p>
+
+<p>
+当与某个特定的地址空间相关联的进程退出后，会调用exit<sub>mm</sub>()函数。
+</p>
+
+<p>
+<b>虚拟内存区域</b>
+</p>
+
+<p>
+数据结构 <code>vm_area_struct</code> 代表虚拟内存区域。 <code>vm_area_struct</code> 描述了处于某个地址空
+间中的一个连接区间中的单个内存区域。内核将每个内存区域视为一个唯一的内
+存对象。
+</p>
+
+<p>
+<b>虚拟内存操作</b>
+</p>
+
+<p>
+<code>vm_area_struct</code> 中的域 <code>vm_ops</code> 指向了与给定的内存区域相关联的操作函数表。这个
+操作函数表由 <code>vm_operations_struct</code> 表示，定义如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct vm_operations_struct {
+  void (*open) (struct vm_area_struct *);
+  void (*close) (struct vm_area_struct *);
+  int (*fault) (struct vm_area_struct *, struct vm_fault *);
+  int (*page_mkwrite) (struct vm_area_struct *vma, struct vm_fault *vmf);
+  int (*access) (struct vm_area_struct *, unsigned long ,
+                 void *, int, int);
+};
+</pre>
+</div>
+
+<p>
+其中，open在某个内存区域添加到某个地址空间时被调用。close在某个内存区
+域从某个地址空间中删除进调用。fault在一个物理页不存在时调用。
+<code>page_mkwrite</code> 在将一个只读的页改为可写的时候调用。access在函数
+<code>get_user_pages()</code> 调用失败时被函数 <code>access_process_vm()</code> 调用。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-31" class="outline-2">
+<h2 id="sec-31">知识点31 内存文件系统——sysfs</h2>
+<div class="outline-text-2" id="text-31">
+<p>
+sysfs是一个内存虚拟文件系统，提供了一个kobject层次结构的视图。sysfs根
+目录下包含至少10个目录：
+</p>
+<ul class="org-ul">
+<li>block：该目录包含了系统中注册的每个块设备对应的目录。这些目录中包含
+了块设备的任何分区。
+</li>
+<li>bus：该目录提供了系统总线的一个视图。
+</li>
+<li>class：该目录包含了按高级功能组织的系统中所有设备的一个视图。
+</li>
+<li>dev：该目录是已注册设备结点的一个视图。
+</li>
+<li>devices：该目录是系统设备的拓扑视图。它直接映射了内核中的设备层次结
+构。
+</li>
+<li>firmware：该目录包含了低层子系统如ACPI，EDD，EFI等等系统特定的树。
+</li>
+<li>fs：包含了已注册的文件系统的一个视图。
+</li>
+<li>kernel：该目录包含了内核配置选项和状态信息。
+</li>
+<li>modules：该目录包含了系统加载的模块的一个视图。
+</li>
+<li>power：该目录包含了系统范围内的电量管理数据。
+
+<p>
+<b>从sysfs中添加和删除kobjects</b>
+</p>
+</li>
+</ul>
+
+<p>
+初始化一个kobject，并将其导出到sysfs使用如下函数：
+</p>
+<pre class="example">
+int kobject_add(struct kobject *kobj, struct kobject *parent, const char *fmt, ...);
+</pre>
+
+<p>
+一个kobject代表sysfs中的一个目录，如果父指针不为空，则它代表该父
+kobject对应目录下的一个子目录。struct kobject *
+</p>
+<pre class="example">
+kobject_create_and_add(const char *name, struct kobject *parent);
+</pre>
+<p>
+该函数是一个辅助函数，它将kobject<sub>create</sub>()和kobject<sub>add</sub>()两个函数操作合为一个函
+数。
+</p>
+
+<p>
+删除一个kobject对应的sysfs表示是通过函数
+</p>
+<pre class="example">
+void kobject_del(struct kobject *kobj);
+</pre>
+<p>
+来进行的。
+</p>
+
+<p>
+<b>向sysfs中增加文件</b>  
+</p>
+
+<p>
+kobject映射为目录，而它的属性则映射为文件。
+</p>
+
+<p>
+默认属性
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">struct attribute {
+  const char *name; /* attribute’s name */
+  struct module *owner; /* owning module, if any */
+  mode_t mode; /* permissions */
+};
+</pre>
+</div>
+
+<p>
+<code>sysfs_ops</code> 描述了怎样使用默认属性。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct sysfs_ops {
+  /* method invoked on read of a sysfs file */
+  ssize_t (*show) (struct kobject *kobj,
+                   struct attribute *attr,
+                   char *buffer);
+  /* method invoked on write of a sysfs file */
+  ssize_t (*store) (struct kobject *kobj,
+                    struct attribute *attr,
+                    const char *buffer,
+                    size_t size);
+};
+</pre>
+</div>
+
+<p>
+<b>创建新属性</b>  
+</p>
+
+<p>
+通常，默认属性已经足够了，然而，有时有些kobject比较特殊，需要提供一些特殊的
+数据或功能。内核提供如下接口：
+</p>
+<pre class="example">
+int sysfs_create_file(struct kobject *kobj, const struct attribute *attr);
+</pre>
+<p>
+当然，也可以创建文件链接，接口如下：
+</p>
+<pre class="example">
+int sysfs_create_link(struct kobject *kobj, struct kobject *target, char *name);
+</pre>
+
+<p>
+<b>销毁属性</b>
+</p>
+
+<p>
+对应于属性创建函数，有两个属性销毁接口：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">void sysfs_remove_file(struct kobject *kobj, const struct attribute *attr);
+void sysfs_remove_link(struct kobject *kobj, char *name);
+</pre>
+</div>
+
+<p>
+<b>属性声明和定义</b>
+</p>
+
+<p>
+通常情况下，声明和定义一个属性采用如下形式：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">static struct kobj_attribute foo_attribute =
+        __ATTR(foo, 0666, foo_show, foo_store);
+</pre>
+</div>
+
+<p>
+其中宏 <code>__ATTR</code> 的定义形式为：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#define __ATTR(_name,_mode,_show,_store) { \
+　      .attr = {.name = __stringify(_name), .mode = _mode },   \
+　　    .show   = _show,                                        \
+  　　  .store  = _store,                                       \
+  　　}
+</pre>
+</div>
+
+<p>
+在linux/sysfs.h中还定义了其他宏。
+</p>
+
+<p>
+不过，在实际使用过程中，我们还可以直接使用linux/device.h中定义的宏来快
+速声明和定义一个属性：
+</p>
+<ol class="org-ol">
+<li>Bus
+<div class="org-src-container">
+
+<pre class="src src-c">#define BUS_ATTR(_name, _mode, _show, _store)   \
+struct bus_attribute bus_attr_##_name = __ATTR(_name, _mode, _show, _store)
+</pre>
+</div>
+<p>
+生成的属性文件在目录/sys/bus/下
+</p>
+</li>
+<li>Driver
+<div class="org-src-container">
+
+<pre class="src src-c">#define DRIVER_ATTR(_name, _mode, _show, _store)        \
+struct driver_attribute driver_attr_##_name =           \
+        __ATTR(_name, _mode, _show, _store)
+</pre>
+</div>
+
+<p>
+生成的属性文件在目录/sys/driver/下
+</p>
+</li>
+<li>Class
+<div class="org-src-container">
+
+<pre class="src src-c">#define CLASS_ATTR(_name, _mode, _show, _store)                 \
+struct class_attribute class_attr_##_name = __ATTR(_name, _mode, _show, _store)
+</pre>
+</div>
+<p>
+生成的属性文件在目录/sys/class/下
+</p>
+</li>
+<li>Device
+<div class="org-src-container">
+
+<pre class="src src-c">#define DEVICE_ATTR(_name, _mode, _show, _store) \
+        struct device_attribute dev_attr_##_name = __ATTR(_name, _mode, _show, _store)
+</pre>
+</div>
+<p>
+生成的属性文件在目录/sys/device
+</p>
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-32" class="outline-2">
+<h2 id="sec-32">知识点32 Direct I/O</h2>
+<div class="outline-text-2" id="text-32">
+<p>
+　　通常情况下，大多数I/O操作在内核层次上都会进行数据缓冲，以提高性能。
+然后，有些情况下，直接对用户空间的缓冲区进行I/O读写操作可能更能提高性
+能和数据传输速率，特别针对大数据传递的情形，这样将省去了将数据从内核空
+间复制到用户空间的操作，从而节省了传输时间。
+</p>
+
+<p>
+　　当然，在使用Direct I/O之间，也有必要了解下它的一些开销，毕竟，天下
+没有免费的午餐。
+</p>
+
+<p>
+　　首先，启用Direct I/O，意味着将失去Buffered I/O的一切好处。其次，
+Direct I/O要求write系统调用必须同步执行，否则应用程序将不知道何时可重
+用它的I/O Buffer。很明显，这将影响应用程序的速度。不过，也有补救措施，
+即在这种情况下，一般都会同时使用异步I/O操作。
+</p>
+
+<p>
+　　实现Direct I/O的核心函数是 <code>get_user_pages</code> , 它的原形如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">int get_user_pages(struct task_struct *tsk,  // current
+                   struct mm_struct *mm,       // current-&gt;mm.
+                   unsigned long start,  // start is the (page-aligned) address of the user-space buffer
+                   int len,    // len is the length of the buffer in pages.
+                   int write,  // If write is nonzero, the pages are mapped for write access
+                   int force, // The force flag tells get_user_pages
+                   //to override the protections on the given pages to provide the requested access
+                   // drivers should always pass 0 here.
+                   struct page **pages, 
+                   struct vm_area_struct **vmas);
+</pre>
+</div>
+
+<p>
+调用示例：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">down_read(¤t-&gt;mm-&gt;mmap_sem);
+result = get_user_pages(current, current-&gt;mm, ...);
+up_read(¤t-&gt;mm-&gt;mmap_sem);
+…
+//avoid pages to be swapped out 
+if (! PageReserved(page))
+  SetPageDirty(page);
+…
+
+// free pages
+//void page_cache_release(struct page *page);
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-33" class="outline-2">
+<h2 id="sec-33">知识点33 大块数据申请及DMA</h2>
+<div class="outline-text-2" id="text-33">
+<p>
+　　在内核中有时需要申请一段大内存，方法之一是可以采取如下方法：
+　　示例： 如何将1M的物理内存作为私人使用(假设物理内存大小为256M)：
+</p>
+<ol class="org-ol">
+<li>在内核启动时，通过mem=255M参数，让内核只能使用255M的空间。
+</li>
+<li>然后通过如下调用来使用这个1M的私人空间：
+<pre class="example">
+dmabuf= ioremap (0xFF00000 /* 255M */, 0x100000 /* 1M */);
+</pre>
+<p>
+不过，这种方法不宜使用在开启了高内存的系统上。
+</p>
+
+<p>
+<b>DMA</b>
+</p>
+</li>
+</ol>
+
+<p>
+　　默认情况下，Linux内核都假定设备都能在32位地址上进行DMA操作，如果不
+是这样，那么需要通过如下调用来告知内核：
+</p>
+<pre class="example">
+int dma_set_mask(struct device *dev, u64mask);
+</pre>
+
+<p>
+　　下面是一个只支持24位地址DMA操作的示例：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">if (dma_set_mask (dev, 0xffffff))
+  card-&gt;use_dma = 1;
+ else {
+   card-&gt;use_dma = 0; /* We'll have to live without DMA */
+   printk (KERN_WARN, "mydev: DMA not supported\n");
+ }
+</pre>
+</div>
+
+<p>
+　　当然，如果设备本身支持32位DMA操作，则没有必要调用dma<sub>set</sub><sub>mask。</sub>
+</p>
+
+<p>
+<b>DMA映射（大块数据分配）</b>
+</p>
+
+<p>
+　　建立DMA映射包含两个步骤：
+</p>
+<ol class="org-ol">
+<li>分配一个DMA缓冲空间。
+</li>
+<li>为该缓冲空间生成一个设备可访问的地址。
+</li>
+</ol>
+
+<p>
+　　DMA映射中需要处理cache一致性的问题。表示总线地址的数据类型：
+<code>dma_addr_t</code> 
+　　根据DMA缓冲区存在时间的长短，有两种类型的DMA映射：
+</p>
+<ol class="org-ol">
+<li>一致性DMA映射(Coherent DMA mappings)。
+这种映射在驱动的生命同期中一直存在。一致缓冲区必须同时对CPU和外设可
+用，所以一致映射必须存在于cache-cohrent内存中。这种映射使用和建立的
+代价比较高。
+</li>
+<li>流式DMA映射(Streaming DMA mappings)
+流式映射是一种短期的映射，它支持一个或多个DMA操作。根据体系结构的要
+求，可能会涉及到创建bounce buffer, IOMMU寄存器编程，冲刷处理Caches
+等。当然，这种方式下，对缓冲区的访问要受制于一些苛刻的规则，特别是
+对缓冲区的所有权，当映射建立后，缓冲区的所有权属于设备，处理器不能
+访问或修改它。一般应尽可能地使用这种DMA映射方式，理由如下：
+<ol class="org-ol">
+<li>一致性DMA映射会独占映射中使用到的寄存器，导致其他模块无法访问。
+</li>
+<li>流式DMA映射有更多的优化方式。
+</li>
+</ol>
+<p>
+通过如下函数可以建立一致映射：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">/**
+ * dma_alloc_coherent - allocate consistent memory for DMA
+ * @dev: valid struct device pointer, or NULL for ISA and EISA-like devices
+ * @size: required memory size
+ * @handle: bus-specific DMA address
+ *
+ * Allocate some uncached, unbuffered memory for a device for
+ * performing DMA.  This function allocates pages, and will
+ * return the CPU-viewed address, and sets @handle to be the
+ * device-viewed address.
+ */
+void *dma_alloc_coherent(struct device *dev, size_t size, dma_addr_t *dma_handle, int flag);
+</pre>
+</div>
+
+<p>
+　　上述函数分配的BUFFER大小至少是一个页的大小, 属于大内存分配的情
+形。
+</p>
+
+<p>
+通过如下函数可以将DMA Buffer映射到请求的VMA中：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">/**
+ * dma_mmap_coherent - map a coherent DMA allocation into user space
+ * @dev: valid struct device pointer, or NULL for ISA and EISA-like devices
+ * @vma: vm_area_struct describing requested user mapping
+ * @cpu_addr: kernel CPU-view address returned from dma_alloc_coherent
+ * @handle: device-view address returned from dma_alloc_coherent
+ * @size: size of memory originally requested in dma_alloc_coherent知识点14内核调度器
+
+ *
+ * Map a coherent DMA buffer previously allocated by dma_alloc_coherent
+ * into user space.  The coherent DMA buffer must not be freed by the
+ * driver until the user space mapping has been released.
+ */
+int dma_mmap_coherent(struct device *dev, struct vm_area_struct *vma,
+                void *cpu_addr, dma_addr_t handle, size_t size);
+</pre>
+</div>
+
+<p>
+<b>DMA池</b>
+</p>
+</li>
+</ol>
+
+<p>
+DMA池是针对小的，一致性DMA映射的分配机制。相关函数：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct dma_pool *dma_pool_create(const char *name, struct device *dev,
+size_t size, size_t align,
+size_t allocation);
+
+void dma_pool_destroy(struct dma_pool *pool);
+
+void *dma_pool_alloc(struct dma_pool *pool, int mem_flags,
+dma_addr_t *handle);
+
+void dma_pool_free(struct dma_pool *pool, void *vaddr, dma_addr_t addr);
+</pre>
+</div>
+
+<p>
+ 　　对于流式DMA映射，接口要复杂些。建立映射时，需要指定数据移动的方
+向，根据不同的目的，有如下一些选项：
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left"><code>DMA_TO_DEVICE</code></th>
+<th scope="col" class="left">data is being sent to the device (in response, perhaps, to a writesystem call), <code>DMA_TO_DEVICE</code> should be used;</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left"><code>DMA_FROM_DEVICE</code></td>
+<td class="left">data going to the CPU, is marked with <code>DMA_FROM_DEVICE</code>.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>DMA_BIDIRECTIONAL</code></td>
+<td class="left">If data can move in either direction, use <code>DMA_BIDIRECTIONAL</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left"><code>DMA_NONE</code></td>
+<td class="left">only for debug purpose, should never use</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+传输单个缓冲区：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">dma_addr_t dma_map_single(struct device *dev, void *buffer, size_t size,
+                          enum dma_data_direction direction);
+void dma_unmap_single(struct device *dev, dma_addr_t dma_addr, size_t size,
+                      enum dma_data_direction direction);
+</pre>
+</div>
+
+<p>
+一旦缓冲区被映射后，它只属于设备，驱动不能访问。如果一定要在映射期间访
+问缓冲区的内容，必须调用如下相关的接口：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">void dma_sync_single_for_cpu(struct device *dev, dma_handle_t bus_addr,
+size_t size, enum dma_data_direction direction);
+…
+void dma_sync_single_for_device(struct device *dev, dma_handle_t bus_addr,
+size_t size, enum dma_data_direction direction);
+</pre>
+</div>
+
+<p>
+<b>单页流式映射</b>
+</p>
+
+<p>
+有时，要映射包含struct page指针的缓冲区，可使用如下接口：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">dma_addr_t dma_map_page(struct device *dev, struct page *page,
+                        unsigned long offset, size_t size,
+                        enum dma_data_direction direction);
+void dma_unmap_page(struct device *dev, dma_addr_t dma_address,
+                    size_t size, enum dma_data_direction direction);
+</pre>
+</div>
+
+<p>
+代码示例：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">static u32 _kernel_page_allocate(void)
+{
+        struct page *new_page;
+        u32 linux_phys_addr;
+
+        new_page = alloc_page(GFP_HIGHUSER | __GFP_ZERO | __GFP_REPEAT | __GFP_NOWARN | __GFP_COLD);
+
+        if ( NULL == new_page )
+        {
+                return 0;
+        }
+
+        /* Ensure page is flushed from CPU caches. */
+        linux_phys_addr = dma_map_page(NULL, new_page, 0, PAGE_SIZE, DMA_BIDIRECTIONAL);
+
+        return linux_phys_addr;
+}
+
+static void _kernel_page_release(u32 physical_address)
+{
+        struct page *unmap_page;
+
+        #if 1
+        dma_unmap_page(NULL, physical_address, PAGE_SIZE, DMA_BIDIRECTIONAL);
+        #endif
+
+        unmap_page = pfn_to_page( physical_address &gt;&gt; PAGE_SHIFT );
+        MALI_DEBUG_ASSERT_POINTER( unmap_page );
+        __free_page( unmap_page );
+}
+</pre>
+</div>
+
+<p>
+<b>scatter/gather I/O</b>
+</p>
+
+<p>
+它是一种特殊的流式DMA映射，将多个BUFFER，通过一个DMA操作，从或往设备传
+输数据。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-34" class="outline-2">
+<h2 id="sec-34">知识点34 I/O端口和I/O内存</h2>
+<div class="outline-text-2" id="text-34">
+<p>
+<b>I/O端口和I/O内存</b>
+</p>
+
+<p>
+　　每个外设都是通过读写它的寄存器来控制的。通常，通过内存地址空间或
+I/O地址空间进行访问。在硬件层面上，I/O区域与内存区域（DRAM）在概念上没
+有区别，它们都是通过在地址总线和控制总线上触发电信号来进行读写操作。根
+据处理器的不同，有些处理如X86拥有独立的外设地址空间，以区别普通的内存
+地址空间。针对I/O端口，会提供特殊的CPU访问指令。而有些处理器则使用 统
+一的地址空间。由于大部分I/O总线是基于个人电脑设计的，即使那些单独I/O端
+口地址空间的处理器，在访问外部设备时，必须通过一个外部芯片或在 CPU核上
+增加一个额外的电路来虚构读写I/O端口。
+</p>
+
+<p>
+　　同理，基于相同的原因，Linux针对所支持的平台，都实现了I/O端口的概念。
+另外，对于拥有独立I/O端口地址空间的外设，并非所有的设备将它 们的寄存器
+映射到I/O端口。与ISA设备不一样，对于PCI设备，大多数PCI设备将它们的寄存
+器映射到一段内存区域。通常这种映射方式更好，因为访问 内存效率更高，且
+不需要特殊的CPU指令。
+</p>
+
+<p>
+　　这样一来，访问外设的寄存器与访问内存变得一样，形式上都是对某段内存
+地址的访问。不同之处在于，普通的内存访问是没有副作用，所有编译器可以对
+一些访问 操作做优化，如Cache值，改变访问顺序等优化操作，而I/O映射的内
+存访问是有副作用的，编译器的一些优化操作会导致一些意想不到的副作用。因
+此，在 Linux中，提供了如下函数来告诉编译器禁止对某段I/O内存的访问操作
+进行优化：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;linux/kernel.h&gt;
+void barrier(void)
+/**
+   This “software” memory barrier requests the compiler to consider all memory
+   volatile across this instruction.
+,*/
+#include &lt;asm/system.h&gt;
+  void rmb(void);
+void read_barrier_depends(void);
+void wmb(void);
+void mb(void);
+/**
+   Hardware memory barriers. They request the CPU (and the compiler) to checkpoint
+   all memory reads, writes, or both across this instruction.
+,*/
+</pre>
+</div>
+
+<p>
+使用示例：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">writel(dev-&gt;registers.addr, io_destination_address);
+writel(dev-&gt;registers.size, io_size);
+writel(dev-&gt;registers.operation, DEV_READ);
+wmb( );
+writel(dev-&gt;registers.control, DEV_GO);
+</pre>
+</div>
+
+<p>
+在上述例子中, <code>writel(dev-&gt;registers.control, DEV_GO)</code> 必须发生在前面
+三个指令之后。wmb()函数保证了它们执行的先后顺序。
+</p>
+
+<p>
+<b>I/O端口</b>
+</p>
+
+<p>
+I/O端口是驱动与设备进行通信的手段，它拥有独立的地址空间。
+</p>
+
+<p>
+下面考察下相关的操作函数：
+在访问I/O端口前，首先要确保我们对该端口拥有唯一访问权，因此，在访问端
+口前，我们通过如下函数向系统提供访问端口的要求：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;linux/ioport.h&gt;
+struct resource *request_region(unsigned long first, unsigned long n,
+                                const char *name);
+</pre>
+</div>
+
+<p>
+上述函数告诉内存我们要使用n个端口，端口号从first开始。name是设备的名称。
+如果返回NULL，则表明当前不同使用所请求的端口。可以通过查看
+/proc/ioports的内容了解当前哪些端口被占用了。当然，对应端口请求函数，
+访问端口结束后，可以通过如下函数释放端口。
+</p>
+
+<pre class="example">
+void release_region(unsigned long start, unsigned long n);
+</pre>
+
+<p>
+　　一旦通过 <code>request_region</code> 取得到端口的访问权后，就可以通过如下一系列函
+数对端口进行操作了：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">unsigned inb(unsigned port);
+void outb(unsigned char byte, unsigned port);
+/**
+   Read or write byte ports (eight bits wide). The port argument is defined as
+   unsigned long for some platforms and unsigned short for others. The return
+   type of inb is also different across architectures.
+*/
+unsigned inw(unsigned port);
+void outw(unsigned short word, unsigned port);
+/**
+   These functions access 16-bit ports (one word wide); they are not available when
+   compiling for the S390 platform, which supports only byte I/O.
+*/
+unsigned inl(unsigned port);
+void outl(unsigned longword, unsigned port);
+/**
+   These functions access 32-bit ports. longword is declared as either unsigned long
+   or unsigned int, according to the platform. Like word I/O, “long” I/O is not
+   available on S390.
+*/
+</pre>
+</div>
+
+<p>
+<b>I/O内存</b>
+</p>
+
+<p>
+尽量在X86使用I/O端口很多，但是，与设备进行通信的主要机制是通过内存映射
+的寄存器和设备内存，两者都称为I/O内存，对软件来说，是一样的。
+</p>
+
+<p>
+I/O内存就是一段类似RAM的内存，处理器通通过总线能够访问到它们。I/O内存
+可以存放数据，也可以映射寄存器，使其行为上与I/O端口类似（读写有副作用，
+需要使用内存屏障）。
+</p>
+
+<p>
+　　I/O内存的访问方式依赖于具体的硬件系统体系，I/O内存可以通过页表访问，
+也可以通过其他方式访问。如果通过页表访问，则首先需要为I/O内存映射一块
+驱动可见的物理地址，通常，在执行I/O操作前，需要调用ioremap函数。如果不
+需要通过页表访问，那么I/O内存就类似I/O端口，可以通过适当 的包装函数直
+接进行读写操作。
+</p>
+
+<p>
+　　下面考察下I/O内存的相关操作：
+跟I/O端口一样，在使用I/O内存时，必须首先确保I/O内存可用，通过如下函数
+来请求I/O内存的访问：
+</p>
+<pre class="example">
+struct resource *request_mem_region(unsigned long start, unsigned long len, char *name);
+</pre>
+
+<p>
+　　该函数将分配一个包含len字节的内存区域，从start地址开始。当该段内存
+区域不再需要时，通过如下函数释放：
+</p>
+<pre class="example">
+void release_mem_region(unsigned long start, unsigned long len);
+</pre>
+
+<p>
+　　之后，为了使设备驱动能够访问I/O内存地址，必须将申请到的I/O内存地址
+通过ioremap映射。ioremap的函数原型如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;asm/io.h&gt;
+void *ioremap(unsigned long phys_addr, unsigned long size);
+void *ioremap_nocache(unsigned long phys_addr, unsigned long size);
+void iounmap(void * addr);
+</pre>
+</div>
+
+<p>
+　　通过ioremap映射后得到的地址不能通过指针的反引用直接使用，而是必须
+使用如下一些接口函数：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">unsigned int ioread8(void *addr);
+unsigned int ioread16(void *addr);
+unsigned int ioread32(void *addr);
+
+void iowrite8(u8 value, void *addr);
+void iowrite16(u16 value, void *addr);
+void iowrite32(u32 value, void *addr);
+</pre>
+</div>
+
+<p>
+<b>将I/O端口按照I/O内存来访问</b>
+</p>
+
+<p>
+　　些硬件的一些版本使用I/O端口的方式访问寄存器，而一些版本则使用I/O内
+存的方式访问，为了统一，可以将I/O端口映射为I/O内存的方式进行访问，为了
+实现这个目的，可以使用如下函数：
+</p>
+<pre class="example">
+void *ioport_map(unsigned long port, unsigned int count);
+</pre>
+
+<p>
+该函数将从port地址开始的cont个I/O端口重新映射，使它们看上去像I/O内存。
+之后，就可以使用ioread8及类似的函数访问端口了。需要注意的是，再使用该
+函数之前，仍然需要首先调用request<sub>region函数。解除映射使用如下函数：</sub>
+</p>
+<pre class="example">
+void ioport_unmap(void *addr);
+</pre>
+</div>
+</div>
+
+<div id="outline-container-sec-35" class="outline-2">
+<h2 id="sec-35">知识点35 framebuffer API</h2>
+<div class="outline-text-2" id="text-35">
+<p>
+<b>Framebuffer概述</b>
+</p>
+
+<p>
+　　帧缓冲设备（Framebuffer）为图形硬件提供了一种抽象，它代表了一些视
+频硬件的帧缓冲，应用程序可以通过一个定义好的标准接口去访问图形硬件，而
+不需要了解底层的硬件细节。设备可以通过特殊的设备节点访问，通过位于/dev
+目录下，如/dev/fb*，主设备号为29。
+</p>
+
+<p>
+　　帧缓冲设备也可以认为是一种内存设备，可以读取它们的内容。可以同时存
+在多个帧缓冲设备。默认情况下，系统通过/dev/fb0设备文件访问图形硬件，也
+可以通过设置环境变量FRAMEBUFFER。
+</p>
+
+<p>
+<b>Kernel API</b> 
+</p>
+
+<ol class="org-ol">
+<li><code>framebuffer_alloc</code>
+<div class="org-src-container">
+
+<pre class="src src-c">/**
+ * framebuffer_alloc - creates a new frame buffer info structure
+ *
+ * @size: size of driver private data, can be zero
+ * @dev: pointer to the device for this fb, this can be NULL
+ *
+ * Creates a new frame buffer info structure. Also reserves @size bytes
+ * for driver private data (info-&gt;par). info-&gt;par (if any) will be
+ * aligned to sizeof(long).
+ *
+ * Returns the new structure, or NULL if an error occurred.
+ *
+ */
+struct fb_info *framebuffer_alloc(size_t size, struct device *dev)
+</pre>
+</div>
+</li>
+<li><code>framebuffer_release</code>
+<div class="org-src-container">
+
+<pre class="src src-c">/**
+ * framebuffer_release - marks the structure available for freeing
+ *
+ * @info: frame buffer info structure
+ *
+ * Drop the reference count of the device embedded in the
+ * framebuffer info structure.
+ *
+ */
+void framebuffer_release(struct fb_info *info)
+</pre>
+</div>
+</li>
+<li><code>register_framebuffer</code>
+<div class="org-src-container">
+
+<pre class="src src-c">/**
+ *      register_framebuffer - registers a frame buffer device
+ *      @fb_info: frame buffer info structure
+ *
+ *      Registers a frame buffer device @fb_info.
+ *
+ *      Returns negative errno on error, or zero for success.
+ *
+ */
+int
+register_framebuffer(struct fb_info *fb_info)
+</pre>
+</div>
+</li>
+<li><code>unregister_framebuffer</code>
+<div class="org-src-container">
+
+<pre class="src src-c">/**
+ *      unregister_framebuffer - releases a frame buffer device
+ *      @fb_info: frame buffer info structure
+ *
+ *      Unregisters a frame buffer device @fb_info.
+ *
+ *      Returns negative errno on error, or zero for success.
+ *
+ *      This function will also notify the framebuffer console
+ *      to release the driver.
+ *
+ *      This is meant to be called within a driver's module_exit()
+ *      function. If this is called outside module_exit(), ensure
+ *      that the driver implements fb_open() and fb_release() to
+ *      check that no processes are using the device.
+ */
+int
+unregister_framebuffer(struct fb_info *fb_info)
+</pre>
+</div>
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-36" class="outline-2">
+<h2 id="sec-36">知识点36 PCI设备驱动接口</h2>
+<div class="outline-text-2" id="text-36">
+<p>
+<b>概述</b>
+</p>
+
+<p>
+与ISA总线相比，PCI总线传输速度更快，且与具体CPU架构无关，可应用在X86以
+及许多其他类型架构的平台上。通过PCI总线可以连接许多外设，构成一种树型
+结构，如下图所示：
+<img src="./images/2016/2016071603.png" alt="2016071603.png" />
+</p>
+
+<p>
+每个PCI外设是通过总线号，设备号和功能号标识的。PCI规范上允许一个系统可
+以拥有256条PCI总线，而对于许多大型系统，256条总线不够用，所以Linux现在
+也支持PCI域，所以一个PCI设备的地址由域，总线，设备和功能号构成：（域
+[16bit]，总线[8bit]，设备[5bit]，功能号[3bit]）每个PCI域可以承载至多
+256条总线。每个总线可以连接32个设备，每个设备可以是一个多达8个功能的多
+功能母板。因此，每个功能在硬件层次上由一个16位的地址或键标识。对于设备
+驱动来讲，我们只需要了解数据结构 <code>pci_dev</code> 。
+</p>
+
+<p>
+　　每个PCI设备功能的配置空间由256字节，且这些配置寄存器的布局是标准化
+的。
+<img src="./images/2016/2016071604.png" alt="2016071604.png" />
+</p>
+
+<p>
+数据结构 <code>struct pci_device_id</code> 用于定义一系列驱动支持的不同类型的PCI
+设备：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct pci_device_id {
+        __u32 vendor, device;           /* Vendor and device ID or PCI_ANY_ID*/
+        __u32 subvendor, subdevice;     /* Subsystem ID's or PCI_ANY_ID */
+        __u32 class, class_mask;        /* (class,subclass,prog-if) triplet */
+        kernel_ulong_t driver_data;     /* Data private to the driver */
+};
+</pre>
+</div>
+
+<p>
+有两个相关的宏可以用于初始化这个数据结构的实例。
+</p>
+
+<pre class="example">
+PCI_DEVICE(vendor, device): 
+</pre>
+<p>
+　　它会创建一个 <code>struct pic_device_id</code> 实例，只匹配那些特定的vendor和device
+的ID。该宏设置subvendor和subdevice的域值为 <code>PCI_ANY_ID</code> 。
+</p>
+
+<pre class="example">
+PCI_DEVICE_CLASS(device_class, device_class_mask)：
+</pre>
+<p>
+　　创建一个匹配特定PCI类型的 <code>struct pci_device_id</code> 的实例。
+</p>
+
+<p>
+　　示例如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">static struct pci_device_id i810_ids[ ] = {
+{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810_IG1)
+{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810_IG3)
+{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810E_IG)
+{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_CGC)
+{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82845G_IG)
+{ 0, },
+};
+</pre>
+</div>
+
+<p>
+　 <code>pci_device_id</code> 数据结构需要被导出到用户空间，以允许热插拔和模块加载系
+统知道哪个模块与哪个硬件设备是匹配的，如：
+</p>
+<pre class="example">
+MODULE_DEVICE_TABLE(pci, i810_ids);
+</pre>
+
+<p>
+这条语句创建了一个本地局部变量 <code>__mod_pci_device_table</code> ，它指向一个
+<code>struct pci_device_id</code> 类型的链表，在之后的内核构建过程中，depmod程序在所有的模块
+中搜索符号 <code>__mod_pci_device_table</code> 。如果该符号找到，它将从模块中把数据导出并
+将其增加到文件 <code>/lib/modules/KERNEL_VERSION/modules.pcimap</code> 中，当depmod程
+序完成后，所有模块中支持的PCI设备都会列出，包括它的模块名称。当内核通
+知热插拔系统有一个新的PCI设备找到，热插拔系统就会使用modules.pcimap文
+件去寻找合适的驱动加载。
+</p>
+
+<p>
+<b>PCI设备驱动API</b>
+</p>
+
+<p>
+　　数据结构 <code>struct pci_driver</code> 定义了一个PCI驱动所需要的接口和相关数据成
+员信息，
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct pci_driver {
+        struct list_head node;
+        const char *name;
+        const struct pci_device_id *id_table;   /* must be non-NULL for probe to be called */
+        int  (*probe)  (struct pci_dev *dev, const struct pci_device_id *id);   /* New device inserted */
+        void (*remove) (struct pci_dev *dev);   /* Device removed (NULL if not a hot-plug capable driver) */
+        int  (*suspend) (struct pci_dev *dev, pm_message_t state);      /* Device suspended */
+        int  (*suspend_late) (struct pci_dev *dev, pm_message_t state);
+        int  (*resume_early) (struct pci_dev *dev);
+        int  (*resume) (struct pci_dev *dev);                   /* Device woken up */
+        void (*shutdown) (struct pci_dev *dev);
+        ...
+        struct device_driver     driver;
+        ...
+};
+</pre>
+</div>
+
+<p>
+　　注册一个PCI设备驱动使用如下接口：
+</p>
+
+<pre class="example">
+int pci_register_driver(struct pci_driver *drv)
+</pre>
+
+<p>
+　　注销一个PCI设备驱动使用如下接口：
+</p>
+
+<pre class="example">
+int pci_register_driver(struct pci_driver *drv)
+</pre>
+
+<p>
+　　使能一个PCI设备
+</p>
+
+<p>
+在PCI驱动的probe函数中，访问任何设备资源（如I/O区域或中断）之前，必须
+调用如下接口：
+</p>
+
+<pre class="example">
+int pci_enable_device(struct pci_dev *dev);
+</pre>
+
+<p>
+　　访问配置空间
+</p>
+
+<p>
+　　内核定义了如下一些接口来访问一个PCI设备的配置空间：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">int pci_read_config_byte(struct pci_dev *dev, int where, u8 *val);
+int pci_read_config_word(struct pci_dev *dev, int where, u16 *val);
+int pci_read_config_dword(struct pci_dev *dev, int where, u32 *val);
+
+int pci_write_config_byte(struct pci_dev *dev, int where, u8 val);
+int pci_write_config_word(struct pci_dev *dev, int where, u16 val);
+int pci_write_config_dword(struct pci_dev *dev, int where, u32 val);
+</pre>
+</div>
+
+<p>
+　　上述几个接口实际是调用的是如下几个接口，在有些情况下，也可以直接使
+用如下几个接口：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">int pci_bus_read_config_byte (struct pci_bus *bus, unsigned int devfn, int
+                              where, u8 *val);
+int pci_bus_read_config_word (struct pci_bus *bus, unsigned int devfn, int
+                              where, u16 *val);
+int pci_bus_read_config_dword (struct pci_bus *bus, unsigned int devfn, int
+                               where, u32 *val);
+
+int pci_bus_write_config_byte (struct pci_bus *bus, unsigned int devfn, int
+                               where, u8 val);
+int pci_bus_write_config_word (struct pci_bus *bus, unsigned int devfn, int
+                               where, u16 val);
+int pci_bus_write_config_dword (struct pci_bus *bus, unsigned int devfn, int
+                                where, u32 val);
+</pre>
+</div>
+
+<p>
+<b>访问I/O和内存空间</b>
+</p>
+
+<p>
+一个PCI设备实现了多达6个I/O地址区域，每个区域由内存地址或I/O地址组成。
+大部分设备将它们的I/O寄存器实现（映射）在多个内存区域。然而，与普通内
+存不一样，I/O寄存器的值不能被CPU通过cache机制缓存，因为每次访问都会有
+副作用，通常其映射的内存区域是“nonprefetchable”。有些PCI设备将I/O寄存
+器映射成一个内存区域，并且允许Cache。
+</p>
+
+<p>
+通过上述访问配置信息的接口，我们可以访问每个区域。相应的寄存器名称为：
+<code>PCI_BASE_ADDRESS_0</code>, &#x2026;, <code>PCI_BASE_ADDRESS_5</code> 。由于内核中，PCI设备的I/O区域已
+经集成到了通用的资源管理，所以可以直接使用如下的一些接口：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">unsigned long pci_resource_start(struct pci_dev *dev, int bar);
+/* The function returns the first address (memory address or I/O port number)
+   associated with one of the six PCI I/O regions. The region is selected by the inte-
+   ger bar (the base address register), ranging from 0–5 (inclusive). */
+unsigned long pci_resource_end(struct pci_dev *dev, int bar);
+/*
+  The function returns the last address that is part of the I/O region number bar .
+  Note that this is the last usable address, not the first address after the region. */
+unsigned long pci_resource_flags(struct pci_dev *dev, int bar);
+//This function returns the flags associated with this resource.
+</pre>
+</div>
+
+<p>
+所有资源类型比较重要的有如下：
+</p>
+<ul class="org-ul">
+<li><code>IORESOURCE_IO</code>
+</li>
+<li><code>IORESOURCE_MEM</code>
+</li>
+</ul>
+
+<p>
+PCI中断
+</p>
+
+<p>
+由于系统在初始化的时候已经为设备分配了一个唯一的中断号，所以该中断号就
+存储在配置寄存器 <code>PCI_INTERRUPT_LINE</code> 中，只有一个字节宽。
+</p>
+
+<p>
+读取中断号可用如下方式：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">result = pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &amp;myirq);
+if (result) {
+  /* deal with error */
+ }
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-37" class="outline-2">
+<h2 id="sec-37">知识点37 platform设备驱动</h2>
+<div class="outline-text-2" id="text-37">
+<p>
+　　在Linux 2.6的设备驱动模型中，主要关心总线、设备和驱动这3个实体，总
+线将设备和驱动绑定。在系统每注册一个设备的时候，会寻找与之匹配的驱动；
+相反的，在系统每注册一个驱动的时候，会寻找与之匹配的设备，而匹配由总线
+完成。
+</p>
+
+<p>
+　　一个现实的Linux设备和驱动通常都需要挂接在一种总线上，对于本身依附
+于PCI、USB、I2 C、SPI等的设备而言，这自然不是问题，但是在嵌入式系统里
+面，SoC系统中集成的独立的外设控制器、挂接在SoC内存空间的外设等却不依附
+于此类总线。基于这一背景，Linux发明了一种虚拟的总线，称为platform总线，
+相应的设备称为 <code>platform_device</code> ，而驱动成为 <code>platform_driver</code> 。
+</p>
+
+<p>
+　　注意，所谓的 <code>platform_device</code> 并不是与字符设备、块设备和网络设备并列的
+概念，而是Linux系统提供的一种附加手段，例如，在S3C6410处理器中，把内部
+集成的I2 C、RTC、SPI、LCD、看门狗等控制器都归纳为 <code>platform_device</code> ，而它
+们本身就是字符设备。
+</p>
+
+<p>
+=platform<sub>device</sub>=结构体的定义如代码所示：
+<img src="./images/2016/2016071605.png" alt="2016071605.png" />
+</p>
+
+<p>
+　　=platform<sub>driver</sub>= 这个结构体中包含probe()、remove()、shutdown()、
+suspend()、resume()函数，通常也需要由驱动实现， 如下代码所示：
+<img src="./images/2016/2016071606.png" alt="2016071606.png" />
+</p>
+
+<p>
+　　系统中为platform总线定义了一个 <code>bus_type</code> 的实例 <code>platform_bus_type</code>
+，其定义如代码所示：
+<img src="./images/2016/2016071607.png" alt="2016071607.png" />
+</p>
+
+<p>
+这里要重点关注其match()成员函数，正是此成员表明了 <code>platform_device</code> 和
+<code>platform_driver</code> 之间如何匹配，如代码所示：
+</p>
+
+
+<div class="figure">
+<p><img src="./images/2016/2016071608.png" alt="2016071608.png" />
+</p>
+</div>
+
+<p>
+　　匹配 <code>platform_device</code> 和 <code>platform_driver</code> 会采取多种方式，其中名字匹配是一
+种匹配方式。
+</p>
+
+<p>
+　　对 <code>platform_device</code> 的定义通常在BSP的板文件中实现，在板文件中，将
+<code>platform_device</code> 归纳为一个数组，最终通过 <code>platform_add_devices()</code> 函数统一注
+册。 <code>platform_add_devices()</code> 函数可以将平台设备添加到系统中，这个函数的原型
+为：
+</p>
+<pre class="example">
+int platform_add_devices(struct platform_device **devs, int num);
+</pre>
+
+<p>
+　　该函数的第一个参数为平台设备数组的指针，第二个参数为平台设备的数量，
+它内部调用了 <code>platform_device_register()</code> 函数用于注册单个的平台设备。
+</p>
+
+<p>
+　　 <code>platform_device</code> 的资源由resource结构体描述，其定义如代码所示：
+<img src="./images/2016/2016071609.png" alt="2016071609.png" />
+</p>
+
+<p>
+我们通常关心start、end和flags这3个字段，分别标明资源的开始值、结束值和
+类型，flags可以为 <code>IORESOURCE_IO</code> 、 <code>IORESOURCE_MEM</code> 、
+<code>IORESOURCE_IRQ</code> , <code>IORESOURCE_DMA</code> 等。start、end的含义会随着flags而变更，如当 flags为
+<code>IORESOURCE_MEM</code> 时，start、end分别表示该 <code>platform_device</code> 占据的内存的开始地
+址和结束地址；当 flags为 <code>IORESOURCE_IRQ</code> 时，start、end分别表示该
+<code>platform_device</code> 使用的中断号的开始值和结束值，如果只使用了 1个中断号，开
+始和结束值相同。对于同种类型的资源而言，可以有多份，譬如说某设备占据了
+2个内存区域，则可以定义2个 <code>IORESOURCE_MEM</code> 资源。
+</p>
+
+<p>
+　　对resource的定义也通常在BSP的板文件中进行，而在具体的设备驱动中透
+过 <code>platform_get_resource()</code> 这样的API来获取，此API的原型为：
+</p>
+<pre class="example">
+struct resource *platform_get_resource(struct platform_device *, unsigned int, unsigned int);
+</pre>
+
+<p>
+设备除了可以在BSP中定义资源以外，还可以附加一些数据信息，因为对设备的
+硬件描述除了中断、内存、DMA通道以外，可能还会有一些配置信息，而这些配
+置信息也依赖于板，不适宜直接放置在设备驱动本身，因此，platform也提供了
+<code>platform_data</code> 的支持。 <code>platform_data</code> 的形式是自定义的。
+<img src="./images/2016/2016071610.png" alt="2016071610.png" />
+</p>
+
+<p>
+　　可以看到 <code>platform_data</code> 是一个void型的指针，可以指向任何自定义的数据结
+构，我们可以将MAC地址、总线宽度、有无EEPROM信息放入 <code>platform_data</code> 。通过
+<code>platform_device_add_data</code> 可以向给 <code>platform_data</code> 赋值，其代码如下：
+<img src="./images/2016/2016071611.png" alt="2016071611.png" />
+</p>
+
+<p>
+由以上分析可知，设备驱动中引入platform的概念至少有如下2大好处：
+</p>
+<ol class="org-ol">
+<li>使得设备被挂接在一个总线上，因此，符合Linux 2.6的设备模型。其结果是，
+配套的sysfs结点、设备电源管理都成为可能。
+</li>
+<li>隔离BSP和驱动。在BSP中定义platform设备和设备使用的资源、设备的具体
+配置信息，而在驱动中，只需要通过通用API去获取资源和数据，做到了板相
+关代码和驱动代码的分离，使得驱动具有更好的可扩展性和跨平台性。
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-38" class="outline-2">
+<h2 id="sec-38">知识点37 debugfs接口</h2>
+<div class="outline-text-2" id="text-38">
+<p>
+在内核开发中，为了更有效地调试驱动的功能，监测一些状态信息，需要利用内
+存文件系统导出一些信息，供用户空间访问。其中debugfs就是一种这样的内存
+文件系统，它常驻内存。要启用它，必须配置内核编译选项： <code>CONFIG_DEBUG_FS</code> 。
+它的挂载点为：/sys/kernel/debug。
+</p>
+
+<p>
+　　常用API介绍如下：
+</p>
+<ol class="org-ol">
+<li>创建一个文件
+<div class="org-src-container">
+
+<pre class="src src-c">struct dentry *debugfs_create_file(const char *name, umode_t mode,
+                                   struct dentry *parent, void *data,
+                                   const struct file_operations *fops);
+</pre>
+</div>
+</li>
+<li>创建一个目录
+<pre class="example">
+struct dentry *debugfs_create_dir(const char *name, struct dentry *parent);
+</pre>
+</li>
+<li>创建一个链接文件
+<div class="org-src-container">
+
+<pre class="src src-c">struct dentry *debugfs_create_symlink(const char *name, struct dentry *parent,
+                                      const char *dest);
+</pre>
+</div>
+</li>
+</ol>
+
+
+<p>
+使用示例：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">//create /sys/debug/binder directory
+binder_debugfs_dir_entry_root = debugfs_create_dir("binder", NULL);
+if (binder_debugfs_dir_entry_root)
+        binder_debugfs_dir_entry_proc = debugfs_create_dir("proc",
+                                         binder_debugfs_dir_entry_root);
+ret = misc_register(&amp;binder_miscdev);
+if (binder_debugfs_dir_entry_root) {
+        debugfs_create_file("state",
+                            S_IRUGO,
+                            binder_debugfs_dir_entry_root,
+                            NULL,
+                            &amp;binder_state_fops);
+        ...
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-39" class="outline-2">
+<h2 id="sec-39">知识点38 <code>seq_file</code> 接口的使用</h2>
+<div class="outline-text-2" id="text-39">
+<p>
+　　顺序文件是内核根据记录序列生成的一种文件。顺序文件一般是按顺序从头
+到尾读取文件内容，尽管支持seek操作，但是效率低下。
+</p>
+
+<p>
+　　顺序文件在内核中由 <code>struct seq_file</code> 结构体表示，其中主要的一个成员就是
+<code>struct seq_operations</code> ，它定义了如下接口：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct seq_operations {
+        void * (*start) (struct seq_file *m, loff_t *pos);
+        void (*stop) (struct seq_file *m, void *v);
+        void * (*next) (struct seq_file *m, void *v, loff_t *pos);
+        int (*show) (struct seq_file *m, void *v);
+};
+</pre>
+</div>
+
+<p>
+　　每解发一次 <code>seq_read</code> ，都会执行如下几步：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">static int traverse(struct seq_file *m, loff_t offset)
+{
+        ...
+        p = m-&gt;op-&gt;start(m, &amp;index);
+        while (p) {
+        ...
+                error = m-&gt;op-&gt;show(m, p);
+        ...
+                p = m-&gt;op-&gt;next(m, p, &amp;index);
+        }
+        m-&gt;op-&gt;stop(m, p);
+    ...
+}
+</pre>
+</div>
+
+<p>
+迭代完成后，将一次性把buffer中的内容复制到用户空间。可以通过自定义
+<code>struct seq_operation</code> 中的几个接口函数来定义访问顺序文件的行为。
+</p>
+
+<p>
+通常start函数只是检查当前文件读的位置是否超过界限。next函数主要是计算
+下一次迭代时读取的位置，如果达到界限，才返回们空。stop函数通常不需要执
+行什么操作，show函数则是将内容通过 <code>seq_printf/seq_putc/seq_puts</code> 等系列函数
+输出。具体示例如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">static void  *procfs_test2_seq_start(struct seq_file *f, loff_t *pos)
+{
+        return (*pos &lt; MAX_COUNT) ? pos : NULL;
+}
+
+static void  *procfs_test2_seq_next(struct seq_file *f, void *v, loff_t *pos)
+{
+        printk("current pos: %d\n", (int)(*pos));
+        (*pos)++;
+        if (*pos &gt;= MAX_COUNT)
+                return NULL;
+        return pos;
+}
+
+static void  procfs_test2_seq_stop(struct seq_file *f, void *v)
+{
+        /* Nothing to do */
+}
+
+static int  procfs_test2_show(struct seq_file *pi, void *v)
+{
+        unsigned int i = *(loff_t *) v;
+        seq_putc(pi, strings[i]);
+        return 0;
+}
+</pre>
+</div>
+
+<p>
+　　有时，我们只能简单地一次性输出一些信息出来，可以直接使用 <code>single_open</code>
+函数，我们只需要提供对应的show函数即可。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-40" class="outline-2">
+<h2 id="sec-40">知识点39 libfs内核接口</h2>
+<div class="outline-text-2" id="text-40">
+<p>
+　　Libfs是内核中的一个库，它提供了几个标准通用的接口，可用于创建用于
+特殊目的的小型文件系统。这些接口非常适用于内存文件。代码位于fs/libfs.c。
+这些接口名称通过以simple开头。
+</p>
+
+<p>
+　　debugfs文件系统就是基于这些标准接口实现的。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-41" class="outline-2">
+<h2 id="sec-41">知识点40 内存映射</h2>
+<div class="outline-text-2" id="text-41">
+<p>
+　　驱动通常实现mmap()接口，使得用户空间可以直接访问在内核空间中分配或
+保留的内存。例如，PCI设备通过允许用户空间直接访问用于DMA传输的内核空间
+分配的内存。
+</p>
+
+<p>
+　　地址类型：
+</p>
+<ol class="org-ol">
+<li>用户虚拟地址
+</li>
+<li>物理地址
+</li>
+<li>总线地址：外设总线与主存之间沟通的地址。带有IOMMU，可以允许分散
+在内存不同的地址（物理地址不连续）映射为一个物理地址连续的总线
+地址，设备看到的是连续的物理地址。
+</li>
+<li>内核逻辑地址：通过kmalloc返回的地址，通常与物理地址存在线性关系，
+一一对应。=_<sub>pa</sub>()= , <code>__va()</code> 为相互转换的宏。
+</li>
+<li>内核虚拟地址：通过vmalloc以及kmap函数返回的值都属于内核空间虚拟
+地址，也物理地址不一定存在线性关系。
+</li>
+</ol>
+
+<p>
+　　通常只有位于低内存部分的物理地址才有对应的内核逻辑地址（不超过896M
+的部分），高出此部分的物理内存没有内核逻辑地址（即高内存）。通常内核地
+址空间大小为1G，还有减去内核本身的代码和数据结构。内核地址空间的主要消
+耗者是：物理地址的虚拟映射。所有的物理内存必须映射到内核地址空间，才能
+被内核访问。
+</p>
+
+<p>
+低内存：存在内核空间逻辑地址的内存
+</p>
+
+<p>
+高内存：超出内核地址空间的物理内存，通常没有对应的内核空间逻辑地址。
+</p>
+
+<p>
+struct page与虚拟地址之间的关系：
+</p>
+
+<pre class="example">
+struct page *virt_to_page(void *kaddr); 
+</pre>
+<p>
+将内核空间逻辑地址相关联的struct page指针。不适用于vmalloc（高内存）等
+返回的地址。
+</p>
+
+<pre class="example">
+struct page *pfn_to_page(int pfn)：
+</pre>
+<p>
+根据物理页帧号，返回对应的struct page指针。
+</p>
+
+<pre class="example">
+void *page_address(struct page *page)：
+</pre>
+<p>
+　　返回struct page对应的内核虚拟地址。对于高地址而言，必须是映射过的
+struct page才能对应的内核虚拟地址。
+</p>
+
+<pre class="example">
+void *kmap(struct page *)：
+</pre>
+<p>
+返回系统中任何物理页的虚拟地址，对于低内存物理页，它返回对应的逻辑地址，
+对于高内存物理页，它在内核虚拟地址空间一个专门的划定区域创建一个特别的
+映射。该映射只能由kunmap解除。
+</p>
+
+<p>
+虚拟地址区域（VMA）
+</p>
+
+<p>
+描述了一个进程地址空间中拥有相同属性内存区域。一个进程的内存映射主要由
+下面三部分组成：
+</p>
+<ol class="org-ol">
+<li>程序的可执行代码区域（通常称为代码段）
+</li>
+<li>多个数据区域：包含初始化数据，未初始化区域以及程序栈。
+</li>
+<li>以及每个活跃内存映射的区域。
+</li>
+</ol>
+
+<p>
+当用户空间进程调用mmap时，系统会为该映射创建一个新的VMA。
+</p>
+
+<p>
+　　驱动中实现mmap，只需要为某个地址空间构建合适的页表即可。有两种构建
+页表的方式：
+</p>
+<ol class="org-ol">
+<li>调用 <code>remap_pfn_range</code> ：一次性将一段物理地址通常页表进行映射到用户
+空间地址。
+<pre class="example">
+int remap_pfn_range(struct vm_area_struct *vma, unsigned long virt_addr, unsigned long pfn, unsigned long size, pgprot_t prot);
+</pre>
+
+<p>
+该函数作用于物理地址，但只能访问保留页（ <code>VM_RESERVED</code> ，内存系统将
+不管理这种类型的页，即不会将其交换出磁盘）或超过物理内存的物理地址
+（即高内存），也就是只能将上述两种类型的物理地址映射到用户空间。
+</p>
+</li>
+
+<li>调用nopage：一次只映射一个页到用户空间地址。
+该函数作用于物理页，即struct page结构。
+</li>
+</ol>
+
+<p>
+　　nopage的一个明显的限制是它仅能处理那些拥有对应struct page的物理内
+存。对于主存来说，这不是问题。但是，对于外设，且被映射到一个PCI I/O内
+存区域，这里情况下，驱动就必须使用 <code>remap_pfn_range</code> 函数将内存映射到用户空
+间，而不能使用nopage。另一个不能使用nopage的情形是：当要映射的那段内存
+是通过kmalloc申请的（虽然可以通过 <code>virt_to_page</code> ，但这种写法违反了一些抽象
+原则）。但是，可以映射vmalloc申请的内存到用户空间，先将vmalloc返回的地
+址转化为struct page。 可通过 <code>vmalloc_to_page</code> 函数进行转换。对于ioremap函数
+返回的地址，不能当作一般的内核虚拟地址对待，必须使用 <code>remap_pfn_range</code> 将I/O
+地址重新映射到用户空间。
+</p>
+
+<p>
+在2.6.19内核版本，引入了nopfn函数，它是基于物理地址进行映射的，实现步
+骤基本如下：
+</p>
+<ol class="org-ol">
+<li>基于VMA地址，找出你想映射的那个物理页的物理地址，根据物理地址，得出
+PFN。
+</li>
+<li>调用 <code>vm_insert_pfn()</code> 函数修改进程地址空间。同时设置
+<code>vma-&gt;vm_flags</code> 为 <code>VM_PFNMAP</code> 。
+</li>
+<li>返回 <code>NOPFN_REFAULT</code> 。
+</li>
+</ol>
+
+<p>
+　　在2.6.23内核版本后，又引入了另一个nopage接口，称为fault，来取代
+nopage接口以及nopfn接口。
+</p>
+
+<p>
+Vmalloc映射分三步：
+</p>
+<ol class="org-ol">
+<li><code>get_vm_area</code> ：在vmalloc地址空间找到一个合适的区域
+</li>
+<li><code>allocate_page</code> ：从物理内存中请求单个物理页
+</li>
+<li><code>map_vm_area</code> ：将申请的物理页依次顺序地映射到vamlloc区域
+</li>
+</ol>
+<p>
+　
+</p>
+</div>
+</div>
+</div>
