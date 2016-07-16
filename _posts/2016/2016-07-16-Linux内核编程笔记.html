@@ -866,7 +866,7 @@ slab。这些slab是由一个或多个物理上连续的页组成的。每个缓
 
 
 <div class="figure">
-<p><img src="./images/2016/2016071401.png" alt="2016071401.png" />
+<p><img src="/images/2016/2016071401.png" alt="2016071401.png" />
 </p>
 </div>
 
@@ -943,7 +943,7 @@ slab。这些slab是由一个或多个物理上连续的页组成的。每个缓
 
 
 <div class="figure">
-<p><img src="./images/2016/2016071402.png" alt="2016071402.png" />
+<p><img src="/images/2016/2016071402.png" alt="2016071402.png" />
 </p>
 </div>
 
@@ -2004,7 +2004,7 @@ struct kset_uevent_ops {
 
 <p>
 操作系统内核提供了许多系统调用接口，一个典型的系统调用过程如下：
-<img src="./images/2016/2016071403.png" alt="2016071403.png" />
+<img src="/images/2016/2016071403.png" alt="2016071403.png" />
 </p>
 
 <p>
@@ -2020,7 +2020,7 @@ call  *sys_call_table(,%rax,8)
 
 
 <div class="figure">
-<p><img src="./images/2016/2016071404.png" alt="2016071404.png" />
+<p><img src="/images/2016/2016071404.png" alt="2016071404.png" />
 </p>
 </div>
 
@@ -2288,7 +2288,7 @@ my_thread(void *unused)
 
 
 <div class="figure">
-<p><img src="./images/2016/2016071405.png" alt="2016071405.png" />
+<p><img src="/images/2016/2016071405.png" alt="2016071405.png" />
 </p>
 <p><span class="figure-number">Figure 4:</span> 休眠与唤醒之间的关系图</p>
 </div>
@@ -3692,7 +3692,7 @@ ksoftirqd/1。线程初始化，执行逻辑如下所示：
 
 
 <div class="figure">
-<p><img src="./images/2016/2016071601.png" alt="2016071601.png" />
+<p><img src="/images/2016/2016071601.png" alt="2016071601.png" />
 </p>
 </div>
 
@@ -4121,7 +4121,7 @@ schedule_timeout(s * HZ);
 </li>
 <li><code>ZONE_HIGHMEM</code> ——该区域包含了“高内存”，这些物理页不是永久性地映射到了内
 核的地址空间中。X86平台上的映射情况如下：
-<img src="./images/2016/2016071602.png" alt="2016071602.png" />
+<img src="/images/2016/2016071602.png" alt="2016071602.png" />
 
 <p>
 <b>底层页操作</b>  
@@ -5524,7 +5524,7 @@ unregister_framebuffer(struct fb_info *fb_info)
 与ISA总线相比，PCI总线传输速度更快，且与具体CPU架构无关，可应用在X86以
 及许多其他类型架构的平台上。通过PCI总线可以连接许多外设，构成一种树型
 结构，如下图所示：
-<img src="./images/2016/2016071603.png" alt="2016071603.png" />
+<img src="/images/2016/2016071603.png" alt="2016071603.png" />
 </p>
 
 <p>
@@ -5540,7 +5540,7 @@ unregister_framebuffer(struct fb_info *fb_info)
 <p>
 　　每个PCI设备功能的配置空间由256字节，且这些配置寄存器的布局是标准化
 的。
-<img src="./images/2016/2016071604.png" alt="2016071604.png" />
+<img src="/images/2016/2016071604.png" alt="2016071604.png" />
 </p>
 
 <p>
@@ -5804,19 +5804,19 @@ if (result) {
 
 <p>
 =platform<sub>device</sub>=结构体的定义如代码所示：
-<img src="./images/2016/2016071605.png" alt="2016071605.png" />
+<img src="/images/2016/2016071605.png" alt="2016071605.png" />
 </p>
 
 <p>
 　　=platform<sub>driver</sub>= 这个结构体中包含probe()、remove()、shutdown()、
 suspend()、resume()函数，通常也需要由驱动实现， 如下代码所示：
-<img src="./images/2016/2016071606.png" alt="2016071606.png" />
+<img src="/images/2016/2016071606.png" alt="2016071606.png" />
 </p>
 
 <p>
 　　系统中为platform总线定义了一个 <code>bus_type</code> 的实例 <code>platform_bus_type</code>
 ，其定义如代码所示：
-<img src="./images/2016/2016071607.png" alt="2016071607.png" />
+<img src="/images/2016/2016071607.png" alt="2016071607.png" />
 </p>
 
 <p>
@@ -5826,7 +5826,7 @@ suspend()、resume()函数，通常也需要由驱动实现， 如下代码所�
 
 
 <div class="figure">
-<p><img src="./images/2016/2016071608.png" alt="2016071608.png" />
+<p><img src="/images/2016/2016071608.png" alt="2016071608.png" />
 </p>
 </div>
 
@@ -5852,7 +5852,7 @@ int platform_add_devices(struct platform_device **devs, int num);
 
 <p>
 　　 <code>platform_device</code> 的资源由resource结构体描述，其定义如代码所示：
-<img src="./images/2016/2016071609.png" alt="2016071609.png" />
+<img src="/images/2016/2016071609.png" alt="2016071609.png" />
 </p>
 
 <p>
@@ -5879,14 +5879,14 @@ struct resource *platform_get_resource(struct platform_device *, unsigned int, u
 硬件描述除了中断、内存、DMA通道以外，可能还会有一些配置信息，而这些配
 置信息也依赖于板，不适宜直接放置在设备驱动本身，因此，platform也提供了
 <code>platform_data</code> 的支持。 <code>platform_data</code> 的形式是自定义的。
-<img src="./images/2016/2016071610.png" alt="2016071610.png" />
+<img src="/images/2016/2016071610.png" alt="2016071610.png" />
 </p>
 
 <p>
 　　可以看到 <code>platform_data</code> 是一个void型的指针，可以指向任何自定义的数据结
 构，我们可以将MAC地址、总线宽度、有无EEPROM信息放入 <code>platform_data</code> 。通过
 <code>platform_device_add_data</code> 可以向给 <code>platform_data</code> 赋值，其代码如下：
-<img src="./images/2016/2016071611.png" alt="2016071611.png" />
+<img src="/images/2016/2016071611.png" alt="2016071611.png" />
 </p>
 
 <p>

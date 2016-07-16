@@ -1,8 +1,8 @@
 ---
 layout: post
-date: 2016-05-15
 author: 山庄来客
-update: 2016-05-15
+date:   2016-05-15
+update: 2016-07-16
 categories: wifi 
 ---
 <div id="content">
@@ -30,22 +30,37 @@ categories: wifi
 <li><a href="#sec-1-8">1.8. MU-MIMO (Multi-User MIMO) VS SU-MIMO</a></li>
 </ul>
 </li>
-<li><a href="#sec-2">2. HT20 HT40 Coexistence</a>
+<li><a href="#sec-2">2. How does 802.11n get to 600Mbps? </a>
 <ul>
-<li><a href="#sec-2-1">2.1. Frame</a>
-<ul>
-<li><a href="#sec-2-1-1">2.1.1. AP</a></li>
-<li><a href="#sec-2-1-2">2.1.2. STA</a></li>
-<li><a href="#sec-2-1-3">2.1.3. HT20/40 BSS Coexistence Management (Action Frame)</a></li>
+<li><a href="#sec-2-1">2.1. More subcarriers</a></li>
+<li><a href="#sec-2-2">2.2. FEC</a></li>
+<li><a href="#sec-2-3">2.3. Guard Interval</a></li>
+<li><a href="#sec-2-4">2.4. MIMO</a></li>
+<li><a href="#sec-2-5">2.5. 40 MHz channels</a></li>
+<li><a href="#sec-2-6">2.6. Lower MAC overhead</a></li>
+<li><a href="#sec-2-7">2.7. Fast MCS feedback – rate selection</a></li>
+<li><a href="#sec-2-8">2.8. LDPC (Low Density Partity Check) coding</a></li>
+<li><a href="#sec-2-9">2.9. Transmit beam-forming</a></li>
+<li><a href="#sec-2-10">2.10. STBC</a></li>
+<li><a href="#sec-2-11">2.11. Hardware assistance</a></li>
 </ul>
 </li>
-<li><a href="#sec-2-2">2.2. 40 MHz Intolerance</a></li>
-<li><a href="#sec-2-3">2.3. OBSS</a></li>
-<li><a href="#sec-2-4">2.4. transition between HT40 and HT20</a>
+<li><a href="#sec-3">3. HT20 HT40 Coexistence</a>
 <ul>
-<li><a href="#sec-2-4-1">2.4.1. STA 20/40 Coexistence Overall Flow</a></li>
-<li><a href="#sec-2-4-2">2.4.2. HT40 to HT20</a></li>
-<li><a href="#sec-2-4-3">2.4.3. HT20 to HT40</a></li>
+<li><a href="#sec-3-1">3.1. Frame</a>
+<ul>
+<li><a href="#sec-3-1-1">3.1.1. AP</a></li>
+<li><a href="#sec-3-1-2">3.1.2. STA</a></li>
+<li><a href="#sec-3-1-3">3.1.3. HT20/40 BSS Coexistence Management (Action Frame)</a></li>
+</ul>
+</li>
+<li><a href="#sec-3-2">3.2. 40 MHz Intolerance</a></li>
+<li><a href="#sec-3-3">3.3. OBSS</a></li>
+<li><a href="#sec-3-4">3.4. transition between HT40 and HT20</a>
+<ul>
+<li><a href="#sec-3-4-1">3.4.1. STA 20/40 Coexistence Overall Flow</a></li>
+<li><a href="#sec-3-4-2">3.4.2. HT40 to HT20</a></li>
+<li><a href="#sec-3-4-3">3.4.3. HT20 to HT40</a></li>
 </ul>
 </li>
 </ul>
@@ -53,7 +68,9 @@ categories: wifi
 </ul>
 </div>
 </div>
-
+<p>
+-*- coding: chinese-gbk-dos -*-
+</p>
 
 <div id="outline-container-sec-1" class="outline-2">
 <h2 id="sec-1"><span class="section-number-2">1</span> 主要知识点</h2>
@@ -587,8 +604,203 @@ efficiency.
 </div>
 
 <div id="outline-container-sec-2" class="outline-2">
-<h2 id="sec-2"><span class="section-number-2">2</span> HT20 HT40 Coexistence</h2>
+<h2 id="sec-2"><span class="section-number-2">2</span> How does 802.11n get to 600Mbps? <sup><a id="fnr.1" name="fnr.1" class="footref" href="#fn.1">1</a></sup></h2>
 <div class="outline-text-2" id="text-2">
+<p>
+802.11n incorporates all earlier amendments to 802.11, including the
+MAC enhancements in 802.11e for QoS and power savings.
+The design goal of the 802.11n amendment is “HT” for High
+Throughput. The throughput it claims is high indeed: up to 600 Mbps
+in raw bit-rate. Let’s start with the maximum throughput of 802.11g
+(54Mbps), and see what techniques 802.11n applies to boost it to 600
+Mbps: 
+</p>
+</div>
+
+<div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> More subcarriers</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+802.11g has 48 OFDM data subcarriers. 802.11n increases this number
+to 52, thereby boosting throughput from 54Mbps to 58.5 Mbps.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> FEC</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+802.11g has a maximum FEC (Forward Error Correction) coding rate of
+3/4. 802.11n squeezes some redundancy out of this with a 5/6 coding
+rate, boosting the link rate from 58.5 Mbps to 65 Mbps.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-3" class="outline-3">
+<h3 id="sec-2-3"><span class="section-number-3">2.3</span> Guard Interval</h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+802.11a has Guard Interval between transmissions of 800ns. 802.11n
+has an option to reduce this to 400ns, which boosts the throughput
+from 65 Mbps to 72.2 Mbps.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-4" class="outline-3">
+<h3 id="sec-2-4"><span class="section-number-3">2.4</span> MIMO</h3>
+<div class="outline-text-3" id="text-2-4">
+<p>
+thanks to the magical effect of spatial multiplexing, provided
+there are sufficient multi-path reflections, the throughput of a
+system goes up linearly with each extra antenna at both ends. Two
+antennas at each end double the throughput, three antennas at each
+end triple it, and four quadruple it. The maximum number of
+antennas in the receive and transmit arrays specified by 802.11n is
+four. This allows four simultaneous 72.2 Mbps streams, yielding a
+total throughput of 288.9 Mbps.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-5" class="outline-3">
+<h3 id="sec-2-5"><span class="section-number-3">2.5</span> 40 MHz channels</h3>
+<div class="outline-text-3" id="text-2-5">
+<p>
+all previous versions of 802.11 have a channel bandwidth of
+20MHz. 802.11n has an optional mode (controversial and not usable
+in many circumstances) where the channel bandwidth is 40 MHz. While
+the channel bandwidth is doubled, the number of data subcarriers is
+slightly more than doubled, going from 52 to 108. This yields a
+total channel throughput of 150 Mbps. So again combining four
+channels with MIMO, we get 600 Mbps.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-6" class="outline-3">
+<h3 id="sec-2-6"><span class="section-number-3">2.6</span> Lower MAC overhead</h3>
+<div class="outline-text-3" id="text-2-6">
+<p>
+But raw throughput is not a very informative number.
+The 11a/g link rate is 54 Mbps, but the higher layer throughput is
+only 26 Mbps; the MAC overhead is over 50%! In 11n when the link
+rate is 65 Mbps, the higher layer throughput is about 50 Mbps; the
+MAC overhead is down to 25%.
+</p>
+
+<p>
+Bear mind that these numbers are the absolute top speed you can get
+out of the system. 802.11n has numerous modulation schemes to fall
+back to when the conditions are less than perfect, which is most of
+the time.
+</p>
+
+<p>
+But to minimize these fall-backs, 11n contains additional
+improvements to make the effective throughput as high as possible
+under all circumstances. These improvements are described in the following
+paragraphs.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-7" class="outline-3">
+<h3 id="sec-2-7"><span class="section-number-3">2.7</span> Fast MCS feedback – rate selection</h3>
+<div class="outline-text-3" id="text-2-7">
+<p>
+Existing equipment finds it hard to track rapid changes in the
+channel. Say you walk through the shadow of a pole in the
+building. The rate may go from 50 to 6 to 50 mbps in one
+step. It’s hard for conventional systems to track this, because
+they adapt based on transmit errors. With delay sensitive data like
+voice you have to be very conservative, so adapting up is much
+slower than down. 11n adds explicit per-packet feedback,
+recommending the transmission speed for the next packet. This is
+called Fast MCS (Modulation and Coding Scheme) Feedback.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-8" class="outline-3">
+<h3 id="sec-2-8"><span class="section-number-3">2.8</span> LDPC (Low Density Partity Check) coding</h3>
+<div class="outline-text-3" id="text-2-8">
+<p>
+LDPC is a super duper Forward Error Correction mechanism. Although
+it is almost 50 years old, it is the most effective error
+correcting code developed to date; it nears the theoretical limit
+of efficiency. It was little used until recently because of its
+high compute requirement. An interesting by-product of its
+antiquity is that it is relatively free of patent issues.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-9" class="outline-3">
+<h3 id="sec-2-9"><span class="section-number-3">2.9</span> Transmit beam-forming</h3>
+<div class="outline-text-3" id="text-2-9">
+<p>
+The term beam-forming conjures up images of a laser-like beam of
+radio waves pointing exactly at the client device, but it doesn’t
+really work like that. If you look at a fine-resolution map of
+signal intensity in a room covered by a Wi-Fi access point, it
+looks like the surface of a pond disturbed by a gust of wind – it
+is a patchwork of bumps and dips in signal intensity, some as small
+as a few cubic inches in volume. Transmit beam-forming adjusts the
+phase and transmit power at the various antennas to move one of the
+maxima of signal intensity to where the client device is.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-10" class="outline-3">
+<h3 id="sec-2-10"><span class="section-number-3">2.10</span> STBC</h3>
+<div class="outline-text-3" id="text-2-10">
+<p>
+In a phone the chances are that there will only be one Wi-Fi
+antenna, so there will be only one spatial channel. Even so, the
+MIMO technique of STBC (Space-Time Block Coding) enables the
+handset to take advantage of the multiple antennas on the Access
+Point to improve range, both rate-at-range and limiting range.
+</p>
+
+<p>
+Incidentally, to receive 802.11n certification by the Wi-Fi
+Alliance, all devices must have two or more antennas except
+handsets which can optionally have a single antenna. Several
+considerations went into allowing this concession to handsets,
+mainly size and power constraints. STBC is particularly useful to
+handsets. It yields the robustness of MIMO without a second radio,
+which saves all the power the second radio would burn. This power
+saving is compounded with another: because of the greater
+rate-at-range the radio is on for less time while transmitting a
+given quantity of data. STBC is optional in 802.11n, though it
+should always be implemented for systems that support 802.11n
+handsets.
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-sec-2-11" class="outline-3">
+<h3 id="sec-2-11"><span class="section-number-3">2.11</span> Hardware assistance</h3>
+<div class="outline-text-3" id="text-2-11">
+<p>
+Many of these features impose a considerable compute load. LDPC and
+STBC fall into this category. This is an issue for handsets, since
+computation costs battery life. Fortunately these features are
+amenable to hardware implementation. With dedicated hardware the
+computation happens rapidly and with little cost in power.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> HT20 HT40 Coexistence</h2>
+<div class="outline-text-2" id="text-3">
 <p>
 11n有两种频宽模式：HT(High Throughput)20和HT40。
 </p>
@@ -604,12 +816,12 @@ HT40是出于高性能考虑：HT40相当于两个HT20的捆绑，一个是主�
 </p>
 </div>
 
-<div id="outline-container-sec-2-1" class="outline-3">
-<h3 id="sec-2-1"><span class="section-number-3">2.1</span> Frame</h3>
-<div class="outline-text-3" id="text-2-1">
-</div><div id="outline-container-sec-2-1-1" class="outline-4">
-<h4 id="sec-2-1-1"><span class="section-number-4">2.1.1</span> AP</h4>
-<div class="outline-text-4" id="text-2-1-1">
+<div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1"><span class="section-number-3">3.1</span> Frame</h3>
+<div class="outline-text-3" id="text-3-1">
+</div><div id="outline-container-sec-3-1-1" class="outline-4">
+<h4 id="sec-3-1-1"><span class="section-number-4">3.1.1</span> AP</h4>
+<div class="outline-text-4" id="text-3-1-1">
 <p>
 AP在Beacon中，会通过IE中的信息来表明是否支持20/40 Coexistence
 </p>
@@ -622,9 +834,9 @@ AP在Beacon中，会通过IE中的信息来表明是否支持20/40 Coexistence
 </div>
 </div>
 
-<div id="outline-container-sec-2-1-2" class="outline-4">
-<h4 id="sec-2-1-2"><span class="section-number-4">2.1.2</span> STA</h4>
-<div class="outline-text-4" id="text-2-1-2">
+<div id="outline-container-sec-3-1-2" class="outline-4">
+<h4 id="sec-3-1-2"><span class="section-number-4">3.1.2</span> STA</h4>
+<div class="outline-text-4" id="text-3-1-2">
 <p>
 STA在Association Request帧中，也会通过IE中的信息来表明是否支持
 20/40 Coexistence.
@@ -638,9 +850,9 @@ STA在Association Request帧中，也会通过IE中的信息来表明是否支�
 </div>
 </div>
 
-<div id="outline-container-sec-2-1-3" class="outline-4">
-<h4 id="sec-2-1-3"><span class="section-number-4">2.1.3</span> HT20/40 BSS Coexistence Management (Action Frame)</h4>
-<div class="outline-text-4" id="text-2-1-3">
+<div id="outline-container-sec-3-1-3" class="outline-4">
+<h4 id="sec-3-1-3"><span class="section-number-4">3.1.3</span> HT20/40 BSS Coexistence Management (Action Frame)</h4>
+<div class="outline-text-4" id="text-3-1-3">
 <p>
 STA可以通过此Action帧来通知周围AP从HT 40MHz转为HT 20MHz。 
 </p>
@@ -654,9 +866,9 @@ STA可以通过此Action帧来通知周围AP从HT 40MHz转为HT 20MHz。
 </div>
 </div>
 
-<div id="outline-container-sec-2-2" class="outline-3">
-<h3 id="sec-2-2"><span class="section-number-3">2.2</span> 40 MHz Intolerance</h3>
-<div class="outline-text-3" id="text-2-2">
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> 40 MHz Intolerance</h3>
+<div class="outline-text-3" id="text-3-2">
 <p>
 40MHz传输会对20MHz重叠的网络产生很大的影响，802.11n引入了一种机制，
 可以告知周围的AP："Please don’t use 40 MHz transmissions near me."
@@ -665,18 +877,18 @@ STA可以通过此Action帧来通知周围AP从HT 40MHz转为HT 20MHz。
 </div>
 </div>
 
-<div id="outline-container-sec-2-3" class="outline-3">
-<h3 id="sec-2-3"><span class="section-number-3">2.3</span> OBSS</h3>
-<div class="outline-text-3" id="text-2-3">
+<div id="outline-container-sec-3-3" class="outline-3">
+<h3 id="sec-3-3"><span class="section-number-3">3.3</span> OBSS</h3>
+<div class="outline-text-3" id="text-3-3">
 <p>
 与当前网络使用相同或部分相同信道的网络。
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-2-4" class="outline-3">
-<h3 id="sec-2-4"><span class="section-number-3">2.4</span> transition between HT40 and HT20</h3>
-<div class="outline-text-3" id="text-2-4">
+<div id="outline-container-sec-3-4" class="outline-3">
+<h3 id="sec-3-4"><span class="section-number-3">3.4</span> transition between HT40 and HT20</h3>
+<div class="outline-text-3" id="text-3-4">
 <p>
 There are many things that will cause fallback to 20 MHz. But the
 most frequently encountered reasons are: 
@@ -716,9 +928,9 @@ bandwidth mode in the 2.4 GHz band unless asked to do.
 </p>
 </div>
 
-<div id="outline-container-sec-2-4-1" class="outline-4">
-<h4 id="sec-2-4-1"><span class="section-number-4">2.4.1</span> STA 20/40 Coexistence Overall Flow</h4>
-<div class="outline-text-4" id="text-2-4-1">
+<div id="outline-container-sec-3-4-1" class="outline-4">
+<h4 id="sec-3-4-1"><span class="section-number-4">3.4.1</span> STA 20/40 Coexistence Overall Flow</h4>
+<div class="outline-text-4" id="text-3-4-1">
 <p>
 收到一个 20/40 BSS Coexistence Management Frame， 
 </p>
@@ -740,13 +952,23 @@ HT40之间的切换。
 </div>
 </div>
 
-<div id="outline-container-sec-2-4-2" class="outline-4">
-<h4 id="sec-2-4-2"><span class="section-number-4">2.4.2</span> HT40 to HT20</h4>
+<div id="outline-container-sec-3-4-2" class="outline-4">
+<h4 id="sec-3-4-2"><span class="section-number-4">3.4.2</span> HT40 to HT20</h4>
 </div>
 
-<div id="outline-container-sec-2-4-3" class="outline-4">
-<h4 id="sec-2-4-3"><span class="section-number-4">2.4.3</span> HT20 to HT40</h4>
+<div id="outline-container-sec-3-4-3" class="outline-4">
+<h4 id="sec-3-4-3"><span class="section-number-4">3.4.3</span> HT20 to HT40</h4>
 </div>
 </div>
 </div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" name="fn.1" class="footnum" href="#fnr.1">1</a></sup> <p class="footpara">
+<a href="http://www.wirevolution.com/2007/09/07/how-does-80211n-get-to-600mbps/">http://www.wirevolution.com/2007/09/07/how-does-80211n-get-to-600mbps/</a>
+</p></div>
+
+
 </div>
+</div></div>

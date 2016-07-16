@@ -1,0 +1,554 @@
+---
+layout: post
+title:  "Miracast学习笔记"
+author: 山庄来客
+date:   2016-07-16
+update: 2016-07-16
+categories: wifi
+---
+<div id="content">
+<h1 class="title">Wifi Display(Miracast)协议学习</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">WiFi Display连接步骤</a>
+<ul>
+<li><a href="#sec-1-1">WFD Device Discovery</a></li>
+<li><a href="#sec-1-2">WFD Service Discovery(Optional)</a></li>
+<li><a href="#sec-1-3">Device Selection</a></li>
+<li><a href="#sec-1-4">WFD Connection Setup</a></li>
+<li><a href="#sec-1-5">WFD Capability Negotiation</a></li>
+<li><a href="#sec-1-6">WFD Session Establishment</a>
+<ul>
+<li><a href="#sec-1-6-1">WFD Source and WFD Sink session management Reference Model</a></li>
+</ul>
+</li>
+<li><a href="#sec-1-7">User Input Back Channel Setup (Optional)</a></li>
+<li><a href="#sec-1-8">Link Content Protection Setup(Optional)</a></li>
+<li><a href="#sec-1-9">Payload Control</a>
+<ul>
+<li><a href="#sec-1-9-1">Audio &amp; Video Payload Processing Reference Model</a></li>
+</ul>
+</li>
+<li><a href="#sec-1-10">WFD Source and WFD Sink Standby(Optional)</a></li>
+<li><a href="#sec-1-11">WFD Session Teardown</a></li>
+</ul>
+</li>
+<li><a href="#sec-2">RTSP message</a>
+<ul>
+<li><a href="#sec-2-1">M1</a>
+<ul>
+<li><a href="#sec-2-1-1">Request(Source =&gt; Sink)</a></li>
+<li><a href="#sec-2-1-2">Response(Sink =&gt; Source)</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-2">M2</a>
+<ul>
+<li><a href="#sec-2-2-1">Request(Sink =&gt; Source)</a></li>
+<li><a href="#sec-2-2-2">Response(Source =&gt; Sink)</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-3">M3</a>
+<ul>
+<li><a href="#sec-2-3-1">Request(Source =&gt; Sink)</a></li>
+<li><a href="#sec-2-3-2">Response(Sink =&gt; Source)</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-4">M4</a>
+<ul>
+<li><a href="#sec-2-4-1">Request(Source =&gt; Sink)</a></li>
+<li><a href="#sec-2-4-2">Response(Sink =&gt; Source)</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-5">M5</a>
+<ul>
+<li><a href="#sec-2-5-1">Request(Source =&gt; Sink)</a></li>
+<li><a href="#sec-2-5-2">Response(Sink =&gt; Source)</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-6">M6</a>
+<ul>
+<li><a href="#sec-2-6-1">Request(Sink =&gt; Source)</a></li>
+<li><a href="#sec-2-6-2">Response(Source =&gt; Sink)</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-7">M7</a>
+<ul>
+<li><a href="#sec-2-7-1">Request(Sink =&gt; Source)</a></li>
+<li><a href="#sec-2-7-2">Response(Source =&gt; Sink)</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-8">M8</a></li>
+<li><a href="#sec-2-9">M9</a></li>
+<li><a href="#sec-2-10">M10</a></li>
+<li><a href="#sec-2-11">M11</a></li>
+<li><a href="#sec-2-12">M12</a></li>
+<li><a href="#sec-2-13">M13</a></li>
+<li><a href="#sec-2-14">M14</a></li>
+<li><a href="#sec-2-15">M15</a></li>
+<li><a href="#sec-2-16">M16</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">WiFi Display连接步骤</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-sec-1-1" class="outline-3">
+<h3 id="sec-1-1">WFD Device Discovery</h3>
+</div>
+
+<div id="outline-container-sec-1-2" class="outline-3">
+<h3 id="sec-1-2">WFD Service Discovery(Optional)</h3>
+</div>
+
+<div id="outline-container-sec-1-3" class="outline-3">
+<h3 id="sec-1-3">Device Selection</h3>
+</div>
+
+<div id="outline-container-sec-1-4" class="outline-3">
+<h3 id="sec-1-4">WFD Connection Setup</h3>
+<div class="outline-text-3" id="text-1-4">
+<p>
+using p2p connection
+</p>
+
+<p>
+<b>TCP Connection</b>
+The TCP connection shall be initiated by the WFD Sink. The WFD
+Source plays the TCP server role and the WFD Sink plays the TCP
+client role. A Control Port (default is 7236 ) is used to establish
+and manage sessions between the WFD Source and WFD Sink。 The
+protocol running on the Control Port is RTSP。
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-sec-1-5" class="outline-3">
+<h3 id="sec-1-5">WFD Capability Negotiation</h3>
+<div class="outline-text-3" id="text-1-5">
+<p>
+After a successful WFD Connection Setup (and establishment of a TCP
+connection), the WFD Capability Negotiation phase shall commence as
+specified herein. It takes place prior to the WFD Session
+establishment.
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016062401.png" alt="2016062401.png" />
+</p>
+</div>
+
+<p>
+RTSP M1和M2主要协商Source和Sink都支持的RTSP methods 
+RTSP M3和M4主要协商Source和Sink在会话中使用的参数。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-6" class="outline-3">
+<h3 id="sec-1-6">WFD Session Establishment</h3>
+<div class="outline-text-3" id="text-1-6">
+<p>
+When an exchange of RTSP M7 request and response messages has
+successfully completed between the WFD Source and the WFD Sink, the
+WFD Session is established.
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016062402.png" alt="2016062402.png" />
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-6-1" class="outline-4">
+<h4 id="sec-1-6-1">WFD Source and WFD Sink session management Reference Model</h4>
+<div class="outline-text-4" id="text-1-6-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016062403.png" alt="2016062403.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-7" class="outline-3">
+<h3 id="sec-1-7">User Input Back Channel Setup (Optional)</h3>
+</div>
+
+<div id="outline-container-sec-1-8" class="outline-3">
+<h3 id="sec-1-8">Link Content Protection Setup(Optional)</h3>
+<div class="outline-text-3" id="text-1-8">
+<p>
+The WFD Source establish the HDCP 2.0 session key with the WFD
+Sink. If the WFD Source and WFD Sink support HDCP system 2.0, both
+the WFD Source and the WFD Sink shall complete the HDCP 2.0 session
+key establishment before starting any RTP session used for WFD
+streaming.If the HDCP 2.0 session key establishment fails, the WFD
+Sink supporting the HDCP system 2.0 may send an RTSP M7 request
+message to the WFD Source supporting the HDCP system 2.0 to start
+an RTP streaming. In this case, the WFD Source can only transmit
+audio and/or video content that ‘s not required to be protected by
+the HDCP system 2.0 to the WFD Sink.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-9" class="outline-3">
+<h3 id="sec-1-9">Payload Control</h3>
+<div class="outline-text-3" id="text-1-9">
+</div><div id="outline-container-sec-1-9-1" class="outline-4">
+<h4 id="sec-1-9-1">Audio &amp; Video Payload Processing Reference Model</h4>
+<div class="outline-text-4" id="text-1-9-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016062404.png" alt="2016062404.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-10" class="outline-3">
+<h3 id="sec-1-10">WFD Source and WFD Sink Standby(Optional)</h3>
+</div>
+
+<div id="outline-container-sec-1-11" class="outline-3">
+<h3 id="sec-1-11">WFD Session Teardown</h3>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">RTSP message</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+WFD Source开始向WFD Sink发送一个M1请求，开始了WFD Capability协商，终
+止于M4。M5开始了会话的建立。M6成功之后，会话建立。
+</p>
+
+<p>
+RTSP超时的一些规则：
+</p>
+<ol class="org-ol">
+<li>在TCP连接建立起来后，WFD Source必须在6秒之内向WFD Sink发送一个M1
+请求。
+</li>
+<li>除了M16外，所以消息类型的请求与响应交互必须在5秒内完成。
+</li>
+<li>在WFD会话建立之前，从收到前一个消息的响应开始到下一个消息请求的传输之间
+的间隔时间不超过6秒。
+</li>
+<li>在WFD会话建立之前 ，从发送一个前一个消息的请求开始，到下一个消息
+请求的传输，时间不超过6秒。
+</li>
+<li>从接收RTSP M6响应开始，到传输RTSP M7请求结束这段时间的超时值为：
+<ul class="org-ul">
+<li>如果HDCP保护未打开，则值为6秒。
+</li>
+<li>如果HDCP保护有开启，则值为9秒。
+</li>
+</ul>
+</li>
+<li>WFD会话建立后，从传输RTSP M5响应开始到传送相应的RTSP M7,M8,M9请求
+消息结束这段时间超时值为6秒。
+</li>
+</ol>
+</div>
+
+<div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1">M1</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+由WFD Source发起，开始WFD能力协商过程,即看对方支持哪个方法原语。
+</p>
+</div>
+<div id="outline-container-sec-2-1-1" class="outline-4">
+<h4 id="sec-2-1-1">Request(Source =&gt; Sink)</h4>
+<div class="outline-text-4" id="text-2-1-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016050602.png" alt="2016050602.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-1-2" class="outline-4">
+<h4 id="sec-2-1-2">Response(Sink =&gt; Source)</h4>
+<div class="outline-text-4" id="text-2-1-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016050603.png" alt="2016050603.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2">M2</h3>
+<div class="outline-text-3" id="text-2-2">
+</div><div id="outline-container-sec-2-2-1" class="outline-4">
+<h4 id="sec-2-2-1">Request(Sink =&gt; Source)</h4>
+<div class="outline-text-4" id="text-2-2-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016050604.png" alt="2016050604.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2-2" class="outline-4">
+<h4 id="sec-2-2-2">Response(Source =&gt; Sink)</h4>
+<div class="outline-text-4" id="text-2-2-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016050605.png" alt="2016050605.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-3" class="outline-3">
+<h3 id="sec-2-3">M3</h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+查询WFD Sink的属性与能力信息
+</p>
+</div>
+<div id="outline-container-sec-2-3-1" class="outline-4">
+<h4 id="sec-2-3-1">Request(Source =&gt; Sink)</h4>
+<div class="outline-text-4" id="text-2-3-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016050606.png" alt="2016050606.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-3-2" class="outline-4">
+<h4 id="sec-2-3-2">Response(Sink =&gt; Source)</h4>
+<div class="outline-text-4" id="text-2-3-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016050607.png" alt="2016050607.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-4" class="outline-3">
+<h3 id="sec-2-4">M4</h3>
+<div class="outline-text-3" id="text-2-4">
+<p>
+请求WFD Sink设置参数
+</p>
+</div>
+<div id="outline-container-sec-2-4-1" class="outline-4">
+<h4 id="sec-2-4-1">Request(Source =&gt; Sink)</h4>
+<div class="outline-text-4" id="text-2-4-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016050608.png" alt="2016050608.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-4-2" class="outline-4">
+<h4 id="sec-2-4-2">Response(Sink =&gt; Source)</h4>
+<div class="outline-text-4" id="text-2-4-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016050609.png" alt="2016050609.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-5" class="outline-3">
+<h3 id="sec-2-5">M5</h3>
+<div class="outline-text-3" id="text-2-5">
+<p>
+WFD Source通过M5触发WFD Sink向自己请求SETUP，PLAY，PAUSE，TEARDOWN
+</p>
+</div>
+<div id="outline-container-sec-2-5-1" class="outline-4">
+<h4 id="sec-2-5-1">Request(Source =&gt; Sink)</h4>
+<div class="outline-text-4" id="text-2-5-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016050610.png" alt="2016050610.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-5-2" class="outline-4">
+<h4 id="sec-2-5-2">Response(Sink =&gt; Source)</h4>
+<div class="outline-text-4" id="text-2-5-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016050611.png" alt="2016050611.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-6" class="outline-3">
+<h3 id="sec-2-6">M6</h3>
+<div class="outline-text-3" id="text-2-6">
+<p>
+当M5消息中wfd<sub>trigger</sub><sub>method为SETUP时，WFD</sub> Sink会发送此消息。
+</p>
+</div>
+<div id="outline-container-sec-2-6-1" class="outline-4">
+<h4 id="sec-2-6-1">Request(Sink =&gt; Source)</h4>
+<div class="outline-text-4" id="text-2-6-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016050612.png" alt="2016050612.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-6-2" class="outline-4">
+<h4 id="sec-2-6-2">Response(Source =&gt; Sink)</h4>
+<div class="outline-text-4" id="text-2-6-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016050613.png" alt="2016050613.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-7" class="outline-3">
+<h3 id="sec-2-7">M7</h3>
+<div class="outline-text-3" id="text-2-7">
+<p>
+PLAY
+</p>
+</div>
+<div id="outline-container-sec-2-7-1" class="outline-4">
+<h4 id="sec-2-7-1">Request(Sink =&gt; Source)</h4>
+<div class="outline-text-4" id="text-2-7-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016050614.png" alt="2016050614.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-7-2" class="outline-4">
+<h4 id="sec-2-7-2">Response(Source =&gt; Sink)</h4>
+<div class="outline-text-4" id="text-2-7-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016050615.png" alt="2016050615.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-8" class="outline-3">
+<h3 id="sec-2-8">M8</h3>
+<div class="outline-text-3" id="text-2-8">
+<p>
+TEARDOWN
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-9" class="outline-3">
+<h3 id="sec-2-9">M9</h3>
+<div class="outline-text-3" id="text-2-9">
+<p>
+PAUSE
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-10" class="outline-3">
+<h3 id="sec-2-10">M10</h3>
+<div class="outline-text-3" id="text-2-10">
+<p>
+RTSP SET<sub>PARAMETER</sub> wfd-route
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-11" class="outline-3">
+<h3 id="sec-2-11">M11</h3>
+<div class="outline-text-3" id="text-2-11">
+<p>
+RTSP SET<sub>PARAMETER</sub> wfd-connector-type
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-12" class="outline-3">
+<h3 id="sec-2-12">M12</h3>
+<div class="outline-text-3" id="text-2-12">
+<p>
+RTSP SET<sub>PARAMETER</sub> wfd-standby
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-13" class="outline-3">
+<h3 id="sec-2-13">M13</h3>
+<div class="outline-text-3" id="text-2-13">
+<p>
+RTSP SET<sub>PARAMETER</sub> wfd-idr-request
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-14" class="outline-3">
+<h3 id="sec-2-14">M14</h3>
+<div class="outline-text-3" id="text-2-14">
+<p>
+RTSP SET<sub>PARAMETER</sub> wfd-uibc-capability
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-15" class="outline-3">
+<h3 id="sec-2-15">M15</h3>
+<div class="outline-text-3" id="text-2-15">
+<p>
+enable or disable UIBC
+RTSP SET<sub>PARAMETER</sub> wfd-uibc-setting
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-16" class="outline-3">
+<h3 id="sec-2-16">M16</h3>
+<div class="outline-text-3" id="text-2-16">
+<p>
+是一个RTSP GET<sub>PARAMETER请求，没有body信息，主要用于确认当前的RTSP</sub>
+会话是否处于活跃状态。
+</p>
+</div>
+</div>
+</div>
+</div>

@@ -1,0 +1,2145 @@
+---
+layout: post
+author: 山庄来客
+date:   2016-07-16
+update: 2016-07-16
+categories: 软件开发 
+---
+<div id="content">
+<h1 class="title">PlantUML语法速查</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. Sequence Diagram</a>
+<ul>
+<li><a href="#sec-1-1">1.1. Basic examples</a></li>
+<li><a href="#sec-1-2">1.2. Comments</a></li>
+<li><a href="#sec-1-3">1.3. Declaring participant</a></li>
+<li><a href="#sec-1-4">1.4. Use non-letters in participants</a></li>
+<li><a href="#sec-1-5">1.5. Message to Self</a></li>
+<li><a href="#sec-1-6">1.6. Change arrow style</a></li>
+<li><a href="#sec-1-7">1.7. Change arrow color</a></li>
+<li><a href="#sec-1-8">1.8. Message sequence numbering</a></li>
+<li><a href="#sec-1-9">1.9. Title</a></li>
+<li><a href="#sec-1-10">1.10. Legend(图例) the diagram</a></li>
+<li><a href="#sec-1-11">1.11. Splitting diagrams</a></li>
+<li><a href="#sec-1-12">1.12. Grouping message</a></li>
+<li><a href="#sec-1-13">1.13. Notes on messages</a></li>
+<li><a href="#sec-1-14">1.14. Some other notes</a></li>
+<li><a href="#sec-1-15">1.15. Changing notes shape</a></li>
+<li><a href="#sec-1-16">1.16. Creole and HTML</a></li>
+<li><a href="#sec-1-17">1.17. Divider</a></li>
+<li><a href="#sec-1-18">1.18. Reference</a></li>
+<li><a href="#sec-1-19">1.19. Delay</a></li>
+<li><a href="#sec-1-20">1.20. Space</a></li>
+<li><a href="#sec-1-21">1.21. Lifeline Activation and Destruction</a></li>
+<li><a href="#sec-1-22">1.22. Participant creation</a></li>
+<li><a href="#sec-1-23">1.23. Incoming and outgoing messages</a></li>
+<li><a href="#sec-1-24">1.24. Stereotypes and Spots</a></li>
+<li><a href="#sec-1-25">1.25. More information on titles</a></li>
+<li><a href="#sec-1-26">1.26. Participants encompass</a></li>
+<li><a href="#sec-1-27">1.27. Removing Footer</a></li>
+<li><a href="#sec-1-28">1.28. Skinparam</a></li>
+</ul>
+</li>
+<li><a href="#sec-2">2. Use Case Diagram</a>
+<ul>
+<li><a href="#sec-2-1">2.1. Usecases</a></li>
+<li><a href="#sec-2-2">2.2. Actors</a></li>
+<li><a href="#sec-2-3">2.3. Usecases description</a></li>
+<li><a href="#sec-2-4">2.4. Basic Example</a></li>
+<li><a href="#sec-2-5">2.5. Extension</a></li>
+<li><a href="#sec-2-6">2.6. Using notes</a></li>
+<li><a href="#sec-2-7">2.7. Stereotypes</a></li>
+<li><a href="#sec-2-8">2.8. Changing arrows direction</a></li>
+<li><a href="#sec-2-9">2.9. Title the diagram</a></li>
+<li><a href="#sec-2-10">2.10. Splitting diagrams</a></li>
+<li><a href="#sec-2-11">2.11. Left to right direction</a></li>
+<li><a href="#sec-2-12">2.12. Skinparam</a></li>
+<li><a href="#sec-2-13">2.13. Complete example</a></li>
+</ul>
+</li>
+<li><a href="#sec-3">3. Class Diagram</a></li>
+<li><a href="#sec-4">4. Activity Diagram</a></li>
+<li><a href="#sec-5">5. Activity Diagram (beta)</a>
+<ul>
+<li><a href="#sec-5-1">5.1. Simple Activity</a></li>
+<li><a href="#sec-5-2">5.2. Start/Stop</a></li>
+<li><a href="#sec-5-3">5.3. Conditional</a></li>
+<li><a href="#sec-5-4">5.4. Repeat loop</a></li>
+<li><a href="#sec-5-5">5.5. While loop</a></li>
+<li><a href="#sec-5-6">5.6. Parallel processing</a></li>
+<li><a href="#sec-5-7">5.7. Notes</a></li>
+<li><a href="#sec-5-8">5.8. Title Legend</a></li>
+<li><a href="#sec-5-9">5.9. Colors</a></li>
+<li><a href="#sec-5-10">5.10. Arrow</a></li>
+<li><a href="#sec-5-11">5.11. Grouping</a></li>
+<li><a href="#sec-5-12">5.12. Swimlanes</a></li>
+<li><a href="#sec-5-13">5.13. Detach</a></li>
+<li><a href="#sec-5-14">5.14. SDL 通过改变最后的;分隔符，可以设置不同的Activity渲染图形</a></li>
+<li><a href="#sec-5-15">5.15. Complete example</a></li>
+</ul>
+</li>
+<li><a href="#sec-6">6. Component Diagram</a></li>
+<li><a href="#sec-7">7. State Diagram</a></li>
+<li><a href="#sec-8">8. Object Diagram</a></li>
+<li><a href="#sec-9">9. Common commands</a></li>
+<li><a href="#sec-10">10. Salt</a></li>
+<li><a href="#sec-11">11. Creole</a></li>
+<li><a href="#sec-12">12. Changing fonts and colors</a></li>
+<li><a href="#sec-13">13. Preprocessing</a></li>
+<li><a href="#sec-14">14. Internationalization</a></li>
+<li><a href="#sec-15">15. Color Names</a></li>
+</ul>
+</div>
+</div>
+
+
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Sequence Diagram</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-sec-1-1" class="outline-3">
+<h3 id="sec-1-1"><span class="section-number-3">1.1</span> Basic examples</h3>
+<div class="outline-text-3" id="text-1-1">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+Alice -&gt; Bob: Authentication Request
+Bob --&gt; Alice: Authentication Response
+Alice -&gt; Bob: Another authentication Request
+Alice &lt;-- Bob: another authentication Response
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016062901.png" alt="2016062901.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-2" class="outline-3">
+<h3 id="sec-1-2"><span class="section-number-3">1.2</span> Comments</h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+注释用单引号或多行注释 /' &#x2026; '/
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-3" class="outline-3">
+<h3 id="sec-1-3"><span class="section-number-3">1.3</span> Declaring participant</h3>
+<div class="outline-text-3" id="text-1-3">
+<p>
+可以使用 <b>participant</b> 关键字来改变参与者的顺序
+也可以使用其他的关键字声明一个参与者：
+</p>
+<ul class="org-ul">
+<li>actor
+</li>
+<li>boundary
+</li>
+<li>control
+</li>
+<li>entity
+</li>
+<li>database
+</li>
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+actor Foo1
+boundary Foo2
+control Foo3
+entity Foo4
+database Foo5
+Foo1 -&gt; Foo2 : To boundary
+Foo1 -&gt; Foo3 : To control
+Foo1 -&gt; Foo4 : To entity
+Foo1 -&gt; Foo5 : To database
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016062902.png" alt="2016062902.png" />
+</p>
+</div>
+
+<p>
+可以使用 <b>as</b> 关键字来重命名一个参与者
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+actor Bob #red
+' The only difference between actor
+'and participant is the drawing
+participant Alice
+participant "I have a really\nlong name" as L #99FF99
+/' You can also declare:
+participant L as "I have a really\nlong name" #99FF99
+'/
+Alice -&gt;Bob: Authentication Request
+Bob -&gt;Alice: Authentication Response
+Bob -&gt;L: Log transaction
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016062903.png" alt="2016062903.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-4" class="outline-3">
+<h3 id="sec-1-4"><span class="section-number-3">1.4</span> Use non-letters in participants</h3>
+<div class="outline-text-3" id="text-1-4">
+<p>
+可以直接使用引号来定义参与者，并使用 <b>as</b> 关键字来起个别名。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+Alice -&gt; "Bob()" : Hello
+"Bob()" -&gt; "This is very\nlong" as Long
+' You can also declare:
+' "Bob()" -&gt; Long as "This is very\nlong"
+Long --&gt; "Bob()" : ok
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016062904.png" alt="2016062904.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-5" class="outline-3">
+<h3 id="sec-1-5"><span class="section-number-3">1.5</span> Message to Self</h3>
+<div class="outline-text-3" id="text-1-5">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+Alice -&gt;Alice: This is a signal to self.\nIt also demonstrates\nmultiline \ntext
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016062905.png" alt="2016062905.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-6" class="outline-3">
+<h3 id="sec-1-6"><span class="section-number-3">1.6</span> Change arrow style</h3>
+<div class="outline-text-3" id="text-1-6">
+<p>
+可以改变箭头的形状：
+</p>
+<ol class="org-ol">
+<li>add a final x to denote a lost message
+</li>
+<li>use \ or / instead of &lt; or &gt; to have only the bottom or top part of the arrow
+</li>
+<li>repeat the arrow head (for example, &gt;&gt; or //) head to have a thin drawing
+</li>
+<li>use &#x2013; instead of - to have a dotted arrow
+</li>
+<li>add a final ”o” at arrow head
+</li>
+<li>use bidirectional arrow
+</li>
+</ol>
+
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+Bob -&gt;x Alice
+Bob -&gt; Alice
+Bob -&gt;&gt; Alice
+Bob -\ Alice
+Bob \\- Alice
+Bob //-- Alice
+Bob -&gt;o Alice
+Bob o\\-- Alice
+Bob &lt;-&gt; Alice
+Bob &lt;-&gt;o Alice
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016062906.png" alt="2016062906.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-7" class="outline-3">
+<h3 id="sec-1-7"><span class="section-number-3">1.7</span> Change arrow color</h3>
+<div class="outline-text-3" id="text-1-7">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+Bob -[#red]&gt; Alice : hello
+Alice -[#0000FF]-&gt;Bob : ok
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016062907.png" alt="2016062907.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-8" class="outline-3">
+<h3 id="sec-1-8"><span class="section-number-3">1.8</span> Message sequence numbering</h3>
+<div class="outline-text-3" id="text-1-8">
+<p>
+使用关键字 <b>autonumber</b> 来自动给消息添加数字序号
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+autonumber
+Bob -&gt; Alice : Authentication Request
+Bob &lt;- Alice : Authentication Response
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016062908.png" alt="2016062908.png" />
+</p>
+</div>
+
+<p>
+可以使用 :autonumber 'start' 'increment'  指定一个起始数字和增量。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+autonumber
+Bob -&gt; Alice : Authentication Request
+Bob &lt;- Alice : Authentication Response
+autonumber 15
+Bob -&gt; Alice : Another authentication Request
+Bob &lt;- Alice : Another authentication Response
+autonumber 40 10
+Bob -&gt; Alice : Yet another authentication Request
+Bob &lt;- Alice : Yet another authentication Response
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016062909.png" alt="2016062909.png" />
+</p>
+</div>
+
+<p>
+双引号之间也可以指定数字显示的格式， 可以参考Java类 <b>DecimalFormat</b>
+中对格式的要求。 (’0’ means digit, ’#’ means digit and zero if
+absent)
+在格式中，可以使用html标签。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+autonumber "&lt;b&gt;[000]"
+Bob -&gt; Alice : Authentication Request
+Bob &lt;- Alice : Authentication Response
+autonumber 15 "&lt;b&gt;(&lt;u&gt;##&lt;/u&gt;)"
+Bob -&gt; Alice : Another authentication Request
+Bob &lt;- Alice : Another authentication Response
+autonumber 40 10 "&lt;font color=red &gt;&lt;b&gt;Message 0 "
+Bob -&gt; Alice : Yet another authentication Request
+Bob &lt;- Alice : Yet another authentication Response
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016062910.png" alt="2016062910.png" />
+</p>
+</div>
+
+<p>
+也可以使用 autonumber stop 'increment' 'format' 以及 autonumber
+resume 'increment' 'format'来暂停和恢复数字编号。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+autonumber 10 10 "&lt;b&gt;[000]"
+Bob -&gt; Alice : Authentication Request
+Bob &lt;- Alice : Authentication Response
+autonumber stop
+Bob -&gt; Alice : dummy
+autonumber resume "&lt;font color=red &gt;&lt;b&gt;Message 0 "
+Bob -&gt; Alice : Yet another authentication Request
+Bob &lt;- Alice : Yet another authentication Response
+autonumber stop
+Bob -&gt; Alice : dummy
+autonumber resume 1 "&lt;font color=blue &gt;&lt;b&gt;Message 0 "
+Bob -&gt; Alice : Yet another authentication Request
+Bob &lt;- Alice : Yet another authentication Response
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016062911.png" alt="2016062911.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-9" class="outline-3">
+<h3 id="sec-1-9"><span class="section-number-3">1.9</span> Title</h3>
+<div class="outline-text-3" id="text-1-9">
+<p>
+为序列图定义一个标题
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+title Simple communication example
+Alice -&gt; Bob: Authentication Request
+Bob --&gt; Alice: Authentication Response
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016062912.png" alt="2016062912.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-10" class="outline-3">
+<h3 id="sec-1-10"><span class="section-number-3">1.10</span> Legend(图例) the diagram</h3>
+<div class="outline-text-3" id="text-1-10">
+<p>
+The legend and end legend are keywords is used to put a legend. You
+can optionally specify to have left, right or center alignment for
+the legend.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+Alice -&gt; Bob : Hello
+legend right
+Short
+legend
+endlegend
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016062913.png" alt="2016062913.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-11" class="outline-3">
+<h3 id="sec-1-11"><span class="section-number-3">1.11</span> Splitting diagrams</h3>
+<div class="outline-text-3" id="text-1-11">
+<p>
+<b>newpage</b> 关键字用于将一个图分解成多个图， 在 <b>newpage</b> 之后可以添
+加一个标题。 
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+Alice -&gt; Bob : message 1
+Alice -&gt; Bob : message 2
+newpage
+Alice -&gt; Bob : message 3
+Alice -&gt; Bob : message 4
+newpage A title for the\nlast page
+Alice -&gt; Bob : message 5
+Alice -&gt; Bob : message 6
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070102.png" alt="2016070102.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-12" class="outline-3">
+<h3 id="sec-1-12"><span class="section-number-3">1.12</span> Grouping message</h3>
+<div class="outline-text-3" id="text-1-12">
+<p>
+可以使用如下一些关键字组合消息：
+</p>
+<ul class="org-ul">
+<li>alt/else
+</li>
+<li>opt
+</li>
+<li>loop
+</li>
+<li>par
+</li>
+<li>break
+</li>
+<li>critical
+</li>
+<li>group 后面跟着要显示的文字 
+end 关键字关闭一个group，group是可以嵌套的。
+</li>
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+Alice -&gt; Bob: Authentication Request
+alt successful case
+Bob -&gt; Alice: Authentication Accepted
+else some kind of failure
+Bob -&gt; Alice: Authentication Failure
+group My own label
+Alice -&gt; Log : Log attack start
+loop 1000 times
+Alice -&gt; Bob: DNS Attack
+end
+Alice -&gt; Log : Log attack end
+end
+else Another type of failure
+Bob -&gt; Alice: Please repeat
+end
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070103.png" alt="2016070103.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-13" class="outline-3">
+<h3 id="sec-1-13"><span class="section-number-3">1.13</span> Notes on messages</h3>
+<div class="outline-text-3" id="text-1-13">
+<p>
+消息也可以添加注解，可以是显示在左边，可以显示在右边，也可以多行显
+示。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+Alice -&gt;Bob : hello
+note left: this is a first note
+Bob -&gt;Alice : ok
+note right: this is another note
+Bob -&gt;Bob : I am thinking
+note left
+a note
+can also be defined
+on several lines
+end note
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070104.png" alt="2016070104.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-14" class="outline-3">
+<h3 id="sec-1-14"><span class="section-number-3">1.14</span> Some other notes</h3>
+<div class="outline-text-3" id="text-1-14">
+<p>
+注解也可以以某个注解的位置为参考进行显示，也可以修改背景色。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+participant Alice
+participant Bob
+note left of Alice #aqua
+This is displayed
+left of Alice.
+end note
+note right of Alice: This is displayed right of Alice.
+note over Alice: This is displayed over Alice.
+note over Alice , Bob #FFAAAA: This is displayed\n over Bob and Alice.
+note over Bob , Alice
+This is yet another
+example of
+a long note.
+end note
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070105.png" alt="2016070105.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-15" class="outline-3">
+<h3 id="sec-1-15"><span class="section-number-3">1.15</span> Changing notes shape</h3>
+<div class="outline-text-3" id="text-1-15">
+<p>
+可以使用 <b>hnote</b> 和 <b>rnote</b> 关键字改变注解的形状。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+caller -&gt; server : conReq
+hnote over caller : idle
+caller &lt;- server : conConf
+rnote over server
+"r" as rectangle
+"h" as hexagon
+endrnote
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070106.png" alt="2016070106.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-16" class="outline-3">
+<h3 id="sec-1-16"><span class="section-number-3">1.16</span> Creole and HTML</h3>
+<div class="outline-text-3" id="text-1-16">
+<p>
+可以使用creale格式定义注解
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+participant Alice
+participant "The **Famous** Bob" as Bob
+Alice -&gt; Bob : hello --there --
+... Some ~~long delay~~ ...
+Bob -&gt; Alice : ok
+note left
+This is **bold**
+This is //italics//
+This is ""monospaced""
+This is --stroked --
+This is __underlined__
+This is ~~waved~~
+end note
+Alice -&gt; Bob : A //well formatted// message
+note right of Alice
+This is &lt;back:cadetblue &gt;&lt;size:18&gt;displayed &lt;/size &gt;&lt;/back &gt;
+__left of__ Alice.
+end note
+note left of Bob
+&lt;u:red &gt;This &lt;/u&gt; is &lt;color #118888&gt; displayed &lt;/color &gt;
+**&lt;color purple &gt;left of &lt;/color &gt; &lt;s:red &gt;Alice &lt;/strike &gt; Bob**.
+end note
+note over Alice , Bob
+&lt;w:#FF33FF &gt;This is hosted &lt;/w&gt; by &lt;img sourceforge.jpg &gt;
+end note
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070107.png" alt="2016070107.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-17" class="outline-3">
+<h3 id="sec-1-17"><span class="section-number-3">1.17</span> Divider</h3>
+<div class="outline-text-3" id="text-1-17">
+<p>
+使用 == 将图拆分为一些逻辑步骤。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+== Initialization ==
+Alice -&gt; Bob: Authentication Request
+Bob --&gt; Alice: Authentication Response
+== Repetition ==
+Alice -&gt; Bob: Another authentication Request
+Alice &lt;-- Bob: another authentication Response
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070108.png" alt="2016070108.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-18" class="outline-3">
+<h3 id="sec-1-18"><span class="section-number-3">1.18</span> Reference</h3>
+<div class="outline-text-3" id="text-1-18">
+<p>
+可以使用 <b>ref over</b> 在图中使用引用。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+participant Alice
+actor Bob
+ref over Alice , Bob : init
+Alice -&gt; Bob : hello
+ref over Bob
+This can be on
+several lines
+end ref
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070109.png" alt="2016070109.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-19" class="outline-3">
+<h3 id="sec-1-19"><span class="section-number-3">1.19</span> Delay</h3>
+<div class="outline-text-3" id="text-1-19">
+<p>
+可以使用 <b>&#x2026;</b> 表示一个延迟。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+Alice -&gt; Bob: Authentication Request
+...
+Bob --&gt; Alice: Authentication Response
+...5 minutes latter...
+Bob --&gt; Alice: Bye !
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070110.png" alt="2016070110.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-20" class="outline-3">
+<h3 id="sec-1-20"><span class="section-number-3">1.20</span> Space</h3>
+<div class="outline-text-3" id="text-1-20">
+<p>
+使用 <b>|||</b> 来表示图中的一些空格。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+Alice -&gt; Bob: message 1
+Bob --&gt; Alice: ok
+|||
+Alice -&gt; Bob: message 2
+Bob --&gt; Alice: ok
+||45||
+Alice -&gt; Bob: message 3
+Bob --&gt; Alice: ok
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070111.png" alt="2016070111.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-21" class="outline-3">
+<h3 id="sec-1-21"><span class="section-number-3">1.21</span> Lifeline Activation and Destruction</h3>
+<div class="outline-text-3" id="text-1-21">
+<p>
+生命周期图, <b>active</b> 和 <b>deactive</b> 表示参与者的生命周期， <b>destroy</b>
+表示一个参考者生命周期的结束。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+participant User
+User -&gt; A: DoWork
+activate A
+A -&gt; B: &lt;&lt; createRequest &gt;&gt;
+activate B
+B -&gt; C: DoWork
+activate C
+C --&gt; B: WorkDone
+destroy C
+B --&gt; A: RequestCreated
+deactivate B
+A -&gt; User: Done
+deactivate A
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070112.png" alt="2016070112.png" />
+</p>
+</div>
+
+<p>
+生命周期图也可以嵌套。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+participant User
+User -&gt; A: DoWork
+activate A #FFBBBB
+A -&gt; A: Internal call
+activate A #DarkSalmon
+A -&gt; B: &lt;&lt; createRequest &gt;&gt;
+activate B
+B --&gt; A: RequestCreated
+deactivate B
+deactivate A
+A -&gt; User: Done
+deactivate A
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070113.png" alt="2016070113.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-22" class="outline-3">
+<h3 id="sec-1-22"><span class="section-number-3">1.22</span> Participant creation</h3>
+<div class="outline-text-3" id="text-1-22">
+<p>
+<b>create</b> 关键字表示在接收到某个消息后，会创建一个新对象。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+Bob -&gt; Alice : hello
+create Other
+Alice -&gt; Other : new
+create control String
+Alice -&gt; String
+note right : You can also put notes!
+Alice --&gt; Bob : ok
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070114.png" alt="2016070114.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-23" class="outline-3">
+<h3 id="sec-1-23"><span class="section-number-3">1.23</span> Incoming and outgoing messages</h3>
+<div class="outline-text-3" id="text-1-23">
+<p>
+当只表强调图的某个部分时，可以使用 "["和"]"分别表示图的左边和右边。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+[-&gt; A: DoWork
+activate A
+A -&gt; A: Internal call
+activate A
+A -&gt;] : &lt;&lt; createRequest &gt;&gt;
+A&lt;--] : RequestCreated
+deactivate A
+[&lt;- A: Done
+deactivate A
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070115.png" alt="2016070115.png" />
+</p>
+</div>
+
+<p>
+还可以使用如下语法：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+[-&gt; Bob
+[o-&gt; Bob
+[o-&gt;o Bob
+[x-&gt; Bob
+[&lt;- Bob
+[x&lt;- Bob
+Bob -&gt;]
+Bob -&gt;o]
+Bob o-&gt;o]
+Bob -&gt;x]
+Bob &lt;-]
+Bob x&lt;-]
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070116.png" alt="2016070116.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-24" class="outline-3">
+<h3 id="sec-1-24"><span class="section-number-3">1.24</span> Stereotypes and Spots</h3>
+<div class="outline-text-3" id="text-1-24">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+participant "Famous Bob" as Bob &lt;&lt; Generated &gt;&gt;
+participant Alice &lt;&lt; (C,#ADD1B2) Testable &gt;&gt;
+Bob -&gt;Alice: First message
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070117.png" alt="2016070117.png" />
+</p>
+</div>
+
+
+<p>
+使用 skinparam guillemet 改变原型显示的字体。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+skinparam guillemet false
+participant "Famous Bob" as Bob &lt;&lt; Generated &gt;&gt;
+participant Alice &lt;&lt; (C,#ADD1B2) Testable &gt;&gt;
+Bob -&gt;Alice: First message
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070118.png" alt="2016070118.png" />
+</p>
+</div>
+
+<p>
+使用(X,color)add a spotted character in a colored circle
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+participant Bob &lt;&lt; (C,#ADD1B2) &gt;&gt;
+participant Alice &lt;&lt; (C,#ADD1B2) &gt;&gt;
+Bob -&gt;Alice: First message
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070119.png" alt="2016070119.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-25" class="outline-3">
+<h3 id="sec-1-25"><span class="section-number-3">1.25</span> More information on titles</h3>
+<div class="outline-text-3" id="text-1-25">
+<p>
+标题格式化
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+title __Simple__ **communication** example
+Alice -&gt; Bob: Authentication Request
+Bob -&gt; Alice: Authentication Response
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070120.png" alt="2016070120.png" />
+</p>
+</div>
+
+<p>
+标题中也可以包含换行符
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+title __Simple__ communication example\non several lines
+Alice -&gt; Bob: Authentication Request
+Bob -&gt; Alice: Authentication Response
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070121.png" alt="2016070121.png" />
+</p>
+</div>
+
+
+<p>
+也可以使用  <b>title</b> <b>end title</b> 关键字定义跨跃多行的标题。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+title
+&lt;u&gt;Simple &lt;/u&gt; communication example
+on &lt;i&gt;several &lt;/i&gt; lines and using &lt;font color=red &gt;html &lt;/font &gt;
+This is hosted by &lt;img:sourceforge.jpg &gt;
+end title
+Alice -&gt; Bob: Authentication Request
+Bob -&gt; Alice: Authentication Response
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070122.png" alt="2016070122.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-26" class="outline-3">
+<h3 id="sec-1-26"><span class="section-number-3">1.26</span> Participants encompass</h3>
+<div class="outline-text-3" id="text-1-26">
+<p>
+可以使用框框把参考者框起来
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+box "Internal Service" #LightBlue
+participant Bob
+participant Alice
+end box
+participant Other
+Bob -&gt; Alice : hello
+Alice -&gt; Other : hello
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070123.png" alt="2016070123.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-27" class="outline-3">
+<h3 id="sec-1-27"><span class="section-number-3">1.27</span> Removing Footer</h3>
+<div class="outline-text-3" id="text-1-27">
+<p>
+可以使用 <b>hide footbox</b> 来删除图的footer。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+hide footbox
+title Footer removed
+Alice -&gt; Bob: Authentication Request
+Bob --&gt; Alice: Authentication Response
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070124.png" alt="2016070124.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-28" class="outline-3">
+<h3 id="sec-1-28"><span class="section-number-3">1.28</span> Skinparam</h3>
+<div class="outline-text-3" id="text-1-28">
+<p>
+可以使用 <b>skinparm</b> 来改变绘制时，使用的字体和颜色。
+</p>
+
+<div class="figure">
+<p><img src="/images/2016/2016070125.png" alt="2016070125.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Use Case Diagram</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> Usecases</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+用例可以使用 '( )' 表示，或者使用关键字 <b>usecase</b> , 还可以使用
+<b>as</b> 关键字来定义一个别名。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+(First usecase)
+(Another usecase) as (UC2)
+usecase UC3
+usecase (Last\nusecase) as UC4
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071210.png" alt="2016071210.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> Actors</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+活动者可以使用 ': :'表示，或者使用关键字 <b>actor</b> ，还可以使用 <b>as</b>
+关键字来定义一个别名。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+:First Actor:
+:Another\nactor: as Men2
+actor Men3
+actor :Last actor: as Men4
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071211.png" alt="2016071211.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-3" class="outline-3">
+<h3 id="sec-2-3"><span class="section-number-3">2.3</span> Usecases description</h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+可以使用如下一些分隔符来表示多行用例描述。 
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+usecase UC1 as "You can use
+several lines to define your usecase.
+You can also use separators.
+--
+Several separators are possible.
+==
+And you can add titles:
+..Conclusion..
+This allows large description."
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071212.png.png" alt="2016071212.png.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-4" class="outline-3">
+<h3 id="sec-2-4"><span class="section-number-3">2.4</span> Basic Example</h3>
+<div class="outline-text-3" id="text-2-4">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+User -&gt; (Start)
+User --&gt; (Use the application) : A small label
+:Main Admin: ---&gt; (Use the application) : This is\nyet another\nlabel
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071213.png" alt="2016071213.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-5" class="outline-3">
+<h3 id="sec-2-5"><span class="section-number-3">2.5</span> Extension</h3>
+<div class="outline-text-3" id="text-2-5">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+:Main Admin: as Admin
+(Use the application) as (Use)
+User &lt;|-- Admin
+(Start) &lt;|-- (Use)
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071214.png" alt="2016071214.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-6" class="outline-3">
+<h3 id="sec-2-6"><span class="section-number-3">2.6</span> Using notes</h3>
+<div class="outline-text-3" id="text-2-6">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+:Main Admin: as Admin
+(Use the application) as (Use)
+User -&gt; (Start)
+User --&gt; (Use)
+Admin ---&gt; (Use)
+note right of Admin : This is an example.
+note right of (Use)
+A note can also
+be on several lines
+end note
+note "This note is connected\nto several objects." as N2
+(Start) .. N2
+N2 .. (Use)
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071215.png" alt="2016071215.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-7" class="outline-3">
+<h3 id="sec-2-7"><span class="section-number-3">2.7</span> Stereotypes</h3>
+<div class="outline-text-3" id="text-2-7">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+User &lt;&lt; Human &gt;&gt;
+:Main Database: as MySql &lt;&lt; Application &gt;&gt;
+(Start) &lt;&lt; One Shot &gt;&gt;
+(Use the application) as (Use) &lt;&lt; Main &gt;&gt;
+User -&gt; (Start)
+User --&gt; (Use)
+MySql --&gt; (Use)
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071216.png" alt="2016071216.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-8" class="outline-3">
+<h3 id="sec-2-8"><span class="section-number-3">2.8</span> Changing arrows direction</h3>
+<div class="outline-text-3" id="text-2-8">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+:user: --&gt; (Use case 1)
+:user: -&gt; (Use case 2)
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071217.png" alt="2016071217.png" />
+</p>
+</div>
+
+<p>
+You can also change directions by reversing the link:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+(Use case 1) &lt;.. :user:
+(Use case 2) &lt;- :user:
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071218.png" alt="2016071218.png" />
+</p>
+</div>
+
+<p>
+还可以在箭头中直接使用 <b>left</b> <b>right</b> <b>up</b> <b>down</b> 等关键字指定
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+:user: -left -&gt; (dummyLeft)
+:user: -right -&gt; (dummyRight)
+:user: -up-&gt; (dummyUp)
+:user: -down -&gt; (dummyDown)
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071219.png" alt="2016071219.png" />
+</p>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-sec-2-9" class="outline-3">
+<h3 id="sec-2-9"><span class="section-number-3">2.9</span> Title the diagram</h3>
+<div class="outline-text-3" id="text-2-9">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+title Simple &lt;b&gt;Usecase &lt;/b&gt;\nwith one actor
+"Use the application" as (Use)
+User -&gt; (Use)
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071220.png" alt="2016071220.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-10" class="outline-3">
+<h3 id="sec-2-10"><span class="section-number-3">2.10</span> Splitting diagrams</h3>
+<div class="outline-text-3" id="text-2-10">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+:actor1: --&gt; (Usecase1)
+newpage
+:actor2: --&gt; (Usecase2)
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071221.png" alt="2016071221.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-11" class="outline-3">
+<h3 id="sec-2-11"><span class="section-number-3">2.11</span> Left to right direction</h3>
+<div class="outline-text-3" id="text-2-11">
+<p>
+默认方向是从上到下。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+'default
+top to bottom direction
+user1 --&gt; (Usecase 1)
+user2 --&gt; (Usecase 2)
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071222.png" alt="2016071222.png" />
+</p>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+left to right direction
+user1 --&gt; (Usecase 1)
+user2 --&gt; (Usecase 2)
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071223.png" alt="2016071223.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-12" class="outline-3">
+<h3 id="sec-2-12"><span class="section-number-3">2.12</span> Skinparam</h3>
+<div class="outline-text-3" id="text-2-12">
+<p>
+改变颜色和显示的字体
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+skinparam handwritten true
+skinparam usecase {
+BackgroundColor DarkSeaGreen
+BorderColor DarkSlateGray
+BackgroundColor &lt;&lt; Main &gt;&gt; YellowGreen
+BorderColor &lt;&lt; Main &gt;&gt; YellowGreen
+ArrowColor Olive
+ActorBorderColor black
+ActorFontName Courier
+ActorBackgroundColor &lt;&lt; Human &gt;&gt; Gold
+}
+User &lt;&lt; Human &gt;&gt;
+:Main Database: as MySql &lt;&lt; Application &gt;&gt;
+(Start) &lt;&lt; One Shot &gt;&gt;
+(Use the application) as (Use) &lt;&lt; Main &gt;&gt;
+User -&gt; (Start)
+User --&gt; (Use)
+MySql --&gt; (Use)
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071224.png" alt="2016071224.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-13" class="outline-3">
+<h3 id="sec-2-13"><span class="section-number-3">2.13</span> Complete example</h3>
+<div class="outline-text-3" id="text-2-13">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+left to right direction
+skinparam packageStyle rect
+actor customer
+actor clerk
+rectangle checkout {
+customer -- (checkout)
+(checkout) .&gt; (payment) : include
+(help) .&gt; (checkout) : extends
+(checkout) -- clerk
+}
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071225.png" alt="2016071225.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Class Diagram</h2>
+</div>
+
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Activity Diagram</h2>
+</div>
+
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Activity Diagram (beta)</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+活动图的新语法
+</p>
+</div>
+
+<div id="outline-container-sec-5-1" class="outline-3">
+<h3 id="sec-5-1"><span class="section-number-3">5.1</span> Simple Activity</h3>
+<div class="outline-text-3" id="text-5-1">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+:Hello world;
+:This is on defined on
+several **lines**;
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061002.png" alt="2016061002.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5-2" class="outline-3">
+<h3 id="sec-5-2"><span class="section-number-3">5.2</span> Start/Stop</h3>
+<div class="outline-text-3" id="text-5-2">
+<p>
+定义活动图的开始和结束位置
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+start
+:Hello world;
+:This is on defined on
+several **lines**;
+stop
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061003.png" alt="2016061003.png" />
+</p>
+</div>
+
+<p>
+也可以使用end关键字
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+start
+:Hello world;
+:This is on defined on
+several **lines**;
+end
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061004.png" alt="2016061004.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5-3" class="outline-3">
+<h3 id="sec-5-3"><span class="section-number-3">5.3</span> Conditional</h3>
+<div class="outline-text-3" id="text-5-3">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+start
+if (Graphviz installed?) then (yes)
+:process all\ndiagrams;
+else (no)
+:process only
+__sequence__ and __activity__ diagrams;
+endif
+stop
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061005.png" alt="2016061005.png" />
+</p>
+</div>
+
+<p>
+elseif
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+start
+if (condition A) then (yes)
+:Text 1;
+elseif (condition B) then (yes)
+:Text 2;
+stop
+elseif (condition C) then (yes)
+:Text 3;
+elseif (condition D) then (yes)
+:Text 4;
+else (nothing)
+:Text else;
+endif
+stop
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061006.png" alt="2016061006.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5-4" class="outline-3">
+<h3 id="sec-5-4"><span class="section-number-3">5.4</span> Repeat loop</h3>
+<div class="outline-text-3" id="text-5-4">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+start
+repeat
+:read data;
+:generate diagrams;
+repeat while (more data?)
+stop
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061007.png" alt="2016061007.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5-5" class="outline-3">
+<h3 id="sec-5-5"><span class="section-number-3">5.5</span> While loop</h3>
+<div class="outline-text-3" id="text-5-5">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+start
+while (data available?)
+:read data;
+:generate diagrams;
+endwhile
+stop
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061008.png" alt="2016061008.png" />
+</p>
+</div>
+
+<p>
+使用lable和is关键字
+</p>
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+while (check filesize ?) is (not empty)
+:read file;
+endwhile (empty)
+:close file;
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061009.png" alt="2016061009.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5-6" class="outline-3">
+<h3 id="sec-5-6"><span class="section-number-3">5.6</span> Parallel processing</h3>
+<div class="outline-text-3" id="text-5-6">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+start
+if (multiprocessor?) then (yes)
+fork
+:Treatment 1;
+fork again
+:Treatment 2;
+end fork
+else (monoproc)
+:Treatment 1;
+:Treatment 2;
+endif
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061010.png" alt="2016061010.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5-7" class="outline-3">
+<h3 id="sec-5-7"><span class="section-number-3">5.7</span> Notes</h3>
+<div class="outline-text-3" id="text-5-7">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+start
+:foo1;
+note left: This is a note
+:foo2;
+note right
+This note is on several
+//lines// and can
+contain &lt;b&gt;HTML &lt;/b&gt;
+====
+* Calling the method ""foo()"" is prohibited
+end note
+stop
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061011.png" alt="2016061011.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5-8" class="outline-3">
+<h3 id="sec-5-8"><span class="section-number-3">5.8</span> Title Legend</h3>
+<div class="outline-text-3" id="text-5-8">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+title this is my title
+if (condition?) then (yes)
+:yes;
+else (no)
+:no;
+note right
+this is a note
+end note
+endif
+stop
+legend
+this is the legend
+endlegend
+footer dummy footer
+header
+this is
+a long __dummy__ header
+end header
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061012.png" alt="2016061012.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5-9" class="outline-3">
+<h3 id="sec-5-9"><span class="section-number-3">5.9</span> Colors</h3>
+<div class="outline-text-3" id="text-5-9">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+start
+:starting progress;
+#HotPink:reading configuration files
+These files should edited at this point!;
+#AAAAAA:ending of the process;
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061013.png" alt="2016061013.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5-10" class="outline-3">
+<h3 id="sec-5-10"><span class="section-number-3">5.10</span> Arrow</h3>
+<div class="outline-text-3" id="text-5-10">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+:foo1;
+-&gt; You can put text on arrows;
+if (test) then
+-[#blue]-&gt;
+:foo2;
+-[#green]-&gt; The text can
+also be on several lines
+and **very** long...;
+:foo3;
+else
+-[#black]-&gt;
+:foo4;
+endif
+-[#gray]-&gt;
+:foo5;
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061014.png" alt="2016061014.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5-11" class="outline-3">
+<h3 id="sec-5-11"><span class="section-number-3">5.11</span> Grouping</h3>
+<div class="outline-text-3" id="text-5-11">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+start
+partition Initialization {
+:read config file;
+:init internal variable;
+}
+partition Running {
+:wait for user interaction;
+:print information;
+}
+stop
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061015.png" alt="2016061015.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5-12" class="outline-3">
+<h3 id="sec-5-12"><span class="section-number-3">5.12</span> Swimlanes</h3>
+<div class="outline-text-3" id="text-5-12">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+|Swimlane1|
+start
+:foo1;
+|#AntiqueWhite|Swimlane2|
+:foo2;
+:foo3;
+|Swimlane1|
+:foo4;
+|Swimlane2|
+:foo5;
+stop
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061016.png" alt="2016061016.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5-13" class="outline-3">
+<h3 id="sec-5-13"><span class="section-number-3">5.13</span> Detach</h3>
+<div class="outline-text-3" id="text-5-13">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+:start;
+fork
+:foo1;
+:foo2;
+fork again
+:foo3;
+detach
+endfork
+if (foo4) then
+:foo5;
+detach
+endif
+:foo6;
+detach
+:foo7;
+stop
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061017.png" alt="2016061017.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5-14" class="outline-3">
+<h3 id="sec-5-14"><span class="section-number-3">5.14</span> SDL 通过改变最后的;分隔符，可以设置不同的Activity渲染图形</h3>
+<div class="outline-text-3" id="text-5-14">
+<ul class="org-ul">
+<li>|
+</li>
+<li>&lt;
+</li>
+<li>&gt;
+</li>
+<li>/
+</li>
+<li>]
+</li>
+<li>}
+</li>
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+:Ready;
+:next(o)|
+:Receiving;
+split
+:nak(i)&lt;
+:ack(o)&gt;
+split again
+:ack(i)&lt;
+:next(o)
+on several line|
+:i := i + 1]
+:ack(o)&gt;
+split again
+:err(i)&lt;
+:nak(o)&gt;
+split again
+:foo/
+split again
+:i &gt; 5}
+stop
+end split
+:finish;
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061018.png" alt="2016061018.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5-15" class="outline-3">
+<h3 id="sec-5-15"><span class="section-number-3">5.15</span> Complete example</h3>
+<div class="outline-text-3" id="text-5-15">
+<div class="org-src-container">
+
+<pre class="src src-plantuml">@startuml
+start
+:ClickServlet.handleRequest ();
+:new page;
+if (Page.onSecurityCheck) then (true)
+:Page.onInit();
+if (isForward?) then (no)
+:Process controls;
+if (continue processing?) then (no)
+stop
+endif
+if (isPost?) then (yes)
+:Page.onPost();
+else (no)
+:Page.onGet();
+endif
+:Page.onRender ();
+endif
+else (false)
+endif
+if (do redirect?) then (yes)
+:redirect process;
+else
+if (do forward?) then (yes)
+:Forward request;
+else (no)
+:Render page template;
+endif
+endif
+stop
+@enduml
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016061019.png" alt="2016061019.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> Component Diagram</h2>
+</div>
+
+
+<div id="outline-container-sec-7" class="outline-2">
+<h2 id="sec-7"><span class="section-number-2">7</span> State Diagram</h2>
+</div>
+
+<div id="outline-container-sec-8" class="outline-2">
+<h2 id="sec-8"><span class="section-number-2">8</span> Object Diagram</h2>
+</div>
+
+<div id="outline-container-sec-9" class="outline-2">
+<h2 id="sec-9"><span class="section-number-2">9</span> Common commands</h2>
+</div>
+
+<div id="outline-container-sec-10" class="outline-2">
+<h2 id="sec-10"><span class="section-number-2">10</span> Salt</h2>
+</div>
+
+<div id="outline-container-sec-11" class="outline-2">
+<h2 id="sec-11"><span class="section-number-2">11</span> Creole</h2>
+</div>
+
+<div id="outline-container-sec-12" class="outline-2">
+<h2 id="sec-12"><span class="section-number-2">12</span> Changing fonts and colors</h2>
+</div>
+
+<div id="outline-container-sec-13" class="outline-2">
+<h2 id="sec-13"><span class="section-number-2">13</span> Preprocessing</h2>
+</div>
+
+<div id="outline-container-sec-14" class="outline-2">
+<h2 id="sec-14"><span class="section-number-2">14</span> Internationalization</h2>
+</div>
+
+<div id="outline-container-sec-15" class="outline-2">
+<h2 id="sec-15"><span class="section-number-2">15</span> Color Names</h2>
+</div>
+</div>

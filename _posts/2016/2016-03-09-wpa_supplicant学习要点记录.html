@@ -2,7 +2,7 @@
 layout: post
 date: 2016-03-09
 author: 山庄来客
-update: 2016-05-29
+update: 2016-07-16
 categories: wifi wpa_supplicant
 ---
 <div id="content">
@@ -18,10 +18,12 @@ categories: wifi wpa_supplicant
 <ul>
 <li><a href="#sec-1-2-1"><code>struct wpa_supplicant</code></a></li>
 <li><a href="#sec-1-2-2"><code>struct wpa_global</code></a></li>
-<li><a href="#sec-1-2-3"><code>struct wpa_radio_work</code></a></li>
-<li><a href="#sec-1-2-4"><code>struct nl80211_global</code></a></li>
-<li><a href="#sec-1-2-5"><code>struct wpa_driver_nl80211_data</code></a></li>
-<li><a href="#sec-1-2-6"><code>struct i802_bss</code></a></li>
+<li><a href="#sec-1-2-3"><code>struct wpa_radio</code></a></li>
+<li><a href="#sec-1-2-4"><code>struct wpa_radio_work</code></a></li>
+<li><a href="#sec-1-2-5"><code>struct nl80211_global</code></a></li>
+<li><a href="#sec-1-2-6"><code>struct wpa_driver_nl80211_data</code></a></li>
+<li><a href="#sec-1-2-7"><code>struct i802_bss</code></a></li>
+<li><a href="#sec-1-2-8"><code>struct nl80211_global</code></a></li>
 </ul>
 </li>
 <li><a href="#sec-1-3"><code>wpa_supplicant</code> 初始化分析</a>
@@ -87,7 +89,7 @@ categories: wifi wpa_supplicant
 <li><a href="#sec-2-1-4">Go创建</a></li>
 <li><a href="#sec-2-1-5">socket control interface</a></li>
 <li><a href="#sec-2-1-6">nl80211 (p2p)</a></li>
-<li><a href="#sec-2-1-7">错误总结</a></li>
+<li><a href="#sec-2-1-7">问题调试</a></li>
 </ul>
 </li>
 <li><a href="#sec-2-2">bgscan (roaming) IAPP(Inter Access Point Protocol)</a></li>
@@ -98,22 +100,35 @@ categories: wifi wpa_supplicant
 </ul>
 </li>
 <li><a href="#sec-2-4">SME</a></li>
-<li><a href="#sec-2-5">SoftAp</a></li>
-</ul>
-</li>
-<li><a href="#sec-3">常用代码片断</a>
+<li><a href="#sec-2-5">SoftAp</a>
 <ul>
-<li><a href="#sec-3-1">遍历当前的接口</a></li>
-<li><a href="#sec-3-2">遍历接口上存在的SSID</a></li>
+<li><a href="#sec-2-5-1">数据结构</a></li>
 </ul>
 </li>
-<li><a href="#sec-4">参考资料</a></li>
+</ul>
+</li>
+<li><a href="#sec-3"><code>wpa_supplicant</code> 代码修改</a>
+<ul>
+<li><a href="#sec-3-1">add a conf parameter to start a GO as HT40 if allowed</a></li>
+<li><a href="#sec-3-2">add 165和169信道支持</a></li>
+<li><a href="#sec-3-3">P2P: Clear the discovery state incase of deffered GO Neg response</a></li>
+<li><a href="#sec-3-4">Android: P2P: Fix restriction of GO channels on A-band</a></li>
+</ul>
+</li>
+<li><a href="#sec-4">常用代码片断</a>
+<ul>
+<li><a href="#sec-4-1">遍历当前的接口</a></li>
+<li><a href="#sec-4-2">遍历接口上存在的SSID</a></li>
+<li><a href="#sec-4-3">遍历当前的接口(方法2)</a></li>
+<li><a href="#sec-4-4">遍历hostapd上的bss</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
 
 <div id="outline-container-sec-1" class="outline-2">
-<h2 id="sec-1"><code>wpa_supplicant</code> 基本架构分析</h2>
+<h2 id="sec-1"><code>wpa_supplicant</code> 基本架构分析<sup><a id="fnr.1" name="fnr.1" class="footref" href="#fn.1">1</a></sup> <sup>, </sup><sup><a id="fnr.2" name="fnr.2" class="footref" href="#fn.2">2</a></sup></h2>
 <div class="outline-text-2" id="text-1">
 </div><div id="outline-container-sec-1-1" class="outline-3">
 <h3 id="sec-1-1">模块结构图</h3>
@@ -136,10 +151,54 @@ categories: wifi wpa_supplicant
 <h4 id="sec-1-2-2"><code>struct wpa_global</code></h4>
 </div>
 <div id="outline-container-sec-1-2-3" class="outline-4">
-<h4 id="sec-1-2-3"><code>struct wpa_radio_work</code></h4>
+<h4 id="sec-1-2-3"><code>struct wpa_radio</code></h4>
 <div class="outline-text-4" id="text-1-2-3">
+<div class="org-src-container">
+
+<pre class="src src-c">/**
+ * struct wpa_radio - Internal data for per-radio information
+ *
+ * This structure is used to share data about configured interfaces
+ * (struct wpa_supplicant) that share the same physical radio, e.g., to allow
+ * better coordination of offchannel operations.
+ */
+struct wpa_radio {
+        char name[16]; /* from driver_ops get_radio_name() or empty if not
+                        * available */
+        unsigned int external_scan_running:1;
+        unsigned int num_active_works;
+        struct dl_list ifaces; /* struct wpa_supplicant::radio_list entries */
+        struct dl_list work; /* struct wpa_radio_work::list entries */
+};
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-1-2-4" class="outline-4">
+<h4 id="sec-1-2-4"><code>struct wpa_radio_work</code></h4>
+<div class="outline-text-4" id="text-1-2-4">
 <p>
-Radio work item
+Radio work item, 数据结构定义如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">/**
+ * struct wpa_radio_work - Radio work item
+ */
+struct wpa_radio_work {
+        struct dl_list list;
+        unsigned int freq; /* known frequency (MHz) or 0 for multiple/unknown */
+        const char *type;
+        struct wpa_supplicant *wpa_s;
+        void (*cb)(struct wpa_radio_work *work, int deinit);
+        void *ctx;  //pointer to struct wpa_connect_work  ==&gt;Yajun
+        unsigned int started:1;
+        struct os_reltime time;
+        unsigned int bands;
+};
+</pre>
+</div>
+<p>
 相关的函数接口
 </p>
 <ol class="org-ol">
@@ -156,9 +215,9 @@ Radio work item
 </ol>
 </div>
 </div>
-<div id="outline-container-sec-1-2-4" class="outline-4">
-<h4 id="sec-1-2-4"><code>struct nl80211_global</code></h4>
-<div class="outline-text-4" id="text-1-2-4">
+<div id="outline-container-sec-1-2-5" class="outline-4">
+<h4 id="sec-1-2-5"><code>struct nl80211_global</code></h4>
+<div class="outline-text-4" id="text-1-2-5">
 <div class="org-src-container">
 
 <pre class="src src-c">struct nl80211_global {
@@ -182,12 +241,12 @@ Radio work item
 </p>
 </div>
 </div>
-<div id="outline-container-sec-1-2-5" class="outline-4">
-<h4 id="sec-1-2-5"><code>struct wpa_driver_nl80211_data</code></h4>
-</div>
 <div id="outline-container-sec-1-2-6" class="outline-4">
-<h4 id="sec-1-2-6"><code>struct i802_bss</code></h4>
-<div class="outline-text-4" id="text-1-2-6">
+<h4 id="sec-1-2-6"><code>struct wpa_driver_nl80211_data</code></h4>
+</div>
+<div id="outline-container-sec-1-2-7" class="outline-4">
+<h4 id="sec-1-2-7"><code>struct i802_bss</code></h4>
+<div class="outline-text-4" id="text-1-2-7">
 <div class="org-src-container">
 
 <pre class="src src-c">struct i802_bss {
@@ -222,6 +281,30 @@ Radio work item
 <code>wpa_driver_nl80211_set_mode</code> 的时候，
 <code>wpa_supplicant</code> 会向Driver注册一些Action帧。
 </p>
+</div>
+</div>
+<div id="outline-container-sec-1-2-8" class="outline-4">
+<h4 id="sec-1-2-8"><code>struct nl80211_global</code></h4>
+<div class="outline-text-4" id="text-1-2-8">
+<div class="org-src-container">
+
+<pre class="src src-c">struct nl80211_global {
+        struct dl_list interfaces;
+        int if_add_ifindex;
+        u64 if_add_wdevid;
+        int if_add_wdevid_set;
+        struct netlink_data *netlink;
+        struct nl_cb *nl_cb;
+        struct nl_handle *nl;
+        int nl80211_id;
+        int ioctl_sock; /* socket for ioctl() use */
+
+  //netlink socket
+  //接收Driver回报的一些事件(广播事件)，如scan, mlme, regulatory,vendor
+        struct nl_handle *nl_event;
+};
+</pre>
+</div>
 </div>
 </div>
 </div>
@@ -303,7 +386,7 @@ Radio work item
 <div class="figure">
 <p><img src="/images/2015/2015122901.png" alt="2015122901.png" />
 </p>
-<p><span class="figure-number">Figure 7:</span> struct eloop_data</p>
+<p><span class="figure-number">Figure 7:</span> struct eloop<sub>data</sub></p>
 </div>
 
 <p>
@@ -589,7 +672,7 @@ backend
 interface backend
 </li>
 <li><code>wpa_ctrl.c and wpa_ctrl.h</code> Library functions for external
-programs to provide access to the wpa_supplicant control
+programs to provide access to the wpa<sub>supplicant</sub> control
 interface
 </li>
 </ul>
@@ -700,6 +783,11 @@ callback函数 <code>wpa_supplicant_ctrl_iface_msg_cb</code> ， 在该函数中
 <li>DISCONNECT
 </li>
 <li>SCAN
+SCAN流程分析
+<code>wpa_supplicant_event</code> &#x2013;&gt; <code>EVENT_SCAN_RESULTS</code> &#x2013;&gt;
+<code>wpa_supplicant_event_scan_results</code>
+每次扫描结束会，会调用 <code>wpas_select_network_from_last_scan</code> 来
+选择一个网络进行连接。
 </li>
 <li><code>SCAN_RESULTS</code>
 </li>
@@ -842,7 +930,7 @@ Peering Manager)，如果驱动实现了MPM，可以设置些值为0.
 </p>
 
 <p>
-1: wpa_supplicant provides an MPM which handles peering (default)
+1: wpa<sub>supplicant</sub> provides an MPM which handles peering (default)
 </p>
 </li>
 <li><code>max_peer_links</code> 
@@ -876,7 +964,16 @@ Dynamic EAP methods. 当EAP方法是编译成单独的so文件时，需要配置
 项。默认情况下，EAP方法是静态编译到 <code>wpa_supplicant</code> 。
 </li>
 <li><code>driver_param</code>
-     驱动接口参数。
+     驱动接口参数, 在函数  <code>nl80211_set_param</code> 中设置。
+<pre class="example">
+driver_param=use_p2p_group_interface=1
+</pre>
+<p>
+这个参数主要是针对P2P设置的，是否支持 p2p concurrent
+operation. 每次p2p 协商成功后，会创建一个group interface. 通过这
+个接口，来处理p2p相关的管理帧 ，也可以处理非p2p的管理帧，如关联请
+求（GC与GO关联时的交互帧）
+</p>
 </li>
 <li><code>country</code>
      国家码
@@ -930,7 +1027,7 @@ Dynamic EAP methods. 当EAP方法是编译成单独的so文件时，需要配置
 
 <p>
 2: process received credentials internally and pass them over
-ctrl_iface to external program(s)
+ctrl<sub>iface</sub> to external program(s)
 </p>
 </li>
 <li><code>wps_vendor_ext_m1</code> 
@@ -1133,7 +1230,7 @@ recvfrom与sendto函数进行数据的收发，其目的地址结构为 <code>so
 </p>
 
 <p>
-Sockaddr_ll结构如下：
+Sockaddr<sub>ll结构如下：</sub>
 </p>
 <div class="org-src-container">
 
@@ -1391,7 +1488,7 @@ static void sm_ ## machine ## _Step(STATE_MACHINE_DATA *sm)
 <li><a id="sec-1-11-2-2" name="sec-1-11-2-2"></a>wpa Authenticator<br  /><div class="outline-text-5" id="text-1-11-2-2">
 <p>
 在 <code>hostapd_setup_wpa</code> 中会初始化 <code>wpa_authenticator</code>
-(wpa_auth_glue.h), 标记为： <code>WPA_PROTO_WPA</code> <code>WPA_PROTO_RSN</code>
+(wpa<sub>auth</sub><sub>glue</sub>.h), 标记为： <code>WPA_PROTO_WPA</code> <code>WPA_PROTO_RSN</code>
 </p>
 </div>
 </li>
@@ -1554,6 +1651,13 @@ device list列表）
 <h4 id="sec-2-1-2">基本连接流程</h4>
 <div class="outline-text-4" id="text-2-1-2">
 </div><ul class="org-ul"><li><a id="sec-2-1-2-1" name="sec-2-1-2-1"></a>一般连接过程<br  /><div class="outline-text-5" id="text-2-1-2-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016071202.png" alt="2016071202.png" />
+</p>
+<p><span class="figure-number">Figure 13:</span> P2P Standard Group Formation</p>
+</div>
+
 <ol class="org-ol">
 <li>首先，P2P设备要能发现对方，会通过扫描来进行：要么在1，6，11信道
 上主动发送Probe Request来侦测P2P设备，要么停留在某个信息侦测
@@ -1602,6 +1706,13 @@ GO会不停地发送Beacon帧，携带协商的BSSID信息，且 <code>group
 </li>
 
 <li><a id="sec-2-1-2-2" name="sec-2-1-2-2"></a>收到Invitation Request的交互过程<br  /><div class="outline-text-5" id="text-2-1-2-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016071203.png" alt="2016071203.png" />
+</p>
+<p><span class="figure-number">Figure 15:</span> P2P Persisten Group Formation</p>
+</div>
+
 <ol class="org-ol">
 <li>当前设置处于 <code>P2P_Find</code> 阶段时，如果收到 <code>Invitation Request</code>
 Action帧，即 <code>P2P: Received Invitation Request from
@@ -1621,9 +1732,6 @@ Action帧，即 <code>P2P: Received Invitation Request from
 </ol>
 </div>
 </li>
-
-
-
 
 <li><a id="sec-2-1-2-3" name="sec-2-1-2-3"></a>Driver 当GC时的交互过程：<br  /><div class="outline-text-5" id="text-2-1-2-3">
 <pre class="example">
@@ -1839,6 +1947,22 @@ Action帧发送后，Driver会反馈发送的状态，即发送成功与否。
 </p>
 </div>
 </div>
+</li>
+
+<li><a id="sec-2-1-2-7" name="sec-2-1-2-7"></a>p2p协商时信道的选择<br  /><div class="outline-text-5" id="text-2-1-2-7">
+<ol class="org-ol">
+<li>在获取peer信息前，选择oper Channel
+<pre class="example">
+p2p_prepare_channel
+</pre>
+</li>
+<li>在获取peer信息后， 调用如下函数进行优化
+<pre class="example">
+p2p_reselect_channel
+</pre>
+</li>
+</ol>
+</div>
 </li></ul>
 </div>
 
@@ -1868,6 +1992,7 @@ Action帧发送后，Driver会反馈发送的状态，即发送成功与否。
 <div class="outline-text-4" id="text-2-1-4">
 <p>
 入口函数： <code>wpa_driver_nl80211_set_ap</code> 
+Ignore deauth event in AP mode
 两个相关的NL80211命令：
 </p>
 <ul class="org-ul">
@@ -1899,11 +2024,33 @@ Action帧发送后，Driver会反馈发送的状态，即发送成功与否。
 </thead>
 <tbody>
 <tr>
-<td class="left"><code>p2p_find</code> [timeout (seconds)] [type &lt;social \ progressive&gt;]</td>
+<td class="left"><code>p2p_find</code> [timeout (seconds)] [type &lt;social \ progressive&gt;] [ <code>dev_id</code> =] [delay=]</td>
 <td class="left">Enables discovery – start sending probe request frames</td>
 </tr>
 </tbody>
 </table>
+
+<p>
+p2p<sub>find默认的行为是开始做一次全信道扫描，然后扫描特定的信道。</sub> 
+参数说明如下：
+</p>
+<ul class="org-ul">
+<li>当type=social时，只会扫描社会信息，会跳过第一次全信道扫描。
+</li>
+
+<li>当type=progressive时，行为类似默认情况下的行为，只不过在每一次
+Search状态的回合中，依次扫描一个信道。
+</li>
+
+<li>dev<sub>id</sub> : 可以指定单个要扫描的对端设备。
+</li>
+
+<li>delay: 是一个延时值。 
+</li>
+</ul>
+</li>
+</ul>
+
 
 <p>
 当接受到 <code>p2p_find</code> 命令时，会进入入口函数： <code>p2p_ctrl_find</code> ，
@@ -1915,6 +2062,7 @@ Action帧发送后，Driver会反馈发送的状态，即发送成功与否。
 <li>延时扫描的时间，即等待多久后，进行p2p find的动作。
 </li>
 </ol>
+
 <p>
 接下来会进入 <code>wpas_p2p_find</code> 函数，如果当前的SSID的模式为
 <code>WPAS_MODE_P2P_GO</code> 或 <code>WPAS_MODE_P2P_GROUP_FORMATION</code> ， 会停止
@@ -1930,10 +2078,10 @@ NL80211触发Driver直接 p2p find动作。 否则，则会进入 <code>p2p_find
 
 <p>
 这些函数会准备执行 p2p find 所需要的一些参数 ，然后调用到
-p2p-&gt;cfg-&gt;p2p_scan 回调接口。 它有三种返回值：
+p2p-&gt;cfg-&gt;p2p<sub>scan</sub> 回调接口。 它有三种返回值：
 </p>
 <ul class="org-ul">
-<li>0: 扫描请求发磅成功，设置扫描超时时间。
+<li>0: 扫描请求发送成功，设置扫描超时时间。
 </li>
 <li>1: 扫描请求失败，会等待上一个扫描动作完成后，再进行尝试，当前
 P2P状态机置为： <code>P2P_SEARCH_WHEN_READY</code> , 表示有个未决的扫描动
@@ -1943,14 +2091,15 @@ P2P状态机置为： <code>P2P_SEARCH_WHEN_READY</code> , 表示有个未决的
 <li>其他值： 扫描请求失败。 
 </li>
 </ul>
+
 <p>
 在 <code>p2p_supplicant.c</code> 文件中，定义了p2p 初始化的函数，里面有定义
 对应的回调接口： <code>wpas_p2p_scan</code> 。  在该函数中，会通过
 <code>wpa_drv_scan</code> 将扫描请求发送给Driver， 并指定扫描结果的处理回回
 调接口： <code>wpas_p2p_scan_res_handler</code> 
 </p>
-</li>
 
+<ul class="org-ul">
 <li><code>p2p_stop_find</code>
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -1996,7 +2145,7 @@ P2P状态机置为： <code>P2P_SEARCH_WHEN_READY</code> , 表示有个未决的
 </tr>
 
 <tr>
-<td class="left"><code>P2p_connect</code> &lt;device address&gt; &lt;PBC \ PIN&gt; [ <code>GO_intent</code> =&lt;0-15&gt; \ auth \ join]</td>
+<td class="left"><code>p2p_connect</code> &lt;device address&gt; &lt;PBC \ PIN&gt; [ <code>GO_intent</code> =&lt;0-15&gt; \ auth \ join]</td>
 <td class="left">Auth – WPS authorize incoming connection</td>
 </tr>
 
@@ -2020,15 +2169,19 @@ P2P状态机置为： <code>P2P_SEARCH_WHEN_READY</code> , 表示有个未决的
 <ul class="org-ul">
 <li><code>wpas_p2p_add_group_interface</code> 创建P2P虚拟接口
 </li>
-<li><code>wpas_p2p_auth_go_neg</code> 只确认协商时使用的信息信息
+<li><code>wpas_p2p_auth_go_neg</code> 只确认协商时使用的信息
 </li>
 <li><code>wpas_p2p_start_go_neg</code> 开始 GO NEGOTIATION。
-
-<p>
-<code>p2p_connect_send</code>
-</p>
 </li>
 </ul>
+<p>
+在wps完成后，会启动重新关联过程,标记所有网络为禁用状态，从而触发
+Roaming过程：
+</p>
+<pre class="example">
+wpas_wps_temp_disable(wpa_s, selected);
+wpa_s-&gt;reassociate = 1;
+</pre>
 </li>
 
 <li><code>p2p_listen</code>
@@ -2053,7 +2206,37 @@ P2P状态机置为： <code>P2P_SEARCH_WHEN_READY</code> , 表示有个未决的
 </tr>
 </tbody>
 </table>
+
+<p>
+Listen状态可能不会立即开始，因为可能会有其他未决的操作正在进行，
+一旦进入Listen状态，会调用p2p<sub>listen</sub><sub>cb</sub>()函数通知P2P模块。一旦退
+出Listen状态，会调用p2p<sub>listen</sub><sub>end</sub>()函数通知P2P模块已经不再处于
+Listen状态了。
+</p>
+
+<p>
+<code>p2p_listen</code> 流程分析：
+应用程序进入Miracast后，一般会调用 <code>p2p_listen</code> 命令，监听附近的
+WFD Source设备， 大致流程如下：
+</p>
+
+<div class="figure">
+<p><img src="/images/2016/2016061001.png" alt="2016061001.png" />
+</p>
+</div>
+
+<p>
+在监听的过程，当驱动收到Probe Request请求后，会通过
+<code>cfg80211_rx_mgmt</code> 上报给内核，并最终通知给 <code>wpa_supplicant</code> ，
+调用路径为：
+</p>
+
+<div class="figure">
+<p><img src="/images/2016/2016061201.png" alt="2016061201.png" />
+</p>
+</div>
 </li>
+
 <li><code>p2p_group_remove</code>
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -2217,7 +2400,7 @@ P2P状态机置为： <code>P2P_SEARCH_WHEN_READY</code> , 表示有个未决的
 <tbody>
 <tr>
 <td class="left"><code>P2p_flush</code></td>
-<td class="left">Flush p2p_state, and clears the discovered peer list</td>
+<td class="left">Flush p2p<sub>state</sub>, and clears the discovered peer list</td>
 </tr>
 </tbody>
 </table>
@@ -2226,7 +2409,7 @@ P2P状态机置为： <code>P2P_SEARCH_WHEN_READY</code> , 表示有个未决的
 </li>
 <li><code>p2p_ext_listen</code>
 </li>
-<li><code>p2p_group_idle</code>
+<li><code>p2p_group_idle</code> 
 Maximum idle time in seconds for P2P group
 当一个p2p group建立起来后，GO等待GC连接的最大等待时间，或GC发现
 GO的最大超时时间。
@@ -2272,28 +2455,96 @@ D/wpa_supplicant( 7409 7409): P2P: Remove group interface p2p-p2p0-0
 <ul class="org-ul">
 <li><code>NL80211_CMD_REMAIN_ON_CHANNEL</code>
 </li>
-<li><code>NL80211_CMD_CANCEL_REMAIN_ON_CHANNEL</code>
+<li><code>NL80211_CMD_CANCEL_REMAIN_ON_CHANNEL</code>  
+
+<p>
 This indicates to the device that it should stay on a given
 channel for a given time, to implement a P2P listen phase. Can
 also be canceled, since it is also used to implement off-channel
 TX for group negotiation or invitation
+</p>
 </li>
+
 <li><code>NL80211_CMD_FRAME (previously NL80211_CMD_ACTION)</code>
-      传输一个管理帧。
+
+<p>
+传输一个管理帧。
+</p>
 </li>
+
 <li><code>NL80211_CMD_REGISTER_FRAME</code>
-      通过nl80211，用户程序可以注册接收指定类型的管理帧。
+
+<p>
+通过nl80211，用户程序可以注册接收指定类型的管理帧。
+</p>
 </li>
 </ul>
 </div>
 </div>
+
 <div id="outline-container-sec-2-1-7" class="outline-4">
-<h4 id="sec-2-1-7">错误总结</h4>
+<h4 id="sec-2-1-7">问题调试</h4>
 <div class="outline-text-4" id="text-2-1-7">
-<p>
-当Associate  Request失败后，会尝试5次
-</p>
+</div><ul class="org-ul"><li><a id="sec-2-1-7-1" name="sec-2-1-7-1"></a>P2p Standard Group Formation<br  /><div class="outline-text-5" id="text-2-1-7-1">
+<ul class="org-ul">
+<li>Could not find peer or be found by peer
+<ul class="org-ul">
+<li>Check if framework triggered p2p find phase by <code>P2P_FIND</code>
+</li>
+<li>If so,  check if probe request/response handshake works
+ok(sniffer if possible)
+</li>
+</ul>
+</li>
+<li>Scan issues
+<ul class="org-ul">
+<li>Check if has GO beacons and probe request from box and
+probe response from GO when acts as GC
+</li>
+<li>Check if box has tx beacon and RX probe request from peer
+when acts as GO(sniffer if possible)
+</li>
+<li>WPS handshake issues
+<ul class="org-ul">
+<li>Check if WPS EAP handshake work ok in tcpdump log
+</li>
+<li>Need sniffer if WPS handshake not complete
+</li>
+</ul>
+</li>
+<li>4-way handshake issues
+<ul class="org-ul">
+<li>Check if 4-way handshake work ok in tcpdump log
+</li>
+<li>Need sniffer if 4-way handshake not complete
+</li>
+</ul>
+</li>
+<li>DHCP issues
+<ul class="org-ul">
+<li>Check if DHCP handshake work OK in tcpdump log
+</li>
+<li>Need sniffer
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 </div>
+</li>
+
+<li><a id="sec-2-1-7-2" name="sec-2-1-7-2"></a>P2P persistent Group Formation<br  /><div class="outline-text-5" id="text-2-1-7-2">
+<ul class="org-ul">
+<li>Invitation request/response handshake work ok(need sniffer)
+</li>
+<li>4-way handshake issues
+</li>
+<li>DHCP issues
+</li>
+</ul>
+</div>
+</li></ul>
 </div>
 </div>
 
@@ -2312,7 +2563,7 @@ enough.
 <p>
 I also found that this module was compiled, present and
 functioning by default. The only missing piece is that the
-configuration line in the wpa_supplicant.conf is missing
+configuration line in the wpa<sub>supplicant</sub>.conf is missing
 preventing the bgscan module from loading. I added the line into
 the section for the relevant network:
 </p>
@@ -2468,7 +2719,7 @@ WPS超时时间为120秒。
 </li>
 <li>配置新建的网络SSID的基本信息。
 </li>
-<li>设置wpa_supplicant实例相关信息。
+<li>设置wpa<sub>supplicant实例相关信息。</sub>
        设置回调接口： <code>p2p_go_configured</code>
 </li>
 <li><code>wpa_supplicant_req_scan</code>
@@ -2522,22 +2773,342 @@ wpa_ptk_rekey=600
 </pre>
 </div>
 </div>
+
+<div id="outline-container-sec-2-5-1" class="outline-4">
+<h4 id="sec-2-5-1">数据结构</h4>
+<div class="outline-text-4" id="text-2-5-1">
+<ol class="org-ol">
+<li><code>struct hapd_interfaces</code>
+<div class="org-src-container">
+
+<pre class="src src-c">struct hapd_interfaces {
+        int (*reload_config)(struct hostapd_iface *iface);
+        struct hostapd_config * (*config_read_cb)(const char *config_fname);
+        int (*ctrl_iface_init)(struct hostapd_data *hapd);
+        void (*ctrl_iface_deinit)(struct hostapd_data *hapd);
+        int (*for_each_interface)(struct hapd_interfaces *interfaces,
+                                  int (*cb)(struct hostapd_iface *iface,
+                                            void *ctx), void *ctx);
+        int (*driver_init)(struct hostapd_iface *iface);
+
+        size_t count;
+        int global_ctrl_sock;
+        struct wpa_ctrl_dst *global_ctrl_dst;
+        char *global_iface_path;
+        char *global_iface_name;
+#ifndef CONFIG_NATIVE_WINDOWS
+        gid_t ctrl_iface_group;
+#endif /* CONFIG_NATIVE_WINDOWS */
+        struct hostapd_iface **iface;
+
+        size_t terminate_on_error;
+#ifndef CONFIG_NO_VLAN
+        struct dynamic_iface *vlan_priv;
+#endif /* CONFIG_NO_VLAN */
+};
+</pre>
 </div>
+</li>
+</ol>
+
+
+
+<p>
+WifiStateMachine: (Initial State)
+CMD<sub>START</sub><sub>AP</sub> &#x2013;&gt;  setWifiApState
+</p>
+
+<p>
+SoftApStartingState:
+CMD<sub>TETHER</sub><sub>STATE</sub><sub>CHANGE</sub>
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">01-01 00:06:05.374 E/hostapd ( 1638): Configuration file: /data/misc/wifi/hostapd.conf
+01-01 00:06:05.374 E/hostapd ( 1638): Configuration file: /data/misc/wifi/hostapd.conf
+01-01 00:06:05.376 I/hostapd ( 1638): rfkill: Cannot open RFKILL control device
+01-01 00:06:05.966 E/hostapd ( 1638): Using interface wlan0 with hwaddr 00:22:13:03:21:3c and ssid "AndroidAP"
+01-01 00:06:06.271 I/hostapd ( 1638): wlan0: interface state UNINITIALIZED-&gt;ENABLED
+01-01 00:06:06.271 I/hostapd ( 1638): wlan0: AP-ENABLED
+</pre>
 </div>
 
+<p>
+wifi.tethering.interface
+</p>
+</div>
+</div>
+</div>
+</div>
 
 
 <div id="outline-container-sec-3" class="outline-2">
-<h2 id="sec-3">常用代码片断</h2>
+<h2 id="sec-3"><code>wpa_supplicant</code> 代码修改</h2>
 <div class="outline-text-2" id="text-3">
+</div><div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1">add a conf parameter to start a GO as HT40 if allowed</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+When specified in the conf file this parameter will make all
+invocations of p2p<sub>group</sub><sub>add</sub> and p2p<sub>connect</sub> behave as if "ht40"
+has been specified on the command line.
+This shouldn't do harm since regulatory constraints and driver
+capabilities are consulted anyway before starting HT40 mode.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">---
+ wpa_supplicant/config.c      |    1 +
+ wpa_supplicant/config.h      |   10 ++++++++++
+ wpa_supplicant/config_file.c |    2 ++
+ wpa_supplicant/ctrl_iface.c  |    4 ++--
+ 4 files changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/wpa_supplicant/config.c b/wpa_supplicant/config.c
+index be21029..3f64b03 100644
+--- a/wpa_supplicant/config.c
++++ b/wpa_supplicant/config.c
+@@ -3000,6 +3000,7 @@ static const struct global_parse_data global_fields[] = {
+        { INT_RANGE(p2p_intra_bss, 0, 1), CFG_CHANGED_P2P_INTRA_BSS },
+        { INT(p2p_group_idle), 0 },
+        { FUNC(p2p_pref_chan), CFG_CHANGED_P2P_PREF_CHAN },
++       { INT(p2p_go_ht40), 0 },
+ #endif /* CONFIG_P2P */
+        { FUNC(country), CFG_CHANGED_COUNTRY },
+        { INT(bss_max_count), 0 },
+diff --git a/wpa_supplicant/config.h b/wpa_supplicant/config.h
+index b889ab8..9cf5468 100644
+--- a/wpa_supplicant/config.h
++++ b/wpa_supplicant/config.h
+@@ -747,6 +747,16 @@ struct wpa_config {
+         *     matching network block
+         */
+        int auto_interworking;
++
++       /**
++        * p2p_go_ht40 - Default mode for HT40 enable when operating as GO.
++        *
++        * This will take effect for p2p_group_add and p2p_connect. Note that
++        * regulatory constraints and driver capabilities are consulted anyway,
++        * so setting it to 1 can't do real harm
++        * By default: 0 (disabled)
++        */
++       int p2p_go_ht40;
+ };
+
+
+diff --git a/wpa_supplicant/config_file.c b/wpa_supplicant/config_file.c
+index 531957a..bd9c17f 100644
+--- a/wpa_supplicant/config_file.c
++++ b/wpa_supplicant/config_file.c
+@@ -868,6 +868,8 @@ static void wpa_config_write_global(FILE *f, struct wpa_config *config)
+                }
+                fprintf(f, "\n");
+        }
++       if (config-&gt;p2p_go_ht40)
++               fprintf(f, "p2p_go_ht40=%u\n", config-&gt;p2p_go_ht40);
+ #endif /* CONFIG_P2P */
+        if (config-&gt;country[0] &amp;&amp; config-&gt;country[1]) {
+                fprintf(f, "country=%c%c\n",
+diff --git a/wpa_supplicant/ctrl_iface.c b/wpa_supplicant/ctrl_iface.c
+index ba2edff..c9c6826 100644
+--- a/wpa_supplicant/ctrl_iface.c
++++ b/wpa_supplicant/ctrl_iface.c
+@@ -3117,7 +3117,7 @@ static int p2p_ctrl_connect(struct wpa_supplicant *wpa_s, char *cmd,
+        auth = os_strstr(pos, " auth") != NULL;
+        automatic = os_strstr(pos, " auto") != NULL;
+        pd = os_strstr(pos, " provdisc") != NULL;
+-       ht40 = os_strstr(pos, " ht40") != NULL;
++       ht40 = (os_strstr(cmd, "ht40") != NULL) || wpa_s-&gt;conf-&gt;p2p_go_ht40;
+
+        pos2 = os_strstr(pos, " go_intent=");
+        if (pos2) {
+@@ -3624,7 +3624,7 @@ static int p2p_ctrl_group_add(struct wpa_supplicant *wpa_s, char *cmd)
+        if (pos)
+                freq = atoi(pos + 5);
+
+-       ht40 = os_strstr(cmd, "ht40") != NULL;
++       ht40 = (os_strstr(cmd, "ht40") != NULL) || wpa_s-&gt;conf-&gt;p2p_go_ht40;
+
+        if (os_strncmp(cmd, "persistent=", 11) == 0)
+                return p2p_ctrl_group_add_persistent(wpa_s, cmd + 11, freq,
+--
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2">add 165和169信道支持</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+Channels 165 and 169 are part of operating class 125. Add support for these channels.
+主要修改两个地方：
+</p>
+<ol class="org-ol">
+<li><code>ieee802_11_common.c</code>
+<div class="org-src-container">
+
+<pre class="src src-c">static int ieee80211_chan_to_freq_global(u8 op_class, u8 chan)
+{
+        /* Table E-4 in IEEE Std 802.11-2012 - Global operating classes */
+        switch (op_class) {
+          ...
+        case 125: /* channels 149,153,157,161,165,169 */
+                if (chan &lt; 149 || chan &gt; 169)
+                        return -1;
+                return 5000 + 5 * chan;
+        ...
+
+        return -1;
+}
+</pre>
+</div>
+</li>
+
+<li><code>p2p_supplicant.c</code>
+<div class="org-src-container">
+
+<pre class="src src-c">static const struct p2p_oper_class_map op_class[] = {
+              ...
+        { HOSTAPD_MODE_IEEE80211A, 125, 149, 169, 4, BW20 },
+              ...
+};
+</pre>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-sec-3-3" class="outline-3">
+<h3 id="sec-3-3">P2P: Clear the discovery state incase of deffered GO Neg response</h3>
+<div class="outline-text-3" id="text-3-3">
+<div class="org-src-container">
+
+<pre class="src src-sh">diff --git a/src/p2p/p2p.c b/src/p2p/p2p.c
+index 767706c..5d6abe3 100644
+--- a/src/p2p/p2p.c
++++ b/src/p2p/p2p.c
+@@ -3572,8 +3572,17 @@ static void p2p_go_neg_resp_failure_cb(struct p2p_data *p2p, int success,
+                struct p2p_device *dev;
+                dev = p2p_get_device(p2p, addr);
+                if (dev &amp;&amp;
+-                   dev-&gt;status == P2P_SC_FAIL_INFO_CURRENTLY_UNAVAILABLE)
++                   dev-&gt;status == P2P_SC_FAIL_INFO_CURRENTLY_UNAVAILABLE) {
+                        dev-&gt;flags |= P2P_DEV_PEER_WAITING_RESPONSE;
++                       if ((p2p-&gt;state == P2P_SEARCH) ||
++                           (p2p-&gt;state == P2P_LISTEN_ONLY)) {
++                               /* Clear our search state or Listen state since
++                                * now peer is awaiting response from our side.
++                                */
++                               p2p_dbg(p2p, "Clear the P2P discovery state");
++                               p2p_stop_find(p2p);
++                       }
++               }
+        }
+
+        if (p2p-&gt;state == P2P_SEARCH || p2p-&gt;state == P2P_SD_DURING_FIND)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-3-4" class="outline-3">
+<h3 id="sec-3-4">Android: P2P: Fix restriction of GO channels on A-band</h3>
+<div class="outline-text-3" id="text-3-4">
+<div class="org-src-container">
+
+<pre class="src src-sh">diff --git a/src/p2p/p2p_go_neg.c b/src/p2p/p2p_go_neg.c
+index 17fb329..bd583be 100644
+--- a/src/p2p/p2p_go_neg.c
++++ b/src/p2p/p2p_go_neg.c
+@@ -418,7 +418,13 @@ void p2p_reselect_channel(struct p2p_data *p2p,
+
+        /* Prefer a 5 GHz channel */
+        for (i = 0; i &lt; intersection-&gt;reg_classes; i++) {
++#ifdef ANDROID_P2P
++               struct p2p_reg_class prc;
++               struct p2p_reg_class *c = &amp;prc;
++               p2p_copy_reg_class(c, &amp;intersection-&gt;reg_class[i]);
++#else
+                struct p2p_reg_class *c = &amp;intersection-&gt;reg_class[i];
++#endif
+                if ((c-&gt;reg_class == 115 || c-&gt;reg_class == 124) &amp;&amp;
+                    c-&gt;channels) {
+                        unsigned int r;
+diff --git a/src/p2p/p2p_i.h b/src/p2p/p2p_i.h
+index d28aae9..81e521e 100644
+--- a/src/p2p/p2p_i.h
++++ b/src/p2p/p2p_i.h
+@@ -572,6 +572,9 @@ void p2p_channels_intersect(const struct p2p_channels *a,
+                            struct p2p_channels *res);
+ int p2p_channels_includes(const struct p2p_channels *channels, u8 reg_class,
+                          u8 channel);
++#ifdef ANDROID_P2P
++size_t p2p_copy_reg_class(struct p2p_reg_class *dc, struct p2p_reg_class *sc);
++#endif
+
+ /* p2p_parse.c */
+ int p2p_parse_p2p_ie(const struct wpabuf *buf, struct p2p_message *msg);
+diff --git a/src/p2p/p2p_utils.c b/src/p2p/p2p_utils.c
+index 0769ede..a4c48f6 100644
+--- a/src/p2p/p2p_utils.c
++++ b/src/p2p/p2p_utils.c
+@@ -244,12 +244,37 @@ int p2p_channels_includes_freq(const struct p2p_channels *channels,
+ }
+
+
++#ifdef ANDROID_P2P
++static int p2p_block_op_freq(unsigned int freq)
++{
++       return (freq &gt;= 5170 &amp;&amp; freq &lt; 5745);
++}
++
++
++size_t p2p_copy_reg_class(struct p2p_reg_class *dc, struct p2p_reg_class *sc)
++{
++       unsigned int i;
++
++       dc-&gt;reg_class = sc-&gt;reg_class;
++       dc-&gt;channels = 0;
++       for (i=0; i &lt; sc-&gt;channels; i++) {
++               if (!p2p_block_op_freq(p2p_channel_to_freq(sc-&gt;reg_class,
++                                                          sc-&gt;channel[i]))) {
++                       dc-&gt;channel[dc-&gt;channels] = sc-&gt;channel[i];
++                       dc-&gt;channels++;
++               }
++       }
++       return dc-&gt;channels;
++}
++#endif
++
++
+ int p2p_supported_freq(struct p2p_data *p2p, unsigned int freq)
+ {
+        u8 op_reg_class, op_channel;
+
+ #ifdef ANDROID_P2P
+-       if (freq &gt;= 5170 &amp;&amp; freq &lt; 5745)
++       if (p2p_block_op_freq(freq))
+                return 0;
+ #endif
+        if (p2p_freq_to_channel(freq, &amp;op_reg_class, &amp;op_channel) &lt; 0)
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4">常用代码片断</h2>
+<div class="outline-text-2" id="text-4">
 <p>
 记录 <code>wpa_supplicant</code> 源码中常见的一些代码片断。
 </p>
 </div>
 
-<div id="outline-container-sec-3-1" class="outline-3">
-<h3 id="sec-3-1">遍历当前的接口</h3>
-<div class="outline-text-3" id="text-3-1">
+<div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1">遍历当前的接口</h3>
+<div class="outline-text-3" id="text-4-1">
 <div class="org-src-container">
 
 <pre class="src src-c">struct wpa_global *global = wpa_s-&gt;global;
@@ -2552,9 +3123,9 @@ for (wpa_s = global-&gt;ifaces; wpa_s; wpa_s = wpa_s-&gt;next) {
 </div>
 </div>
 
-<div id="outline-container-sec-3-2" class="outline-3">
-<h3 id="sec-3-2">遍历接口上存在的SSID</h3>
-<div class="outline-text-3" id="text-3-2">
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2">遍历接口上存在的SSID</h3>
+<div class="outline-text-3" id="text-4-2">
 <div class="org-src-container">
 
 <pre class="src src-c">struct wpa_ssid *s;
@@ -2568,20 +3139,57 @@ for (s = wpa_s-&gt;conf-&gt;ssid; s; s = s-&gt;next) {
 </div>
 </div>
 </div>
+
+<div id="outline-container-sec-4-3" class="outline-3">
+<h3 id="sec-4-3">遍历当前的接口(方法2)</h3>
+<div class="outline-text-3" id="text-4-3">
+<div class="org-src-container">
+
+<pre class="src src-c">/*
+ * Check other interfaces to see if they share the same radio. If
+ * so, they get updated with this same scan info.
+ */
+struct wpa_supplicant *ifs, wpa_s;
+...
+dl_list_for_each(ifs, &amp;wpa_s-&gt;radio-&gt;ifaces, struct wpa_supplicant,
+                 radio_list) {
+  if (ifs != wpa_s) {
+    wpa_printf(MSG_DEBUG, "%s: Updating scan results from "
+               "sibling", ifs-&gt;ifname);
+    ...
+  }
+}
+</pre>
 </div>
-<div id="outline-container-sec-4" class="outline-2">
-<h2 id="sec-4">参考资料</h2>
-<div class="outline-text-2" id="text-4">
-<p>
-<sup><a id="fnr.1" name="fnr.1" class="footref" href="#fn.1">1</a></sup> <a href="https://w1.fi/wpa_supplicant/devel/index.html">https://w1.fi/wpa_supplicant/devel/index.html</a>
-</p>
+</div>
+</div>
+
+<div id="outline-container-sec-4-4" class="outline-3">
+<h3 id="sec-4-4">遍历hostapd上的bss</h3>
+<div class="outline-text-3" id="text-4-4">
+<div class="org-src-container">
+
+<pre class="src src-c">for (i = 0; i &lt; hapd-&gt;iface-&gt;num_bss; i++) {
+                struct hostapd_data *bss = hapd-&gt;iface-&gt;bss[i];
+                if (bss-&gt;conf-&gt;bridge[0])
+                        params.bridge[i] = bss-&gt;conf-&gt;bridge;
+        }
+</pre>
+</div>
+</div>
 </div>
 </div>
 <div id="footnotes">
 <h2 class="footnotes">Footnotes: </h2>
 <div id="text-footnotes">
 
-<div class="footdef"><sup><a id="fn.1" name="fn.1" class="footnum" href="#fnr.1">1</a></sup> <p>DEFINITION NOT FOUND.</p></div>
+<div class="footdef"><sup><a id="fn.1" name="fn.1" class="footnum" href="#fnr.1">1</a></sup> <p class="footpara">
+<a href="https://w1.fi/wpa_supplicant/devel/index.html">https://w1.fi/wpa_supplicant/devel/index.html</a>
+</p></div>
+
+<div class="footdef"><sup><a id="fn.2" name="fn.2" class="footnum" href="#fnr.2">2</a></sup> <p class="footpara">
+<a href="http://lists.shmoo.com/pipermail/hostap/">http://lists.shmoo.com/pipermail/hostap/</a>
+</p></div>
 
 
 </div>

@@ -1,0 +1,1268 @@
+---
+layout: post
+author: 山庄来客
+date:   2016-07-16
+update: 2016-07-16
+categories: 软件开发 
+---
+<div id="content">
+<h1 class="title">Android学习笔记</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">通用概念</a>
+<ul>
+<li><a href="#sec-1-1">Android框架图</a></li>
+<li><a href="#sec-1-2">Android应用程序框架</a></li>
+<li><a href="#sec-1-3">UI基本开发</a></li>
+<li><a href="#sec-1-4">Fragment</a></li>
+<li><a href="#sec-1-5">安全策略</a></li>
+</ul>
+</li>
+<li><a href="#sec-2">Framework</a>
+<ul>
+<li><a href="#sec-2-1">Audio System</a>
+<ul>
+<li><a href="#sec-2-1-1">Audio System 介绍</a></li>
+<li><a href="#sec-2-1-2">AudioTrack 介绍</a></li>
+<li><a href="#sec-2-1-3">AudioRecord介绍</a></li>
+<li><a href="#sec-2-1-4">AudioPolicyService介绍</a></li>
+<li><a href="#sec-2-1-5">AudioFlinger</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-2">Media Framework</a>
+<ul>
+<li><a href="#sec-2-2-1">基础知识</a></li>
+<li><a href="#sec-2-2-2">主要代码路径</a></li>
+<li><a href="#sec-2-2-3">Stagefright</a></li>
+<li><a href="#sec-2-2-4">NuPlayer</a></li>
+<li><a href="#sec-2-2-5">OpenMAX</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-3">Graphics</a>
+<ul>
+<li><a href="#sec-2-3-1">Android Graphics Pipeline Overview</a></li>
+<li><a href="#sec-2-3-2">Android Sync Framework</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-4">Input System</a>
+<ul>
+<li><a href="#sec-2-4-1">Architecture (ICS)</a></li>
+<li><a href="#sec-2-4-2">Architecture (JB)</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-5">Wifi Framework</a>
+<ul>
+<li><a href="#sec-2-5-1">传统WiFi</a></li>
+<li><a href="#sec-2-5-2">P2P/Miracast</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-6">Global Settings</a>
+<ul>
+<li><a href="#sec-2-6-1">Settings.java</a></li>
+<li><a href="#sec-2-6-2">defaults.xml</a></li>
+<li><a href="#sec-2-6-3">DatabaseHelper.java</a></li>
+<li><a href="#sec-2-6-4">访问</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-3">我的技术文摘</a>
+<ul>
+<li><a href="#sec-3-1">编写native activity</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">通用概念</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-sec-1-1" class="outline-3">
+<h3 id="sec-1-1">Android框架图</h3>
+<div class="outline-text-3" id="text-1-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016071201.png" alt="2016071201.png" />
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-1-2" class="outline-3">
+<h3 id="sec-1-2">Android应用程序框架</h3>
+</div>
+
+<div id="outline-container-sec-1-3" class="outline-3">
+<h3 id="sec-1-3">UI基本开发</h3>
+</div>
+
+<div id="outline-container-sec-1-4" class="outline-3">
+<h3 id="sec-1-4">Fragment</h3>
+</div>
+
+<div id="outline-container-sec-1-5" class="outline-3">
+<h3 id="sec-1-5">安全策略</h3>
+<div class="outline-text-3" id="text-1-5">
+<p>
+在Android中,安全涵盖了应用程序的部署和执行.对于部署来
+说,Android应用程序必须被赋予一个数字证书才允许被安装到某个设备中.对
+于运行来说,每个应用程序都在一个独立的应用程序中执行,每个进程都有一
+个唯一的永久的用户ID(在安装的时候分配的).
+</p>
+
+<p>
+注册应用程序需要三样东西:
+</p>
+<ol class="org-ol">
+<li>一个数字证书,
+</li>
+<li>一个.apk文件
+</li>
+<li>以及用于将数字签名应用到.apk文件的工具(jarsigner).
+</li>
+</ol>
+
+<p>
+注册一个应用程序步骤如下: 
+</p>
+
+<ul class="org-ul">
+<li>使用Keytool创建一个自注册的证书.
+</li>
+</ul>
+<p>
+　　
+    步骤1 Create a folder to hold the keystore, for example
+</p>
+<pre class="example">
+c:\android\release\.
+</pre>
+<p>
+　　步骤2 在命名行中执行如下命令:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">     　　keytool -genkey -v -keystore "FULL PATH OF release.keystore FILE FROM STEP 1"
+     　　-alias androidbook -storepass paxxword -keypass paxxword -keyalg RSA
+     　　-validity 14000
+</pre>
+</div>
+
+<p>
+keytool的参数说明如下：
+<img src="/images/2016/2016070502.png" alt="2016070502.png" />
+</p>
+
+<ul class="org-ul">
+<li>使用Jarsigner注册.apk文件
+<div class="org-src-container">
+
+<pre class="src src-sh">jarsigner -keystore "PATH TO YOUR release.keystore FILE" -storepass paxxword
+-keypass paxxword "PATH TO YOUR APK FILE" androidbook(别名)
+</pre>
+</div>
+</li>
+
+<li>用zipalign作字节对齐
+命令如下:
+<pre class="example">
+zipalign –v 4 infile.apk outfile.apk
+</pre>
+
+<p>
+验证一个.apk文件是否是4字节对齐,用如下命令
+</p>
+<pre class="example">
+zipalign –c –v 4 filename.apk
+</pre>
+</li>
+
+<li>安装应用程序
+<pre class="example">
+adb install "PATH TO APK FILE GOES HERE"(安装)
+adb uninstall packagename(卸载)
+adb install –r "PATH TO APK FILE GOES HERE"(重装)
+</pre>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">Framework</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1">Audio System</h3>
+<div class="outline-text-3" id="text-2-1">
+</div><div id="outline-container-sec-2-1-1" class="outline-4">
+<h4 id="sec-2-1-1">Audio System 介绍</h4>
+<div class="outline-text-4" id="text-2-1-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016053001.png" alt="2016053001.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-1-2" class="outline-4">
+<h4 id="sec-2-1-2">AudioTrack 介绍</h4>
+<div class="outline-text-4" id="text-2-1-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016053002.png" alt="2016053002.png" />
+</p>
+</div>
+
+<p>
+基本说明：
+</p>
+<ol class="org-ol">
+<li>用于管理来自一个Source的Audio 播放将播放的Audio 数据送给
+AudioFlinger
+</li>
+<li>提供播放的控制接口
+API:start(), stop(), &#x2026;
+</li>
+<li>提供Volume 控制接口， 用于控制L/R声道各自的Volume
+<ul class="org-ul">
+<li>API: setVolume
+</li>
+<li>Android 体系中有3个Audio Volume控制,  最终的输出Volume是下面3
+者的乘积 
+<ol class="org-ol">
+<li>Master Volume
+</li>
+<li>Stream Type Volume
+</li>
+<li>Track Volume
+</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>AudioTrack可以配置为下面三种Mode：
+<ol class="org-ol">
+<li>PUSH MODE
+</li>
+<li>PULL MODE
+</li>
+<li>STATIC MODE
+</li>
+</ol>
+</li>
+<li>AudioTrack测试程序
+<div class="org-src-container">
+
+<pre class="src src-cpp">/**
+ * 利用AudioTrack播放一个wav文件
+ */
+
+//#define LOG_NDEBUG 0
+#define LOG_TAG "AudioTrackTest"
+//#include &lt;utils/Log.h&gt;
+#include &lt;media/AudioTrack.h&gt;
+#include &lt;system/audio.h&gt;
+using namespace android;
+#define ALOGD printf
+int main(int argc, char *argv[])
+{
+  int readNum;
+  unsigned short channel;
+  unsigned int sampleRate;
+  FILE *fp = fopen("bzk_chic.wav", "ab+");
+  if (fp == NULL) {
+    ALOGD("Cannot open .wav file");
+    return -1;
+  }
+  ALOGD("Open wav file successfully!\n");
+  fseek(fp, 0x16, 0); 
+  readNum= fread(&amp;channel, 1, 2, fp);
+  if (readNum &lt; 1) {
+    ALOGD("Can not read channel number: %d\n", readNum);
+    fclose(fp);
+    return 0;
+  }
+  ALOGD("channel number is %d\n", channel);
+  fseek(fp, 0x18, 0); 
+  readNum = fread(&amp;sampleRate, 1, 4, fp);
+  if (readNum &lt; 1) {
+    ALOGD("Cannot read sample rate: %d\n", readNum);
+    fclose(fp);
+    return 0;
+  }
+  ALOGD("Sample Rate is %d\n", sampleRate);
+
+  // playing to an AudioTrack, set up mask if necessary
+  audio_channel_mask_t audioMask = AUDIO_CHANNEL_OUT_STEREO;
+  if (0 == audioMask) {
+    return -1;
+  }
+  sp&lt;AudioTrack&gt; audioTrack = new AudioTrack(
+                                             AUDIO_STREAM_MUSIC, sampleRate, AUDIO_FORMAT_PCM_16_BIT, audioMask,
+                                             0, AUDIO_OUTPUT_FLAG_NONE);
+  status_t status = audioTrack-&gt;initCheck();
+  if(status != NO_ERROR) {
+    audioTrack.clear();
+    ALOGD("Failed for initCheck()");
+    return -1;
+  }
+  audioTrack-&gt;start();
+
+  unsigned char *buffer = new unsigned char[channel * 64 * 2];
+  while (1) {
+    readNum = fread(buffer, 1, channel * 64 * 2, fp);
+    if (readNum &lt;= 0)
+      break;
+    ALOGD("Write data : %d to AudioTrack", readNum);
+    audioTrack-&gt;write(buffer, readNum);
+  }
+
+  fclose(fp);
+  delete []buffer;
+  audioTrack-&gt;stop();
+
+}
+</pre>
+</div>
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-2-1-3" class="outline-4">
+<h4 id="sec-2-1-3">AudioRecord介绍</h4>
+<div class="outline-text-4" id="text-2-1-3">
+
+<div class="figure">
+<p><img src="/images/2016/2016053003.png" alt="2016053003.png" />
+</p>
+</div>
+
+<p>
+基本说明：
+</p>
+<ol class="org-ol">
+<li>用于管理从底层获取录音数据，并提供给上层
+</li>
+<li>提供录音的控制接口
+API:start(), stop()
+</li>
+<li>获取声音资料的方式
+<ul class="org-ul">
+<li>由上层主动调用AudioRecord::read() 来获取数据 (PULL MODE)
+</li>
+<li>上层提供Callback function, 通过AudioRecord主动将资料通过
+Callback 给上层(PUSH MODE) 
+</li>
+</ul>
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-2-1-4" class="outline-4">
+<h4 id="sec-2-1-4">AudioPolicyService介绍</h4>
+<div class="outline-text-4" id="text-2-1-4">
+
+<div class="figure">
+<p><img src="/images/2016/2016053004.png" alt="2016053004.png" />
+</p>
+</div>
+
+<p>
+AudioPolicyService在Audio system中的位置和作用
+</p>
+<ul class="org-ul">
+<li>仅是一个行为决策者，而不是行为的实施者
+</li>
+<li>真正的实施者为AudioFlinger
+</li>
+<li>它是一个在后台进程中的服务实体，提供的服务就是告诉实施者要怎么去
+做
+</li>
+</ul>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016053005.png" alt="2016053005.png" />
+</p>
+</div>
+
+<p>
+AudioPolicyService几大功能:
+</p>
+<ul class="org-ul">
+<li>设备状态管理
+</li>
+<li>输入输出策略管理
+</li>
+<li>音量控制管理
+</li>
+<li>Effect 控制管理
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-2-1-5" class="outline-4">
+<h4 id="sec-2-1-5">AudioFlinger</h4>
+<div class="outline-text-4" id="text-2-1-5">
+
+<div class="figure">
+<p><img src="/images/2016/2016053006.png" alt="2016053006.png" />
+</p>
+</div>
+
+<p>
+AudioFlinger的线程循环逻辑如下所示：
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016053007.png" alt="2016053007.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2">Media Framework</h3>
+<div class="outline-text-3" id="text-2-2">
+</div><div id="outline-container-sec-2-2-1" class="outline-4">
+<h4 id="sec-2-2-1">基础知识</h4>
+<div class="outline-text-4" id="text-2-2-1">
+<p>
+AMessage代表一个消息，对应一个target， 根据这个target可以知道对
+应的消息应该归哪个AHandler去处理。
+</p>
+
+<p>
+AHandler是处理消息的基类，它有一个id，处理与这个id相关联的AMessage，
+在 <code>onMessageReceived</code> 函数中处理各种消息。
+从AHandler派生的类，都会重写该方法，以处理各种消息。
+</p>
+
+<p>
+有一个全局的 <code>ALooperRoster</code> 对象，它维护了系统中存在的 AHandler对
+象。
+</p>
+
+<p>
+ALooper对象，通过 <code>registerHandler</code> 接口将AHandler对象注册给
+<code>ALooperRoster</code> 对象维护的AHandler列表中。
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2-2" class="outline-4">
+<h4 id="sec-2-2-2">主要代码路径</h4>
+<div class="outline-text-4" id="text-2-2-2">
+</div><ul class="org-ul"><li><a id="sec-2-2-2-1" name="sec-2-2-2-1"></a>MediaPlayer.java<br  /><div class="outline-text-5" id="text-2-2-2-1">
+<ul class="org-ul">
+<li>Java 层的 MediaPlayer 接口，APK 主要通过 call 它的接口实现播放功能
+</li>
+<li>code path: framework/base/media/java/android/media/MediaPlayer.java
+</li>
+</ul>
+</div>
+</li>
+
+<li><a id="sec-2-2-2-2" name="sec-2-2-2-2"></a>Media JNI<br  /><div class="outline-text-5" id="text-2-2-2-2">
+<ul class="org-ul">
+<li>MediaPlayer java 层与 native 层的接口
+</li>
+<li>code path: framework/base/media/jni/android<sub>media</sub><sub>MediaPlayer</sub>.cpp
+</li>
+<li>output:libmedia<sub>jni</sub>.so
+</li>
+</ul>
+</div>
+</li>
+
+<li><a id="sec-2-2-2-3" name="sec-2-2-2-3"></a>MediaPlayer<br  /><div class="outline-text-5" id="text-2-2-2-3">
+<ul class="org-ul">
+<li>MediaPlayer Native 层 client 端接口
+</li>
+<li>code path: framework/av/media/libmedia/
+</li>
+<li>output:libmedia.so
+</li>
+</ul>
+</div>
+</li>
+
+<li><a id="sec-2-2-2-4" name="sec-2-2-2-4"></a>Media Service<br  /><div class="outline-text-5" id="text-2-2-2-4">
+<ul class="org-ul">
+<li>Native 层真正实现播放功能的 Service 进程
+</li>
+<li>code path:
+framework/av/media/mediaserver
+framework/av/media/libmediaplayerservice
+</li>
+<li>output: mediaserver   libmediaplayerservice.so
+</li>
+</ul>
+</div>
+</li></ul>
+</div>
+
+<div id="outline-container-sec-2-2-3" class="outline-4">
+<h4 id="sec-2-2-3">Stagefright</h4>
+<div class="outline-text-4" id="text-2-2-3">
+</div><ul class="org-ul"><li><a id="sec-2-2-3-1" name="sec-2-2-3-1"></a>StagefrightPlayer<br  /><div class="outline-text-5" id="text-2-2-3-1">
+<ul class="org-ul">
+<li>负责提供 player 的接口
+</li>
+<li>code path: framework/av/media/libmediaplayerservice/StagefrightPlayer.cpp
+</li>
+</ul>
+</div>
+</li>
+
+<li><a id="sec-2-2-3-2" name="sec-2-2-3-2"></a>AwesomePlayer<br  /><div class="outline-text-5" id="text-2-2-3-2">
+<ul class="org-ul">
+<li>真正实现 playback 功能的模块
+</li>
+<li>code path: : framework/av/media/libstagefright
+</li>
+</ul>
+</div>
+</li>
+
+<li><a id="sec-2-2-3-3" name="sec-2-2-3-3"></a>DataSource<br  /><div class="outline-text-5" id="text-2-2-3-3">
+<ul class="org-ul">
+<li>提供 Source 数据，可以是本地文件，也可以是网络数据
+</li>
+<li>code path: : framework/av/media/libstagefright
+</li>
+</ul>
+</div>
+</li>
+
+<li><a id="sec-2-2-3-4" name="sec-2-2-3-4"></a>MediaSource<br  /><div class="outline-text-5" id="text-2-2-3-4">
+<ul class="org-ul">
+<li>MediaSource使用到了DataSoure和OMX，可以提供解码后的供显示的数据
+</li>
+<li>code path: framework/av/media/libstagefright/
+</li>
+</ul>
+</div>
+</li>
+
+<li><a id="sec-2-2-3-5" name="sec-2-2-3-5"></a>OMXClient<br  /><div class="outline-text-5" id="text-2-2-3-5">
+<ul class="org-ul">
+<li>使用 OMX 的 client 端
+</li>
+<li>code path: framework/av/media/libstagefright/
+</li>
+</ul>
+</div>
+</li>
+
+<li><a id="sec-2-2-3-6" name="sec-2-2-3-6"></a>OMX<br  /><div class="outline-text-5" id="text-2-2-3-6">
+<ul class="org-ul">
+<li>提供一套接口接到底层的 decoder 进行解码
+</li>
+<li>code path: framework/av/media/libstagefright/omx
+</li>
+</ul>
+</div>
+</li></ul>
+</div>
+
+<div id="outline-container-sec-2-2-4" class="outline-4">
+<h4 id="sec-2-2-4">NuPlayer</h4>
+<div class="outline-text-4" id="text-2-2-4">
+
+<div class="figure">
+<p><img src="/images/2016/2016053008.png" alt="2016053008.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2-5" class="outline-4">
+<h4 id="sec-2-2-5">OpenMAX</h4>
+<div class="outline-text-4" id="text-2-2-5">
+<p>
+OpenMAX is a royalty-free, cross-platform API. OpenMAX Working
+Group has been formed by the Khronos Group. The Standard for Media
+Library Portability. Reduce the cost and complexity of porting
+multimedia software to  new processors and architectures. 分为
+OpenMAX DL, IL, AL 三层，Android 上只用到 OpenMAX IL. 
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-3" class="outline-3">
+<h3 id="sec-2-3">Graphics</h3>
+<div class="outline-text-3" id="text-2-3">
+</div><div id="outline-container-sec-2-3-1" class="outline-4">
+<h4 id="sec-2-3-1">Android Graphics Pipeline Overview</h4>
+<div class="outline-text-4" id="text-2-3-1">
+</div><ul class="org-ul"><li><a id="sec-2-3-1-1" name="sec-2-3-1-1"></a>Android Graphics Pipeline<br  /><div class="outline-text-5" id="text-2-3-1-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016052601.png" alt="2016052601.png" />
+</p>
+</div>
+
+<p>
+如图，对于一些Buffer，有些通过GPU处理后，再送给HWComposer，有些则
+直接送给HWComposer处理。
+</p>
+</div>
+</li>
+
+<li><a id="sec-2-3-1-2" name="sec-2-3-1-2"></a>BufferQueue<br  /><div class="outline-text-5" id="text-2-3-1-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016052602.png" alt="2016052602.png" />
+</p>
+</div>
+
+<p>
+关于BufferQueue的说明如下：
+</p>
+<ol class="org-ol">
+<li>manages flow of buffers between producers and consumers
+</li>
+<li>two queues
+</li>
+<li>producers dequeue unused buffers, fill them, then queue them
+</li>
+<li>consumers acquire filled buffers, use them, then release them
+when done.
+</li>
+</ol>
+</div>
+</li>
+
+<li><a id="sec-2-3-1-3" name="sec-2-3-1-3"></a>SurfaceFlinger<br  /><div class="outline-text-5" id="text-2-3-1-3">
+<p>
+它的主要使用是：
+</p>
+<ol class="org-ol">
+<li>Responsible for compositing all windows into the display(s)
+</li>
+<li>Just another GL client
+</li>
+</ol>
+</div>
+</li>
+
+<li><a id="sec-2-3-1-4" name="sec-2-3-1-4"></a>HW Composer<br  /><div class="outline-text-5" id="text-2-3-1-4">
+<p>
+一开始是为了加速叠图而准备的一个HAL，目前作为所有显示的HAL。
+</p>
+</div>
+
+<ul class="org-ul"><li><a id="sec-2-3-1-4-1" name="sec-2-3-1-4-1"></a>Overlay<br  /><ul class="org-ul"><li><a id="sec-2-3-1-4-1-1" name="sec-2-3-1-4-1-1"></a>Overlay 是什么<br  /><div class="outline-text-7" id="text-2-3-1-4-1-1">
+<p>
+在android 上面，屏幕上输出的画面都是由多个图层（layer）合成
+（compsing）得到的结果. 所以在android上面，图像的合成是非常普
+通而且常见(频繁)的操作, 如果有一个简单而省电的hardware(hw)来负
+责图像合成, 可以很有效的降低功耗,而且也可以降低GPU的loading.
+</p>
+
+<p>
+Overlay 就是一个专门负责图像合成的一个hw. 相比GPU 而言,
+overlay 是一个非常简单图像处理hw. 和GPU具有的庞大的图形功能不
+同, overlay只能负责简单的图像合成动作.
+</p>
+
+<p>
+由于overlay 功能简单,所以hw的实现上相比GPU也要简单很多,工作起
+来也会非常省电.
+</p>
+</div>
+</li>
+
+
+<li><a id="sec-2-3-1-4-1-2" name="sec-2-3-1-4-1-2"></a>Overlay 有什么限制<br  /><div class="outline-text-7" id="text-2-3-1-4-1-2">
+<p>
+由于overlay hw很简单，所以它只能处理简单的图像合成工作，太复杂
+的图像合成工作还是要GPU来协助完成.
+</p>
+
+<p>
+overlay 无法处理的case：
+</p>
+<ol class="org-ol">
+<li>需要旋转的图像
+</li>
+<li>需要缩放的图像
+</li>
+<li>图层超过4层
+</li>
+</ol>
+
+<p>
+不过对于普通的android应用场景来说,很少会出现上述的那些cases.
+</p>
+</div>
+</li>
+
+<li><a id="sec-2-3-1-4-1-3" name="sec-2-3-1-4-1-3"></a>没有overlay HW，图像合成流程<br  /><div class="outline-text-7" id="text-2-3-1-4-1-3">
+<p>
+Surfaceflinger把需要合成的layers 交给GPU 做composing, 最终输出
+到屏幕。
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071204.png" alt="2016071204.png" />
+</p>
+</div>
+</div>
+</li>
+
+
+<li><a id="sec-2-3-1-4-1-4" name="sec-2-3-1-4-1-4"></a>有Overlay HW, 图像合成的流程<br  /><div class="outline-text-7" id="text-2-3-1-4-1-4">
+<p>
+Surfaceflinger把需要合成的layers 交给ovl做composing, 最终输出
+到屏幕。
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071205.png" alt="2016071205.png" />
+</p>
+</div>
+</div>
+</li>
+
+<li><a id="sec-2-3-1-4-1-5" name="sec-2-3-1-4-1-5"></a>有overlay HW,但需要GPU做图像合成流程<br  /><div class="outline-text-7" id="text-2-3-1-4-1-5">
+<p>
+Overlay不能处理的layers, 会交给GPU做图像合成，GPU把图像合成为
+一个layer, 然后再通过overlay 输出.
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016071206.png" alt="2016071206.png" />
+</p>
+</div>
+</div>
+</li></ul>
+</li></ul>
+</li></ul>
+</div>
+
+<div id="outline-container-sec-2-3-2" class="outline-4">
+<h4 id="sec-2-3-2">Android Sync Framework</h4>
+<div class="outline-text-4" id="text-2-3-2">
+</div><ul class="org-ul"><li><a id="sec-2-3-2-1" name="sec-2-3-2-1"></a>定义<br  /><div class="outline-text-5" id="text-2-3-2-1">
+<p>
+Synchronization between consumers and producers who are from
+different hardware components to use a buffer atomically
+</p>
+</div>
+</li>
+
+<li><a id="sec-2-3-2-2" name="sec-2-3-2-2"></a>应用背景<br  /><div class="outline-text-5" id="text-2-3-2-2">
+<p>
+在复杂的DMA管线如图形管线（多媒体，摄像头，GPU以及显示设备），一
+个buffer的消费者需要知道生产者什么时候完成生产（即创建一个Buffer,
+并往里面放置消费者所需要的数据）。同样地，生产者也需要知道消费者
+什么时候使用它创建的Buffer，以便它可以重新使用这个Buffer。而且，
+一个Buffer可能被多个不同的消费者使用不同的时间。另外，一个消费者
+可能需要互斥地消费多个Buffer，等等，有一个问题应运而生，就是如何
+保证多个消费者之间同步使用Buffer，以及生产者与消费者协调使用
+Buffer。因为Buffer是一个共享资源，且任何消费者或生产者对Buffer的
+使用都是排他性的（因为它们属于不同的硬件单元或模块），大体看来，
+需要解决如下两个问题：
+</p>
+<ol class="org-ol">
+<li>消费者与生产者之间对Buffer的同步访问。
+</li>
+<li>消费者之间对Buffer的同步访问。
+</li>
+</ol>
+</div>
+</li>
+
+<li><a id="sec-2-3-2-3" name="sec-2-3-2-3"></a>目标<br  /><div class="outline-text-5" id="text-2-3-2-3">
+<ol class="org-ol">
+<li>Provide a simple API to let components signal when buffers are
+ready/released.
+</li>
+<li>Allow synchronization primitives to be passed between processes
+and between userspace and the kernel.
+</li>
+<li>Allow implementers to exploit hardware sync support
+</li>
+<li>Provide visibility into the graphics pipeline for debugging
+</li>
+</ol>
+</div>
+</li>
+
+<li><a id="sec-2-3-2-4" name="sec-2-3-2-4"></a>Software Stacks<br  /><div class="outline-text-5" id="text-2-3-2-4">
+
+<div class="figure">
+<p><img src="/images/2016/2016052609.png" alt="2016052609.png" />
+</p>
+</div>
+</div>
+</li>
+
+<li><a id="sec-2-3-2-5" name="sec-2-3-2-5"></a>实现<br  /><div class="outline-text-5" id="text-2-3-2-5">
+<ol class="org-ol">
+<li>sync<sub>timeline</sub>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016052603.png" alt="2016052603.png" />
+</p>
+</div>
+
+<ul class="org-ul">
+<li>Represents monotonically increasing counter
+</li>
+
+<li>Generally one instance per driver context
+</li>
+
+<li>allows hardware specific implementation
+</li>
+
+<li>sw<sub>sync</sub> implementation provided
+</li>
+</ul>
+</li>
+
+<li>sync<sub>pt</sub>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016052604.png" alt="2016052604.png" />
+</p>
+</div>
+
+<ul class="org-ul">
+<li>Represents a specific values on a parent timeline
+</li>
+
+<li>3 states
+<ul class="org-ul">
+<li>active
+</li>
+
+<li>signaled
+</li>
+
+<li>error
+</li>
+</ul>
+</li>
+
+<li>starts active and transitions once to either signaled or
+error
+</li>
+</ul>
+</li>
+
+<li>sync<sub>fence</sub>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016052605.png" alt="2016052605.png" />
+</p>
+</div>
+
+<ul class="org-ul">
+<li>A collection of sync<sub>pts</sub>
+</li>
+
+<li>Backed by a file and can be passed to userspace.
+</li>
+
+<li>Main primitive drivers and userspace use to describe sync
+events/dependencies.
+</li>
+
+<li>Fences are a promise by the kernel
+<ul class="org-ul">
+<li>that work has been queued
+</li>
+
+<li>and will complete in a "timely" manner
+</li>
+</ul>
+</li>
+
+<li>Starts active and transitions to signaled with all of its
+sync<sub>pts</sub> become signaled or one becomes errored
+</li>
+
+<li>The list of sync<sub>pts</sub> is immutable after fence creation
+</li>
+
+<li>A sync<sub>pt</sub> can only be in one fence.
+</li>
+
+<li>Two fences can be merged to create a third fence containing
+copies of the sync points in both.
+</li>
+
+<li>Sync Merge
+
+<ul class="org-ul">
+<li>Before Merge
+
+
+<div class="figure">
+<p><img src="/images/2016/2016052606.png" alt="2016052606.png" />
+</p>
+</div>
+</li>
+
+<li>After Merge
+
+
+<div class="figure">
+<p><img src="/images/2016/2016052607.png" alt="2016052607.png" />
+</p>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+
+<li>代码
+
+<ul class="org-ul">
+<li>supported in android-3.10 kernel + staged for quite some
+time
+</li>
+
+<li>Core
+
+<ul class="org-ul">
+<li><code>drivers/staging/android/sync.c</code>
+</li>
+
+<li><code>drivers/staging/android/sync.h</code>
+</li>
+</ul>
+</li>
+
+<li>sw<sub>sync</sub>
+
+<ul class="org-ul">
+<li><code>drivers/staging/android/sw_sync.c</code>
+</li>
+
+<li><code>drivers/staging/android/sw_sync.h</code>
+</li>
+</ul>
+</li>
+
+<li>接口声明
+
+
+<div class="figure">
+<p><img src="/images/2016/2016052608.png" alt="2016052608.png" />
+</p>
+</div>
+</li>
+</ul>
+</li>
+
+<li>实现sync<sub>timeline的建议</sub>
+
+<p>
+在实现前，先考虑是否可以直接使用sw<sub>sync</sub>, 以sw<sub>sync为起点。</sub>
+</p>
+<ul class="org-ul">
+<li>Don'ts
+<ul class="org-ul">
+<li>Don't base a timeline on any "real" time.
+</li>
+
+<li>Don't allow userspace to explicitly
+<ul class="org-ul">
+<li>create a fence
+</li>
+
+<li>signal a fence
+</li>
+</ul>
+</li>
+
+<li>Don't access sync<sub>timeline</sub>, sync<sub>pt</sub>, or sync<sub>fence</sub>
+            elements explicitly.
+</li>
+</ul>
+</li>
+
+<li>Dos
+<ul class="org-ul">
+<li>Do provide useful names
+</li>
+
+<li>Do implement timeline<sub>value</sub> str and pt<sub>value</sub><sub>str</sub>
+</li>
+
+<li>Do implement fill driver<sub>data</sub>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+</div>
+</li></ul>
+</div>
+</div>
+
+<div id="outline-container-sec-2-4" class="outline-3">
+<h3 id="sec-2-4">Input System</h3>
+<div class="outline-text-3" id="text-2-4">
+<p>
+Input  Event Process Flow
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016053009.png" alt="2016053009.png" />
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-sec-2-4-1" class="outline-4">
+<h4 id="sec-2-4-1">Architecture (ICS)</h4>
+<div class="outline-text-4" id="text-2-4-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016053010.png" alt="2016053010.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-4-2" class="outline-4">
+<h4 id="sec-2-4-2">Architecture (JB)</h4>
+<div class="outline-text-4" id="text-2-4-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016053011.png" alt="2016053011.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-5" class="outline-3">
+<h3 id="sec-2-5">Wifi Framework</h3>
+<div class="outline-text-3" id="text-2-5">
+</div><div id="outline-container-sec-2-5-1" class="outline-4">
+<h4 id="sec-2-5-1">传统WiFi</h4>
+<div class="outline-text-4" id="text-2-5-1">
+<p>
+Android Framework中的wifi代码分为两部分，一部分面向应用开发者，提供
+公共接口给应用开发者，另一部分则是框架的实现灵魂，代码分别位于：
+Android 5.1
+</p>
+<ul class="org-ul">
+<li>frameworks\base\wifi\java\android\net\wifi
+</li>
+<li>frameworks\opt\net\wifi\service
+</li>
+</ul>
+</div>
+
+<ul class="org-ul"><li><a id="sec-2-5-1-1" name="sec-2-5-1-1"></a>WifiConfigStore<br  /></li></ul>
+</div>
+
+<div id="outline-container-sec-2-5-2" class="outline-4">
+<h4 id="sec-2-5-2">P2P/Miracast</h4>
+<div class="outline-text-4" id="text-2-5-2">
+</div><ul class="org-ul"><li><a id="sec-2-5-2-1" name="sec-2-5-2-1"></a>开启WifiSink的调用序列<br  /><div class="outline-text-5" id="text-2-5-2-1">
+<p>
+DisplayManager.requestEnableSink
+DisplayManager.enableSink
+DisplayManagerGlobal.enableSink
+DisplayManagerService.enableSink
+DisplayManagerService.enableSinkInternal
+WifiDisplayAdapter.requestEnableSinkLocked
+WifiDisplayController.requestEnableSink
+</p>
+
+
+<p>
+WifiDisplaySinkActivity
+WfdSinkSurfaceFragment
+WfdSinkExt.setupWfdSinkConnection
+WfdSinkExt.setWfdMode(true)
+WifiDisplayAdapter.requestEnableSinkLocked
+&#x2026;
+WifiDisplayController.startWaitConnection
+WifiDisplayController.enterSinkState
+</p>
+</div>
+</li></ul>
+</div>
+</div>
+
+
+<div id="outline-container-sec-2-6" class="outline-3">
+<h3 id="sec-2-6">Global Settings</h3>
+<div class="outline-text-3" id="text-2-6">
+<p>
+设置和访问一个全局变量。
+</p>
+</div>
+
+<div id="outline-container-sec-2-6-1" class="outline-4">
+<h4 id="sec-2-6-1">Settings.java</h4>
+<div class="outline-text-4" id="text-2-6-1">
+<div class="org-src-container">
+
+<pre class="src src-java">//frameworks/base/core/java/android/provider/Settings.java
+public final class Settings {
+    public static final String WIFI_AUTO_CONNECT = "wifi_auto_connect";
+    ...
+    MOVED_TO_GLOBAL.add(Settings.Global.WIFI_AUTO_CONNECT);
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-6-2" class="outline-4">
+<h4 id="sec-2-6-2">defaults.xml</h4>
+<div class="outline-text-4" id="text-2-6-2">
+<div class="org-src-container">
+
+<pre class="src src-xml">&lt;!-- /packages/SettingsProvider/res/values/defaults.xml --&gt;
+&lt;integer name="def_wifi_auto_connect"&gt;0&lt;/integer&gt;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-6-3" class="outline-4">
+<h4 id="sec-2-6-3">DatabaseHelper.java</h4>
+<div class="outline-text-4" id="text-2-6-3">
+<div class="org-src-container">
+
+<pre class="src src-java">public class DatabaseHelper extends SQLiteOpenHelper {
+    ...
+    loadIntegerSetting(stmt, Settings.Global.WIFI_AUTO_CONNECT,
+                       R.integer.def_wifi_auto_connect);
+
+    ...
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-6-4" class="outline-4">
+<h4 id="sec-2-6-4">访问</h4>
+<div class="outline-text-4" id="text-2-6-4">
+<div class="org-src-container">
+
+<pre class="src src-java">//读取
+Settings.Global.getInt(mContext.getContentResolver(), Settings.Global.WIFI_AUTO_CONNECT);
+//写入
+Settings.Global.putInt(getContentResolver(), Settings.Global.WIFI_AUTO_CONNECT, 0);
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">我的技术文摘</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1">编写native activity</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+<code>android/native_activity.h</code> 提供的本地活动接口是基于应用程序提供的
+一系列回调函数, 这些回调函数将在相应事件发生，在活动的主线程中调用，
+所以这些回调函数不能阻塞。
+</p>
+
+<p>
+理论上，我们只要编写相应的回调函数就可以了，方法简单， 直接了当，但
+是，非常受限（因为在主线程中直接执行，会阻塞主线程）。为了解决这种
+限制， <b>NDK</b> 包中提供了 <code>android_native_app_glue</code> 库，采用多线程方式，允许
+应用程序在不同的线程上实现自己的主事件循环，它的要求如下：
+</p>
+<ol class="org-ol">
+<li>应用程序必须提供一个称为 <code>android_main()</code> 的函数，它将在活动创建时
+被调用。它是单独开启一个线程执行的，不在活动的主线程里面。
+</li>
+<li><code>android_main()</code> 接受一个合法的 <code>android_app</code> 结构体指针，它包含
+了对其他重要对象的引用，如应用程序运行于其中的ANativeActivity对
+象实例。
+</li>
+<li><code>android_app</code> 对象拥有一个ALooper实例，它已经监听了两个重要的事件：
+<ul class="org-ul">
+<li>活动生命周期事件（如“暂停”，“恢复”）。
+<pre class="example">
+ALooper_pollOnce：LOOPER_ID_MAIN
+</pre>
+</li>
+<li>来自于依附于当前活动的AInputQueue的事件。
+<pre class="example">
+ALooper_pollOnce：LOOPER_ID_INPUT
+</pre>
+<p>
+可以监听发生在其他的文件描述符上的事件，可以使用回调方式或设置
+indent值为 <code>LOOPER_ID_USER</code> 
+</p>
+<pre class="example">
+ALooper_addFd（...）
+</pre>
+</li>
+</ul>
+</li>
+<li>任何时候，收到 <code>LOOPER_ID_MAIN</code> 或 <code>LOOPER_ID_INPUT</code> 事件，返回的数
+据是一个指向 <code>android_poll_source</code> 的结构体指针。可以调用它的 <code>process()</code>
+函数，并在其中回调 <code>android_app-&gt;onAppCmd</code> 和 <code>android_app-&gt;onInputEvent</code>
+处理应用程序相关的事件。当然，也可以调用底层的函数直接读取和处理
+数据。
+
+
+<div class="figure">
+<p><img src="/images/2016/2016070501.png" alt="2016070501.png" />
+</p>
+<p><span class="figure-number">Figure 25:</span> 函数调用序列图</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>

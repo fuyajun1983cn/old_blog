@@ -1,0 +1,405 @@
+---
+layout: post
+author: 山庄来客
+date: 2016-07-16
+update: 2016-07-16
+categories: wifi 
+---
+<div id="content">
+<h1 class="title">802.11e(QoS)学习笔记</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">802.11e简介</a>
+<ul>
+<li><a href="#sec-1-1">new field in 802.11 header</a>
+<ul>
+<li><a href="#sec-1-1-1">TID (traffic ID)</a></li>
+</ul>
+</li>
+<li><a href="#sec-1-2">Action</a></li>
+<li><a href="#sec-1-3">WiFi Multimedia (WMM)</a></li>
+</ul>
+</li>
+<li><a href="#sec-2">Enhanced Distributed Channel Access (EDCA)</a>
+<ul>
+<li><a href="#sec-2-1">Basic Elements for QoS</a></li>
+<li><a href="#sec-2-2">New Contention Channel Access</a></li>
+<li><a href="#sec-2-3">New Contention Free Channel Access</a></li>
+<li><a href="#sec-2-4">Automatic Power-Save Delivery (APSD)</a></li>
+<li><a href="#sec-2-5">New mechanisms for higher throughput</a></li>
+<li><a href="#sec-2-6">Same Contention Based that EDC but…</a></li>
+</ul>
+</li>
+<li><a href="#sec-3">EDCA Frame Priorities</a></li>
+<li><a href="#sec-4">EDCA Implementation Model</a></li>
+<li><a href="#sec-5">Arbitration InterFrame Space</a></li>
+<li><a href="#sec-6">Throughput Enhancements</a>
+<ul>
+<li>
+<ul>
+<li><a href="#sec-6-0-1">Block ACK</a></li>
+<li><a href="#sec-6-0-2">Direct Link Protocol</a></li>
+<li><a href="#sec-6-0-3">Automatic Power-Save Delivery</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">802.11e简介</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+在IEEE 802.11e，有两种类型的QoS：
+</p>
+<ol class="org-ol">
+<li>prioritized QoS
+a weak requirement
+</li>
+<li>parameterized QoS
+a strict requirement
+</li>
+</ol>
+</div>
+
+<div id="outline-container-sec-1-1" class="outline-3">
+<h3 id="sec-1-1">new field in 802.11 header</h3>
+<div class="outline-text-3" id="text-1-1">
+</div><div id="outline-container-sec-1-1-1" class="outline-4">
+<h4 id="sec-1-1-1">TID (traffic ID)</h4>
+<div class="outline-text-4" id="text-1-1-1">
+<p>
+select a UP (user priority) for prioritized QoS or a TSPEC
+(traffic specification) for parameterized 
+</p>
+
+<p>
+0 – 7 are considered user priorities
+</p>
+
+<p>
+8 – 16 refer to TSPECs.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-2" class="outline-3">
+<h3 id="sec-1-2">Action</h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+A TSPEC between an AP and an STA is negotiated by means of new
+management commands – ADDTS Request, ADDTS Response and DELTS.
+</p>
+
+<p>
+After a TSPEC is successfully negotiated, an STA can get a TXOP by
+one of two ways:
+</p>
+
+<ol class="org-ol">
+<li>Using EDCA, an STA can contend for the medium, and if it
+acquires the medium can use the medium for TXOP time limit. The
+STA must observe the TXOP time limit as specified in an IE in
+beacons.
+</li>
+<li>During CP/CFP, an AP can grant an STA a TXOP using the QoS
+CF-Poll (called as “polled TXOP” in contrast to “EDCA
+TXOP”). The TXOP limit is specified in the CF-Poll frame. While
+the spec allows an AP to grant a “polled TXOP” to an STA during
+either CFP or CP, it is recommended that it not be issued
+during CFP, but only during CP for reasons of simplicity in
+implementation.
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-1-3" class="outline-3">
+<h3 id="sec-1-3">WiFi Multimedia (WMM)</h3>
+<div class="outline-text-3" id="text-1-3">
+<p>
+supports only EDCA but not HCCA. 
+Without HCCA, parametererized QoS can not be supported. 
+</p>
+</div>
+</div>
+</div>
+
+
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">Enhanced Distributed Channel Access (EDCA)</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1">Basic Elements for QoS</h3>
+<div class="outline-text-3" id="text-2-1">
+<ul class="org-ul">
+<li>Traffic Differentiation
+</li>
+<li>Concept of Transmission Opportunity (TXOP)
+<ol class="org-ol">
+<li>一個傳送機會(TXOP)是一個有限的時間區域。在這時間區域內，一工作
+站(station)可儘可能地傳送訊框(frames)。
+</li>
+<li>若訊框(frame)太大而超過傳送機會(TXOP)的時間區域則必須切割分段
+(fragment)成較小的訊框(frames)來傳送。
+</li>
+<li>若傳送機會(TXOP)的時間區域為0時只能傳送一個資料封包。
+</li>
+</ol>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2">New Contention Channel Access</h3>
+<div class="outline-text-3" id="text-2-2">
+<ul class="org-ul">
+<li>Enhanced Distributed Channel Access (EDCA)
+<ol class="org-ol">
+<li>EDCA提供在802.11中競爭基礎(Contention-Based)頻道存取機制，
+排定優先順序(priority)的品質服務(QoS)。此優先順序是以區分訊務
+流量類別而實現。802.1D的8個訊務流量類別(Traffic Classes, TC)對
+應至4個(語音、視訊、盡力傳送、背景)802.11e的存取類別(Access
+Categories, AC)。訊務流量類別被指派至不同的資料佇列(Queue),每
+個佇列根據下列基礎指定優先順序及使用時間存取媒介：
+<ul class="org-ul">
+<li>仲裁內框間隔(Arbitration Inter Frame Spacing, AIFS)
+</li>
+<li>競爭窗框(Contention Window, CWmin/CWmax)
+</li>
+<li>傳輸機會(Transmission Opportunity, TXOP)
+</li>
+</ul>
+</li>
+<li>AIFS時間短的能提早獲得媒介。傳輸機會(TXOP)為指派給節點傳
+輸無線訊框的時間長度。優先順序更高的流量，其等待的AIFS時
+槽越小，而且退後等待(Backoff)時間也更短。TXOP的長度對應在
+特定優先權所預期的串流類型。
+</li>
+<li>許可(進入)控制(Admission Control)透過傳輸規格保護優先次序高
+的訊務流量類別不會受其他優先次序較低的流量影響。
+</li>
+</ol>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-sec-2-3" class="outline-3">
+<h3 id="sec-2-3">New Contention Free Channel Access</h3>
+<div class="outline-text-3" id="text-2-3">
+<ul class="org-ul">
+<li>HCF Controlled Channel Access (HCCA)
+HCCA是HCF的一構成要素(component) 同時提供服務
+品質(QoS)參數化(parameterized)的支持。
+
+<p>
+它除傳承傳統(legacy) PCF的規則外，同時引進一些新
+規則。
+</p>
+
+<p>
+HCCA不同於PCF的運作，而對無線媒介(Wireless
+Medium )提供polled access，這可用在無競爭時期(CFP)
+與競爭時期(CP)。
+</p>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-2-4" class="outline-3">
+<h3 id="sec-2-4">Automatic Power-Save Delivery (APSD)</h3>
+</div>
+
+<div id="outline-container-sec-2-5" class="outline-3">
+<h3 id="sec-2-5">New mechanisms for higher throughput</h3>
+<div class="outline-text-3" id="text-2-5">
+<ul class="org-ul">
+<li>Block Acknowledgement (Block Ack)
+</li>
+<li>Direct Link Setup (DLS)
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-2-6" class="outline-3">
+<h3 id="sec-2-6">Same Contention Based that EDC but…</h3>
+<div class="outline-text-3" id="text-2-6">
+<ul class="org-ul">
+<li><b>8 priority levels</b> per station (identical to IEEE 802.1D priority
+tags) mapped to 4 access categories (AC)
+</li>
+<li>Different <b>Arbitration InterFrame Space</b> (AIFS) per access categories
+</li>
+<li>TxOP Burst Limits
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">EDCA Frame Priorities</h2>
+<div class="outline-text-2" id="text-3">
+
+<div class="figure">
+<p><img src="/images/2016/2016051901.png" alt="2016051901.png" />
+</p>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4">EDCA Implementation Model</h2>
+<div class="outline-text-2" id="text-4">
+
+<div class="figure">
+<p><img src="/images/2016/2016051902.png" alt="2016051902.png" />
+</p>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5">Arbitration InterFrame Space</h2>
+<div class="outline-text-2" id="text-5">
+
+<div class="figure">
+<p><img src="/images/2016/2016051903.png" alt="2016051903.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6">Throughput Enhancements</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+improve channel utilization and efficiency.
+</p>
+</div>
+
+<div id="outline-container-sec-6-0-1" class="outline-4">
+<h4 id="sec-6-0-1">Block ACK</h4>
+<div class="outline-text-4" id="text-6-0-1">
+<p>
+Improves channel efficiency by aggregating several
+acknowledgments into one frame.
+</p>
+</div>
+
+<ul class="org-ul"><li><a id="sec-6-0-1-1" name="sec-6-0-1-1"></a>2 types of Block Ack mechanisms:<br  /><div class="outline-text-5" id="text-6-0-1-1">
+<p>
+immediate and delayed
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016051906.png" alt="2016051906.png" />
+</p>
+</div>
+</div>
+</li></ul>
+</div>
+
+<div id="outline-container-sec-6-0-2" class="outline-4">
+<h4 id="sec-6-0-2">Direct Link Protocol</h4>
+<div class="outline-text-4" id="text-6-0-2">
+<p>
+Ability to exchange data directly between two
+stations in the network, without traversing the AP.
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016051907.png" alt="2016051907.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-6-0-3" class="outline-4">
+<h4 id="sec-6-0-3">Automatic Power-Save Delivery</h4>
+<div class="outline-text-4" id="text-6-0-3">
+<p>
+Enhancing Power Saving mode in QoS Basic Service Set
+</p>
+
+<p>
+<b>QoS-AP</b> automatically delivers downlink frames,which belong to some
+specified Access Category, to <b>Power-Saving</b> stations
+</p>
+
+<p>
+Two types of delivery mechanism
+</p>
+<ol class="org-ol">
+<li>Unscheduled APSD (U-APSD)
+</li>
+<li>Scheduled APSD (S-APSD)
+</li>
+</ol>
+</div>
+
+<ul class="org-ul"><li><a id="sec-6-0-3-1" name="sec-6-0-3-1"></a>Unscheduled APSD (U-APSD)<br  /><div class="outline-text-5" id="text-6-0-3-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016051904.png" alt="2016051904.png" />
+</p>
+</div>
+
+<p>
+Power-saving QoS-STA wakes up and send a “trigger”data
+frame belonging to “trigger-enabled” AC to QoS-AP
+</p>
+
+<p>
+After receiving “trigger” frame, a Service Period (SP) is
+started
+</p>
+
+<p>
+QoS-AP send frames belonging to “delivery-enabled” AC
+to QoS-STA
+</p>
+</div>
+</li>
+
+<li><a id="sec-6-0-3-2" name="sec-6-0-3-2"></a>Scheduled APSD (S-APSD)<br  /><div class="outline-text-5" id="text-6-0-3-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016051905.png" alt="2016051905.png" />
+</p>
+</div>
+
+<p>
+QoS-STA negotiates a APSD Schedule with QoS-AP
+</p>
+
+<p>
+QoS-AP start transmitting the frames of the specified
+Traffic Stream at Service Start Time and the following
+periods
+</p>
+
+<p>
+QoS STA must wake up at Service Start Time and the
+following periods to receive frames
+</p>
+</div>
+</li></ul>
+</div>
+</div>
+</div>
