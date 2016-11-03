@@ -2,6 +2,7 @@
 layout: post
 date: 2016-04-09
 author: 山庄来客
+update: 2016-11-03
 categories: wifi 
 ---
 <div id="content">
@@ -10,7 +11,7 @@ categories: wifi
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#sec-1">EAP协议</a>
+<li><a href="#sec-1">EAP协议(RFC3748)</a>
 <ul>
 <li><a href="#sec-1-1">概述</a></li>
 <li><a href="#sec-1-2">EAP复用模型</a></li>
@@ -22,7 +23,7 @@ categories: wifi
 </li>
 </ul>
 </li>
-<li><a href="#sec-2">State Machines for EAP Peer And Authenticator</a>
+<li><a href="#sec-2">State Machines for EAP Peer And Authenticator(RFC4137)</a>
 <ul>
 <li><a href="#sec-2-1">摘要</a></li>
 <li><a href="#sec-2-2">EAP Switch模型介绍</a>
@@ -48,13 +49,14 @@ categories: wifi
 </li>
 </ul>
 </li>
+<li><a href="#sec-3">EAP与802.1X， WPA/WPA2</a></li>
 </ul>
 </div>
 </div>
 
 
 <div id="outline-container-sec-1" class="outline-2">
-<h2 id="sec-1">EAP协议</h2>
+<h2 id="sec-1">EAP协议(RFC3748)</h2>
 <div class="outline-text-2" id="text-1">
 </div><div id="outline-container-sec-1-1" class="outline-3">
 <h3 id="sec-1-1">概述</h3>
@@ -282,7 +284,7 @@ Identity Type用于查询Peer的标识， 通常情况下，Authenticator会将
 </p>
 
 <p>
-通常建议Identity Response的主要用是：
+通常建议Identity Response的主要作用是：
 </p>
 <ol class="org-ol">
 <li>Routing Purpose
@@ -408,7 +410,7 @@ Success和Failure包不会被确认，所以不会重传。
 </div>
 
 <div id="outline-container-sec-2" class="outline-2">
-<h2 id="sec-2">State Machines for EAP Peer And Authenticator</h2>
+<h2 id="sec-2">State Machines for EAP Peer And Authenticator(RFC4137)</h2>
 <div class="outline-text-2" id="text-2">
 </div><div id="outline-container-sec-2-1" class="outline-3">
 <h3 id="sec-2-1">摘要</h3>
@@ -445,7 +447,7 @@ methods
 
 <p>
 双方协商出一个共同使用的方法，进行交互。Authenticator通过
-EAP-Success或EAP-Failure来表示协调的成功或失败。方法本身也有一些状态
+EAP-Success或EAP-Failure来表示协商的成功或失败。方法本身也有一些状态
 机。
 </p>
 </div>
@@ -464,12 +466,14 @@ EAP-Success或EAP-Failure来表示协调的成功或失败。方法本身也有�
 <div id="outline-container-sec-2-2-2" class="outline-4">
 <h4 id="sec-2-2-2">Peer状态机</h4>
 <div class="outline-text-4" id="text-2-2-2">
-<p>
-Peer状态机图解：
-<img src="/images/2016/2016033101.png" alt="2016033101.png" />
+
+<div class="figure">
+<p><img src="/images/2016/2016033101.png" alt="2016033101.png" />
 </p>
 </div>
 </div>
+</div>
+
 <div id="outline-container-sec-2-2-3" class="outline-4">
 <h4 id="sec-2-2-3">Peer状态机与底层之间的接口</h4>
 <div class="outline-text-4" id="text-2-2-3">
@@ -575,7 +579,7 @@ FAILURE状态。
 设置。
 </p>
 </li>
-<li>eapKeyAv ailable (boolean)
+<li>eapKeyAvailable (boolean)
 
 <p>
 当keying material可用时，Peer状态机会在SUCCESS状态下设置该值为
@@ -1811,12 +1815,67 @@ A final state indicating failure because no response has been
 received. Because no response was received, no new message
 (including failure) should be sent to the peer. Note that this is
 different from the FAILURE state, in which a message indicating
-failure is sent to the peer. 
+failure is sent to the peer.
 </p>
 </li>
 </ul>
 </div>
 </div>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">EAP与802.1X， WPA/WPA2</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+802.1X is NOT an encryption type. It is basically just a per-user
+(e.g. username and password) authentication mechanism. 
+</p>
+
+<p>
+WPA2 is a security scheme that specifies two main aspects of your
+wireless security: 
+</p>
+<ul class="org-ul">
+<li>Authentication: Your choice of PSK ("Personal") or 802.1X ("Enterprise").
+</li>
+<li>Encryption: Always AES-CCMP.
+
+<p>
+If you're using WPA2 security on your network, you have two
+ authentication choices: You either have to use a single password
+ for the whole network that everyone knows (this is called a
+ Pre-Shared Key or PSK), or you use 802.1X to force each user to
+ use his own unique login credentials (e.g. username and
+ password). 
+</p>
+
+<p>
+Regardless of which authentication type you've set up your
+network to use, WPA2 always uses a scheme called AES-CCMP to
+encrypt your data over the air for the sake of confidentiality,
+and to thwart various other kinds of attacks. 
+</p>
+
+<p>
+802.1X is "EAP over LANs" or EAPoL. EAP stands for "Extensible
+Authentication Protocol", which means it's kind of a plug-in
+scheme for various authentication methods. Some examples: 
+</p>
+<ul class="org-ul">
+<li>Do you want to authenticate your users with usernames and passwords? Then "PEAP" is a good EAP type to use.
+</li>
+
+<li>Do you want to authenticate your users via certificates? Then "EAP-TLS" is a good EAP type to use.
+</li>
+
+<li>Are the devices on your network all GSM smartphones with SIM
+cards? Then you can use "EAP-SIM" to do GSM SIM-card style
+authentication to get on your network. etc. etc.
+</li>
+</ul>
+</li>
+</ul>
 </div>
 </div>
 </div>

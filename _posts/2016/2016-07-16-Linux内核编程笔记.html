@@ -2,8 +2,8 @@
 layout: post
 title:  "Linux内核编程笔记"
 author: 山庄来客
-date:   2015-07-16
-update: 2016-07-16
+date:   2016-07-16
+update: 2016-11-03
 categories: 软件开发 kernel
 ---
 <div id="content">
@@ -53,6 +53,15 @@ categories: 软件开发 kernel
 <li><a href="#sec-39">知识点38 <code>seq_file</code> 接口的使用</a></li>
 <li><a href="#sec-40">知识点39 libfs内核接口</a></li>
 <li><a href="#sec-41">知识点40 内存映射</a></li>
+<li><a href="#sec-42">知识点41 Linux内核模块</a></li>
+<li><a href="#sec-43">知识点42 字符设备驱动程序框架</a></li>
+<li><a href="#sec-44">知识点43 在内核中读写文件</a></li>
+<li><a href="#sec-45">知识点44 poll 和select</a></li>
+<li><a href="#sec-46">知识点45 iotcl函数</a></li>
+<li><a href="#sec-47">知识点46 configfs</a></li>
+<li><a href="#sec-48">Device Tree</a></li>
+<li><a href="#sec-49">＝iov<sub>iter</sub>= interface──新的异步IO接口</a></li>
+<li><a href="#sec-50">内核调试</a></li>
 </ul>
 </div>
 </div>
@@ -196,6 +205,16 @@ my_release(void)
 
 module_init(my_init);
 module_exit(my_release);
+</pre>
+</div>
+</li>
+
+<li>设置线程优先级
+<div class="org-src-container">
+
+<pre class="src src-c">struct sched_param param = {.sched_priority = xxx,
+                        };
+sched_setscheduler( , , &amp;param);
 </pre>
 </div>
 </li>
@@ -1494,6 +1513,7 @@ init_completion(&amp;my_completion);
 <pre class="src src-c">void wait_for_completion(struct completion *c); //执行一个不可中断的等待
 void complete(struct completion *c);//唤醒一个线程
 void complete_all(struct completion *c);//唤醒多个线程i
+bool completion_done(struct completion *x); //当前是否有等待者
 </pre>
 </div>
 
@@ -2315,9 +2335,13 @@ init_waitqueue_head(&amp;ret-&gt;wait_queue);
 </li>
 <li>等待某个条件发生：
 <code>wait_event(...)</code> 或 <code>wait_event_timeout(...)</code>
+<code>wait_event_interruptible</code> 或 <code>wait_event_interruptible_timeout</code>
 </li>
 <li>唤醒队列
 <code>wake_up_all(...)</code>
+<code>wake_up_interruptible_all</code>
+<code>wake_up</code>
+<code>wake_up_interruptible</code>
 </li>
 </ol>
 </div>
@@ -3888,6 +3912,14 @@ extern unsigned long volatile jiffies;
 #define time_before(unknown, known) ((long)(unknown) - (long)(known) &lt; 0)
 #define time_after_eq(unknown, known) ((long)(unknown) - (long)(known) &gt;= 0)
 #define time_before_eq(unknown, known) ((long)(known) - (long)(unknown) &gt;= 0)
+
+/* Check if time "a" is before time "b" */
+/* In 32-bit variable, 0x00000001~0x7fffffff -&gt; positive number,
+ *                     0x80000000~0xffffffff -&gt; negative number
+ */
+#define TIME_BEFORE_64bit(a, b)       (a &lt; b)
+
+#define TIME_BEFORE(a, b)        ((UINT_32)((UINT_32)(a) - (UINT_32)(b)) &gt; 0x7fffffff)
 </pre>
 </div>
 
@@ -6065,7 +6097,7 @@ static int  procfs_test2_show(struct seq_file *pi, void *v)
 <p>
 　　Libfs是内核中的一个库，它提供了几个标准通用的接口，可用于创建用于
 特殊目的的小型文件系统。这些接口非常适用于内存文件。代码位于fs/libfs.c。
-这些接口名称通过以simple开头。
+这些接口名称通常以simple开头。
 </p>
 
 <p>
@@ -6096,10 +6128,10 @@ static int  procfs_test2_show(struct seq_file *pi, void *v)
 地址，设备看到的是连续的物理地址。
 </li>
 <li>内核逻辑地址：通过kmalloc返回的地址，通常与物理地址存在线性关系，
-一一对应。=_<sub>pa</sub>()= , <code>__va()</code> 为相互转换的宏。
+一一对应。 <code>__pa()</code> , <code>__va()</code> 为相互转换的宏。
 </li>
 <li>内核虚拟地址：通过vmalloc以及kmap函数返回的值都属于内核空间虚拟
-地址，也物理地址不一定存在线性关系。
+地址，与物理地址不一定存在线性关系。
 </li>
 </ol>
 
@@ -6244,6 +6276,1411 @@ Vmalloc映射分三步：
 </ol>
 <p>
 　
+</p>
+</div>
+</div>
+<div id="outline-container-sec-42" class="outline-2">
+<h2 id="sec-42">知识点41 Linux内核模块</h2>
+<div class="outline-text-2" id="text-42">
+<p>
+Linux内核的整体结构非常庞大，其包含的组件也非常多，我们需要包含所需
+的部分功能组件。有两种方法：一种是将所需的功能组件编译进内核。二是，
+将所需的功能组件编译成独立于内核的模块，需要时动态加载进内核。通常采
+用第二种方式，它的好处是：
+</p>
+<ul class="org-ul">
+<li>模块本身不被编译入内核映像，从而控制了内核的大小。
+</li>
+<li>模块一旦被加载，它就和内核中的其他部分完全一样。
+</li>
+</ul>
+
+<div class="org-src-container">
+<label class="org-src-name">一个模块的简单示例</label>
+<pre class="src src-c">#include &lt;linux/init.h&gt;
+#include &lt;linux/module.h&gt;
+MODULE_LICENSE("Dual BSD/GPL");
+static int hello_init(void)
+{
+  printk(KERN_INFO " Hello World enter\n");
+  return 0;
+}
+
+static void hello_exit(void)
+{
+  printk(KERN_INFO " Hello World exit\n ");
+}
+
+module_init(hello_init);
+module_exit(hello_exit);
+
+MODULE_AUTHOR("Song Baohua");
+MODULE_DESCRIPTION("A simple Hello World Module");
+MODULE_ALIAS("a simplest module");
+</pre>
+</div>
+
+<p>
+<b>Linux内核模块的程序结构</b>    
+</p>
+
+<p>
+一个Linux内核模块主要由以下几部分组成：
+</p>
+<ul class="org-ul">
+<li>模块加载函数（必须）
+</li>
+<li>模块卸载函数（必须）
+</li>
+<li>模块许可证声明（必须）
+常见的有：MODULE<sub>LICENSE</sub>(“Dual BSD/GPL”)
+</li>
+<li>模块参数（可选）
+</li>
+<li>模块导出符号（可选）
+</li>
+<li>模块作者等信息声明（可选）
+</li>
+</ul>
+
+<p>
+<b>模块加载函数</b> 
+</p>
+
+<p>
+一般以 <code>__init</code> 标识声明，典型的加载函数的形式如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">static int __init initialization_function(void)
+{
+  /*初始化代码*/
+}
+module_init(initialization_function);
+</pre>
+</div>
+
+<p>
+在Linux 2.6内核中，可以使用
+</p>
+<pre class="example">
+request_module(const char *fmt, …)
+</pre>
+<p>
+函数加载内核，如下所示:
+</p>
+<pre class="example">
+request_module(“char-major-%d-%d”, MAJOR(dev), MINOR(dev));
+</pre>
+
+<p>
+<b>模块卸载函数</b> 
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">static void __exit cleanup_function(void)
+{
+  /*释放代码*/
+}
+module_exit(cleanup_function);
+</pre>
+</div>
+
+<p>
+<b>模块参数</b>
+</p>
+
+<p>
+可以用:
+</p>
+<pre class="example">
+module_param(参数名，参数类型，参数读/写权限)
+</pre>
+<p>
+来定义一个参数。如：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">static char *book_name = “bookname”;
+static int num = 4000;
+module_param(book_name, charp, S_IRUGO);
+module_param(num, int, S_IRUGO);
+</pre>
+</div>
+
+<p>
+参数类型可以是：byte, short, ushort, int , uint, long, ulong, charp,
+bool, invbool(布尔的反)。
+具体代码如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;linux/init.h&gt;                               
+#include &lt;linux/module.h&gt;                               
+MODULE_LICENSE("Dual BSD/GPL");                                
+
+static char *book_name = "dissecting Linux Device Driver";             
+static int num = 4000;                               
+
+static int book_init(void)                                
+{                               
+   printk(KERN_INFO " book name:%s\n",book_name);                       
+   printk(KERN_INFO " book num:%d\n",num);                              
+   return 0;                               
+}                                
+static void book_exit(void)                               
+{                               
+   printk(KERN_INFO " Book module exit\n ");                           
+}                               
+module_init(book_init);                                
+module_exit(book_exit);                               
+module_param(num, int, S_IRUGO);                               
+module_param(book_name, charp, S_IRUGO);
+
+MODULE_AUTHOR("Song Baohua, author@linuxdriver.cn");
+MODULE_DESCRIPTION("A simple Module for testing module params");
+MODULE_VERSION("V1.0");
+</pre>
+</div>
+
+<p>
+相应的Makefile文件如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">obj-m := hello.o
+obj-m += book.o
+
+all:
+   $(MAKE) -C /lib/modules/$(shell uname -r)/build/ M=$(PWD) modules
+
+clean:
+   rm -f *.o *.ko *.mod.o
+</pre>
+</div>
+
+<p>
+<b>符号导出</b>
+</p>
+
+<p>
+命令
+</p>
+<pre class="example">
+cat /proc/kallsyms
+</pre>
+<p>
+可查看内核符号表。它记录了符号以及符号所在的内存地址。模块可以使用如
+下宏导出符号到内核符号表：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">EXPORT_SYMBOL(符号名);
+EXPORT_SYMBOL_GPL(符号名);只适用于包含GPL许可权的模块。
+</pre>
+</div>
+
+<p>
+例子如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;linux/init.h&gt;                               
+#include &lt;linux/module.h&gt;                               
+MODULE_LICENSE("Dual BSD/GPL");                               
+int add_integar(int a,int b)                               
+{                               
+   return a+b;                            
+}
+int sub_integar(int a,int b)                                
+{                               
+   return a-b;                            
+}   
+EXPORT_SYMBOL(add_integar);
+EXPORT_SYMBOL(sub_integar);
+</pre>
+</div>
+
+<p>
+<b>模块的声明与描述</b>
+</p>
+
+<p>
+<code>MODULE_AUTHOR(author)</code>: 模块的作者
+<code>MODULE_DESCRIPTION(description)</code> : 模块的描述
+<code>MODULE_VERSION(version_string)</code> : 模块的版本
+<code>MODULE_DEVICE_TABLE(table_info)</code> : 对于USB、PCI等设备
+<code>MODULE_ALIAS(alternate_name)</code> : 模块别名
+</p>
+
+<p>
+<b>模块的使用计数</b>
+</p>
+
+<p>
+Linux2.4中，使用 <code>MOD_INC_USE_COUNT</code> 、 <code>MOD_DEC_USE_COUNT</code> 宏来管理自己被使
+用的计数。
+</p>
+
+<p>
+Linux2.6中，提供了模块计数管理接口：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">int try_module_get(struct module *module):
+void module_put(struct module *module);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-43" class="outline-2">
+<h2 id="sec-43">知识点42 字符设备驱动程序框架</h2>
+<div class="outline-text-2" id="text-43">
+<ol class="org-ol">
+<li>设备号的内部表示形式
+类型： <code>dev_t</code> 32=12(主设备号) + 20(次设备号)
+相关宏：
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;linux/kdev_t.h&gt;
+MAJOR(dev_t dev)
+MINOR(dev_t dev)
+MKDEV(int major, int minor);
+</pre>
+</div>
+</li>
+
+<li>分配和释放设备号
+相关函数：
+<div class="org-src-container">
+
+<pre class="src src-c">//静态分配设备号
+int register_chrdev_region(dev_t first, unsigned int count,
+                           char *name);
+//动态分配设备号
+int alloc_chrdev_region(dev_t *dev, unsigned int firstminor,
+                        unsigned int count, char *name);
+void unregister_chrdev_region(dev_t first, unsigned int count);
+</pre>
+</div>
+</li>
+
+<li>获取设备号的通常写法
+<div class="org-src-container">
+
+<pre class="src src-c">if (scull_major) {
+  dev = MKDEV(scull_major, scull_minor);
+  result = register_chrdev_region(dev, scull_nr_devs, "scull");
+ } else {
+  result = alloc_chrdev_region(&amp;dev, scull_minor, scull_nr_devs,
+                               "scull");
+  scull_major = MAJOR(dev);
+ }
+
+if (result &lt; 0) {
+  printk(KERN_WARNING "scull: can't get major %d\n", scull_major);
+  return result;
+ }
+</pre>
+</div>
+</li>
+
+<li>一些重要的数据结构
+<div class="org-src-container">
+
+<pre class="src src-c">struct file_operations
+{
+  //用于防止一个正在使用的模块被卸载，通常值为THIS_MODULE
+  struct module *owner;
+
+  //seek
+  loff_t (*llseek) (struct file *, loff_t, int);
+
+  //read
+  ssize_t (*read) (struct file *, char __user *, size_t, loff_t *);
+  ssize_t (*aio_read)(struct kiocb *, char __user *, size_t, loff_t);
+
+  //write
+  ssize_t (*write) (struct file *, const char __user *, size_t, loff_t *);
+  ssize_t (*aio_write)(struct kiocb *, const char __user *, size_t, loff_t *);
+
+  //readdir
+  int (*readdir) (struct file *, void *, filldir_t);
+
+  //poll
+  unsigned int (*poll) (struct file *, struct poll_table_struct *);
+
+  //ioctl
+  int (*ioctl) (struct inode *, struct file *, unsigned int, unsigned long);
+
+  //mmap
+  int (*mmap) (struct file *, struct vm_area_struct *);
+
+  //open
+  int (*open) (struct inode *, struct file *);
+
+  //flush
+  int (*flush) (struct file *);
+
+  //release
+  int (*release) (struct inode *, struct file *);
+
+  //fsync
+  int (*fsync) (struct file *, struct dentry *, int);
+  int (*aio_fsync)(struct kiocb *, int);
+  int (*fasync) (int, struct file *, int);
+
+  //lock
+  int (*lock) (struct file *, int, struct file_lock *);
+
+  //readv writev
+  ssize_t (*readv) (struct file *, const struct iovec *, unsigned long, loff_t *);
+  ssize_t (*writev) (struct file *, const struct iovec *, unsigned long, loff_t *);
+
+  //sendfile
+  ssize_t (*sendfile)(struct file *, loff_t *, size_t, read_actor_t, void *);
+
+  //sendpage
+  ssize_t (*sendpage) (struct file *, struct page *, int, size_t, loff_t *,
+                       int);
+
+  //get_unmapped_area
+  unsigned long (*get_unmapped_area)(struct file *, unsigned long, unsigned
+                                     long, unsigned long, unsigned long);
+
+  //check_flags
+  int (*check_flags)(int)
+
+  //dir_notify
+    int (*dir_notify)(struct file *, unsigned long);
+
+  ...
+
+};
+
+
+
+//代表打开的文件
+struct file
+{
+  //读写权限
+  mode_t f_mode;
+
+  //文件读写位置
+  loff_t f_pos;
+
+  //文件标志(O_RDONLY, O_NONBLOCK, O_SYNC)
+  unsigned int f_flags;
+
+  //文件操作
+  struct file_operations *f_op;
+
+  //设备文件的私有数据
+  void *private_data;
+
+  //与文件相关的目录,
+  struct dentry *f_dentry;
+
+  ...
+
+};
+
+
+struct inode
+{
+  //对于设备文件来说，此域表示真实的设备号
+  dev_t i_rdev;
+
+  //当引结点指向一个字符设备时，代表内核内部结构的字符设备
+  struct cdev *i_cdev;
+
+};
+
+//从I结点中获取次设备号
+unsigned int iminor(struct inode *inode);
+// 从I结点中获取主设备号
+unsigned int imajor(struct inode *inode);
+</pre>
+</div>
+</li>
+
+<li>注册字符设备
+头文件：&lt;linux/cdev.h&gt;
+cdev 结构体的定义：
+<div class="org-src-container">
+
+<pre class="src src-c">struct cdev
+{
+  struct kobject kobj;        /*内嵌的kobject对象*/
+  struct module *owner;   /*所属模块*/
+  struct file_operations *ops; /*相关的文件操作*/
+  struct list_head list;
+  dev_t dev;      /*设备模块*/
+  unsigned int count;
+};
+</pre>
+</div>
+
+<p>
+分配和初始化字符设备相关结构:
+</p>
+<ul class="org-ul">
+<li>方法1（将cdev作为单独的一个结构）
+<div class="org-src-container">
+
+<pre class="src src-c">struct cdev *my_cdev = cdev_alloc( ); //分配设备空间
+my_cdev-&gt;ops = &amp;my_fops;
+//设备初始化
+void cdev_init(struct cdev *cdev, struct file_operations *fops);
+//添加设备
+int cdev_add(struct cdev *dev, dev_t num, unsigned int count);
+//删除设备
+void cdev_del(struct cdev *dev);
+</pre>
+</div>
+</li>
+
+<li>方法2（将cdev作为自定义设备结构的一个成员）
+<div class="org-src-container">
+
+<pre class="src src-c">struct mydev
+{
+  …
+  struct cdev;
+}
+</pre>
+</div>
+
+<p>
+设备分配初始化以及删除操作类似
+</p>
+
+<p>
+2.6内核以前的字符设备注册方法
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">int register_chrdev(unsigned int major, const char *name, struct file_operations *fops);
+
+int unregister_chrdev(unsigned int major, const char *name);
+</pre>
+</div>
+</li>
+</ul>
+</li>
+
+<li>字符设备驱动程序模板
+字符设备驱动模块加载和卸载函数模板
+<div class="org-src-container">
+
+<pre class="src src-c">//设备结构体
+
+struct xxx_dev_t
+
+{
+
+  struct cdev cdev;
+
+  …
+
+};
+
+//设备驱动模块加载函数
+
+static int __init xxx_init(void)
+
+{
+
+  …
+
+    //初始化cdev
+    cdev_init(&amp;xxx_dev.cdev, &amp;xxx_fops);
+
+  //获取字符设备号
+  if(xxx_major)
+    {
+      register_chrdev_region(xxx_dev_no, 1, DEV_NAME);
+    }
+  else
+    {
+      alloc_chrdev_region(&amp;xxx_dev_no, 0, 1, DEV_NAME);
+    }
+
+  //注册设备
+  ret = cdev_add(&amp;xxx_dev.cdev, xxx_dev_no, 1);
+}
+
+//设备驱动模块卸载函数
+static void __exit xxx_exit(void)
+{
+  //释放占用的设备号
+  unregister_chrdev_region(xxx_dev_no, 1);
+  //注销设备
+  cdev_del(&amp;xxx_dev.cdev);
+
+  …
+
+}
+</pre>
+</div>
+
+<p>
+字符设备常用I/O操作函数模板
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">//读设备
+ssize_t xxx_read(struct file *filep, char __user *buf, size_t count, loff_t *f_pos)
+{
+
+  …
+
+    copy_to_user(buf, …, …);
+
+  …
+
+}
+
+//写设备
+ssize_t xxx_write(struct file *filep, const char __user *buf, size_t count, loff_t *f_pos)
+{
+
+  …
+
+    copy_from_user(…, buf, …);
+
+  …
+
+}
+
+//ioctl函数
+int xxx_ioctl(struct inode *inode, struct file *filep, unsigned int cmd, unsigned long arg)
+{
+
+  …
+
+    switch(cmd)
+      {
+
+      case XXX_CMD1:
+
+        …
+
+          break;
+
+      case XXX_CMD2:
+
+        …
+
+          break;
+
+      default:
+
+        //不能支持的命令
+
+        return –ENOTTY;
+
+      }
+
+  return 0;
+
+}
+</pre>
+</div>
+
+<p>
+用户空间与内核空间的数据传输
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c">//内核空间到用户空间数据的复制
+unsigned long copy_to_user(void __user *to, const void *from,                         
+                           unsigned long count);
+
+//用户空间到内核空间的复制
+unsigned long copy_from_user(void *to, const void __user *from,
+                             unsinged long count);
+</pre>
+</div>
+
+<p>
+上述函数均返回不能被复制的字节数，因此，如果完全复制成功，返回值
+为0.
+</p>
+
+<p>
+如果要复制的内在是简单类型，如char, int,long等，则可以使用简单的
+<code>put_user()</code> 和 <code>get_user()</code> 函数。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">int val;
+…
+get_user(val, (int*)arg);
+…
+put_user(val, (int*)arg);
+</pre>
+</div>
+</li>
+
+<li>示例
+<div class="org-src-container">
+
+<pre class="src src-c">/**
+ * @file   ebbchar.c
+ * @author Derek Molloy
+ * @date   7 April 2015
+ * @version 0.1
+ * @brief   An introductory character driver to support the second article of my series on
+ * Linux loadable kernel module (LKM) development. This module maps to /dev/ebbchar and
+ * comes with a helper C program that can be run in Linux user space to communicate with
+ * this the LKM.
+ * @see http://www.derekmolloy.ie/ for a full description and follow-up descriptions.
+ */
+
+#include &lt;linux/init.h&gt;           // Macros used to mark up functions e.g. __init __exit
+#include &lt;linux/module.h&gt;         // Core header for loading LKMs into the kernel
+#include &lt;linux/device.h&gt;         // Header to support the kernel Driver Model
+#include &lt;linux/kernel.h&gt;         // Contains types, macros, functions for the kernel
+#include &lt;linux/fs.h&gt;             // Header for the Linux file system support
+#include &lt;asm/uaccess.h&gt;          // Required for the copy to user function
+#include &lt;linux/mutex.h&gt;          // Required for the mutex functionality
+#include &lt;linux/cdev.h&gt;
+#include &lt;linux/kdev_t.h&gt;
+#define  DEVICE_NAME "ebbchar"    ///&lt; The device will appear at /dev/ebbchar using this value
+#define  CLASS_NAME  "ebb"        ///&lt; The device class -- this is a character device driver
+
+MODULE_LICENSE("GPL");            ///&lt; The license type -- this affects available functionality
+MODULE_AUTHOR("Derek Molloy");    ///&lt; The author -- visible when you use modinfo
+MODULE_DESCRIPTION("A simple Linux char driver for the BBB");  ///&lt; The description -- see modinfo
+MODULE_VERSION("0.1");            ///&lt; A version number to inform users
+
+static int    majorNumber = 0;                  ///&lt; Stores the device number -- determined automatically
+static char   message[256] = {0};           ///&lt; Memory for the string that is passed from userspace
+static short  size_of_message;              ///&lt; Used to remember the size of the string stored
+static int    numberOpens = 0;              ///&lt; Counts the number of times the device is opened
+static struct cdev *ebb_cdev = NULL;
+static struct class*  ebbcharClass  = NULL; ///&lt; The device-driver class struct pointer
+static struct device* ebbcharDevice = NULL; ///&lt; The device-driver device struct pointer
+
+
+static DEFINE_MUTEX(ebbchar_mutex);  /// A macro that is used to declare a new mutex that is visible in this file
+                                     /// results in a semaphore variable ebbchar_mutex with value 1 (unlocked)
+                                     /// DEFINE_MUTEX_LOCKED() results in a variable with value 0 (locked)
+
+// The prototype functions for the character driver -- must come before the struct definition
+static int     dev_open(struct inode *, struct file *);
+static int     dev_release(struct inode *, struct file *);
+static ssize_t dev_read(struct file *, char *, size_t, loff_t *);
+static ssize_t dev_write(struct file *, const char *, size_t, loff_t *);
+
+/** @brief Devices are represented as file structure in the kernel. The file_operations structure from
+ *  /linux/fs.h lists the callback functions that you wish to associated with your file operations
+ *  using a C99 syntax structure. char devices usually implement open, read, write and release calls
+ */
+static struct file_operations fops =
+  {
+    .open = dev_open,
+    .read = dev_read,
+    .write = dev_write,
+    .release = dev_release,
+  };
+
+/** @brief The LKM initialization function
+ *  The static keyword restricts the visibility of the function to within this C file. The __init
+ *  macro means that for a built-in driver (not a LKM) the function is only used at initialization
+ *  time and that it can be discarded and its memory freed up after that point.
+ *  @return returns 0 if successful
+ */
+static int __init ebbchar_init(void){
+  int result;
+  dev_t dev = MKDEV(majorNumber, 0);
+  printk(KERN_INFO "EBBChar: Initializing the EBBChar LKM\n");
+  /* Figure out our device number. */
+  if (majorNumber)
+    result = register_chrdev_region(dev, 1, DEVICE_NAME);
+  else {
+    result = alloc_chrdev_region(&amp;dev, 0, 1, DEVICE_NAME);
+    majorNumber = MAJOR(dev);
+  }
+  if (majorNumber&lt;0){
+    printk(KERN_ALERT "EBBChar failed to register a major number\n");
+    return majorNumber;
+  }
+  printk(KERN_INFO "EBBChar: registered correctly with major number %d\n", majorNumber);
+
+  ebb_cdev = cdev_alloc();
+  cdev_init(ebb_cdev, &amp;fops);
+  ebb_cdev-&gt;owner = THIS_MODULE;
+  result = cdev_add(ebb_cdev, dev, 1);
+  if (result)  {
+    printk(KERN_NOTICE "Error %d add char device.\n", result);
+    return -1;
+  }
+
+  // Register the device class
+  ebbcharClass = class_create(THIS_MODULE, CLASS_NAME);
+  if (IS_ERR(ebbcharClass)){                // Check for error and clean up if there is
+    unregister_chrdev(majorNumber, DEVICE_NAME);
+    printk(KERN_ALERT "Failed to register device class\n");
+    return PTR_ERR(ebbcharClass);          // Correct way to return an error on a pointer
+  }
+  printk(KERN_INFO "EBBChar: device class registered correctly\n");
+
+  // Register the device driver
+  ebbcharDevice = device_create(ebbcharClass, NULL, MKDEV(majorNumber, 0), NULL, DEVICE_NAME);
+  if (IS_ERR(ebbcharDevice)){               // Clean up if there is an error
+    class_destroy(ebbcharClass);           // Repeated code but the alternative is goto statements
+    unregister_chrdev(majorNumber, DEVICE_NAME);
+    printk(KERN_ALERT "Failed to create the device\n");
+    return PTR_ERR(ebbcharDevice);
+  }
+  printk(KERN_INFO "EBBChar: device class created correctly\n"); // Made it! device was initialized
+
+  mutex_init(&amp;ebbchar_mutex); /// Initialize the mutex lock dynamically at runtime
+
+  return 0;
+}
+
+/** @brief The LKM cleanup function
+ *  Similar to the initialization function, it is static. The __exit macro notifies that if this
+ *  code is used for a built-in driver (not a LKM) that this function is not required.
+ */
+static void __exit ebbchar_exit(void){
+  device_destroy(ebbcharClass, MKDEV(majorNumber, 0));     // remove the device
+  class_unregister(ebbcharClass);                          // unregister the device class
+  class_destroy(ebbcharClass);                             // remove the device class
+  //   unregister_chrdev(majorNumber, DEVICE_NAME);             // unregister the major number
+  unregister_chrdev_region(majorNumber, 1);
+  mutex_destroy(&amp;ebbchar_mutex);        /// destroy the dynamically-allocated mutex
+  printk(KERN_INFO "EBBChar: Goodbye from the LKM!\n");
+}
+
+/** @brief The device open function that is called each time the device is opened
+ *  This will only increment the numberOpens counter in this case.
+ *  @param inodep A pointer to an inode object (defined in linux/fs.h)
+ *  @param filep A pointer to a file object (defined in linux/fs.h)
+ */
+static int dev_open(struct inode *inodep, struct file *filep){
+
+  if(!mutex_trylock(&amp;ebbchar_mutex)){    /// Try to acquire the mutex (i.e., put the lock on/down)
+    /// returns 1 if successful and 0 if there is contention
+    printk(KERN_ALERT "EBBChar: Device in use by another process");
+    return -EBUSY;
+  }
+
+  numberOpens++;
+  printk(KERN_INFO "EBBChar: Device has been opened %d time(s)\n", numberOpens);
+  return 0;
+}
+
+/** @brief This function is called whenever device is being read from user space i.e. data is
+ *  being sent from the device to the user. In this case is uses the copy_to_user() function to
+ *  send the buffer string to the user and captures any errors.
+ *  @param filep A pointer to a file object (defined in linux/fs.h)
+ *  @param buffer The pointer to the buffer to which this function writes the data
+ *  @param len The length of the b
+ *  @param offset The offset if required
+ */
+static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *offset){
+  int error_count = 0;
+  // copy_to_user has the format ( * to, *from, size) and returns 0 on success
+  error_count = copy_to_user(buffer, message, size_of_message);
+
+  if (error_count==0){            // if true then have success
+    printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", size_of_message);
+    return (size_of_message=0);  // clear the position to the start and return 0
+  }
+  else {
+    printk(KERN_INFO "EBBChar: Failed to send %d characters to the user\n", error_count);
+    return -EFAULT;              // Failed -- return a bad address message (i.e. -14)
+  }
+}
+
+/** @brief This function is called whenever the device is being written to from user space i.e.
+ *  data is sent to the device from the user. The data is copied to the message[] array in this
+ *  LKM using the sprintf() function along with the length of the string.
+ *  @param filep A pointer to a file object
+ *  @param buffer The buffer to that contains the string to write to the device
+ *  @param len The length of the array of data that is being passed in the const char buffer
+ *  @param offset The offset if required
+ */
+static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, loff_t *offset){
+  sprintf(message, "%s(%d letters)", buffer, len);   // appending received string with its length
+  size_of_message = strlen(message);                 // store the length of the stored message
+  printk(KERN_INFO "EBBChar: Received %d characters from the user\n", len);
+  return len;
+}
+
+/** @brief The device release function that is called whenever the device is closed/released by
+ *  the userspace program
+ *  @param inodep A pointer to an inode object (defined in linux/fs.h)
+ *  @param filep A pointer to a file object (defined in linux/fs.h)
+ */
+static int dev_release(struct inode *inodep, struct file *filep){
+  printk(KERN_INFO "EBBChar: Device successfully closed\n");
+  mutex_unlock(&amp;ebbchar_mutex);          /// Releases the mutex (i.e., the lock goes up)
+  return 0;
+}
+
+/** @brief A module must use the module_init() module_exit() macros from linux/init.h, which
+ *  identify the initialization function at insertion time and the cleanup function (as
+ *  listed above)
+ */
+module_init(ebbchar_init);
+module_exit(ebbchar_exit);
+</pre>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-sec-44" class="outline-2">
+<h2 id="sec-44">知识点43 在内核中读写文件</h2>
+<div class="outline-text-2" id="text-44">
+<p>
+有时候，需要在内核中读写外部文件，如输出配置信息或读取配置信息等。
+我们可以利用文件读写的系统调用，但是系统调用是供用户程序程序使用，所
+以，要想在内核中使用，需要一点技巧，即基于如下方法：
+一般系统调用会要求你使用的缓冲区不能在内核区。这个可以用 <code>set_fs()</code> 、
+<code>get_fs()</code> 来解决。在读写文件前先得到当前fs：
+</p>
+<pre class="example">
+mm_segment_t   old_fs=get_fs();  
+</pre>
+<p>
+并设置当前fs为内核fs：
+</p>
+<pre class="example">
+set_fs(KERNEL_DS);   
+</pre>
+<p>
+在读写文件后，再恢复原先的fs:
+</p>
+<pre class="example">
+set_fs(old_fs);  
+</pre>
+
+<p>
+<b>背后原理解释</b>
+</p>
+
+<p>
+系统调用本来是提供给用户空间的程序访问的，所以，对传递给它的参数
+（比如上面的buf），它默认会认为来自用户空间，在write()函数中， 为
+了保护内核空间，一般会用 <code>get_fs()</code> 得到的值来和USER<sub>DS进行比较，从而防</sub>
+止用户空间程序“蓄意”破坏内核空间；
+</p>
+
+<p>
+而现在要在内核空间使用系统调用，此时传递给write（）的参数地址就是
+内核空间的地址了，在 <code>USER_DS</code> 之上( <code>USER_DS</code> ~ <code>KERNEL_DS</code>)，如果不做任何其
+它处理，在write()函数中，会认为该地址超过了USER<sub>DS范围，所以会认为是</sub>
+用户空间的“蓄意破坏”，从 而不允许进一步的执行； 为了解决这个问题；
+<code>set_fs(KERNEL_DS);</code> 将其能访问的空间限制扩大到 <code>KERNEL_DS</code>,这样就可以在内
+核顺利使用系统调用了！
+</p>
+
+<p>
+<b>示例</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#include &lt;linux/kernel.h&gt;
+#include &lt;linux/module.h&gt;
+#include &lt;linux/init.h&gt;
+#include &lt;linux/fs.h&gt;
+#include &lt;linux/string.h&gt;
+#include &lt;linux/mm.h&gt;
+#include &lt;linux/syscalls.h&gt;
+#include &lt;asm/unistd.h&gt;
+#include &lt;asm/uaccess.h&gt;  //set_fs()/get_fs()
+
+/**
+   -D__KERNEL_SYSCALLS__
+ */
+
+#define MY_FILE "/root/LogFile"
+
+char buf[128];
+struct file *file = NULL;
+
+
+
+static int __init init(void)
+{
+  mm_segment_t old_fs;
+  printk("Hello, I'm the module that intends to write messages to file.\n");
+
+
+  if(file == NULL)
+    file = filp_open(MY_FILE, O_RDWR | O_APPEND | O_CREAT, 0644);
+  if (IS_ERR(file)) {
+    printk("error occured while opening file %s, exiting...\n", MY_FILE);
+    return 0;
+  }
+
+  sprintf(buf,"%s", "The Messages.");
+
+  old_fs = get_fs();
+  set_fs(KERNEL_DS);
+  if (file-&gt;f_op &amp;&amp; file-&gt;f_op-&gt;write)
+    file-&gt;f_op-&gt;write(file, (char *)buf, sizeof(buf), &amp;file-&gt;f_pos);
+  set_fs(old_fs);
+
+  return 0;
+}
+
+static void __exit fini(void)
+{
+  if(file != NULL)
+    filp_close(file, NULL);
+}
+
+module_init(init);
+module_exit(fini);
+MODULE_LICENSE("GPL");
+</pre>
+</div>
+
+<p>
+最后，Linux内核也封装了两个函数 <code>kernel_read</code> , <code>kernel_write</code> 函数
+来读写文件，如下是一个读取文件的例子：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">/*
+  * read_file.c - A Module to read a file from Kernel Space
+  */
+ #include &lt;linux/module.h&gt;
+ #include &lt;linux/fs.h&gt;
+
+ #define PATH "/home/fuyajun/.bash_history"
+ int mod_init(void)
+ {
+       struct file *fp;
+       char buf[512];
+       int offset = 0;
+       int ret, i;
+
+
+       /*open the file in read mode*/
+       fp = filp_open(PATH, O_RDONLY, 0);
+       if (IS_ERR(fp)) {
+            printk("Cannot open the file %ld\n", PTR_ERR(fp));
+            return -1;
+       }
+
+       printk("Opened the file successfully\n");
+       /*Read the data to the end of the file*/
+       while (1) {
+            ret = kernel_read(fp, offset, buf, 512);
+            if (ret &gt; 0) {
+                    for (i = 0; i &lt; ret; i++)
+                            printk("%c", buf[i]);
+                    offset += ret;
+            } else
+                    break;
+        }
+
+       filp_close(fp, NULL);
+       return 0;
+  }
+
+  void mod_exit(void)
+  {
+
+  }
+
+  module_init(mod_init); 
+  module_exit(mod_exit);
+
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Knare Technologies (www.knare.org)");
+ MODULE_DESCRIPTION("Module to read a file from kernel space");
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-45" class="outline-2">
+<h2 id="sec-45">知识点44 poll 和select</h2>
+<div class="outline-text-2" id="text-45">
+<p>
+非阻塞I/O的应用程序通过会调用poll,select和epoll等系统调用，这些系统
+调用实际上实现的是同一个功能：允许每个进程判断在不阻塞进程的情况下，
+当前的文件是否可读写。
+</p>
+
+<p>
+上述支持依赖于设备驱动对其提供支持，需要在设备驱动中实现如下函数：
+</p>
+<pre class="example">
+unsigned int (*poll) (struct file *filp, poll_table *wait);
+</pre>
+
+<p>
+只要应用程序调用上述系统调用中的任何一个，都会调用到设备驱动 的poll
+函数，它主要负责如下功能：
+</p>
+<ol class="org-ol">
+<li>对一个或多个等待队列中调用 <code>poll_wait</code> , 该函数可以查询poll的状态。 If no
+file descriptors are currently available for I/O, the kernel
+causes the process to wait on the wait queues for all file
+descriptors passed to the system call.
+</li>
+<li>Return a bit mask describing the operations (if any) that could
+be immediately performed without blocking.
+</li>
+</ol>
+
+<p>
+<code>poll_table</code> 是内核用于实现上述系统调用的数据结构，驱动不需要关注它
+的实现内容，把它当作一个透明的数据即可。
+</p>
+
+<p>
+驱动通过如下函数：
+</p>
+<pre class="example">
+void poll_wait (struct file *, wait_queue_head_t *, poll_table *);
+</pre>
+<p>
+将一个等待队列添加到 <code>poll_wait</code> 中。
+</p>
+
+<p>
+poll方法返回一个位掩码来表明当前I/O的状态，主要有如下一些I/O状态：
+</p>
+<ul class="org-ul">
+<li>POLLIN
+This bit must be set if the device can be read without blocking.
+</li>
+<li>POLLRDNORM
+This bit must be set if “normal” data is available for
+reading. A readable device returns (POLLIN | POLLRDNORM).
+</li>
+<li>POLLHUP
+When a process reading this device sees end-of-file, the driver
+must set POLLHUP (hang-up). A process calling select is told that
+the device is readable, as dictated by the select functionality.
+</li>
+<li>POLLERR
+An error condition has occurred on the device. When poll is
+invoked, the device is reported as both readable and writable,
+since both read and write return an error code without blocking.
+</li>
+<li>POLLOUT
+This bit is set in the return value if the device can be written to without blocking.
+</li>
+<li>POLLWRNORM
+This bit has the same meaning as POLLOUT, and sometimes it
+actually is the same number. A writable device returns (POLLOUT |
+POLLWRNORM).
+</li>
+<li>POLLWRBAND
+Like POLLRDBAND, this bit means that data with nonzero priority
+can be written to the device. Only the datagram implementation of
+poll uses this bit, since a datagram can transmit out-of-band
+data.
+
+<p>
+示例：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">static unsigned int scull_p_poll(struct file *filp, poll_table *wait)
+{
+  struct scull_pipe *dev = filp-&gt;private_data;
+  unsigned int mask = 0;
+  /*
+   * The buffer is circular; it is considered full
+   * if "wp" is right behind "rp" and empty if the
+   * two are equal.
+   */
+  down(&amp;dev-&gt;sem);
+  poll_wait(filp, &amp;dev-&gt;inq, wait);
+  poll_wait(filp, &amp;dev-&gt;outq, wait);
+  if (dev-&gt;rp != dev-&gt;wp)
+    mask |= POLLIN | POLLRDNORM; /* readable */
+  if (spacefree(dev))
+    mask |= POLLOUT | POLLWRNORM; /* writable */
+  up(&amp;dev-&gt;sem);
+  return mask;
+}
+</pre>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-46" class="outline-2">
+<h2 id="sec-46">知识点45 iotcl函数</h2>
+<div class="outline-text-2" id="text-46">
+<p>
+Linux系统建议以如下方式定义ioctl()的命令码。
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">设备类型(type)</th>
+<th scope="col" class="left">序列号(nr)</th>
+<th scope="col" class="left">方向</th>
+<th scope="col" class="left">数据尺寸(size)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">8bit</td>
+<td class="left">8bit</td>
+<td class="left">2bit</td>
+<td class="left">13/14bit</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+命令码的设备类型字段为一个“幻数”，可以是0~0xff之间的值，命令码的序
+列号也是8位宽，命令码的方向字段为2位，该字段表示数据传送的方向，可能
+的值是 <code>_IOC_NONE</code> (无数据传输)、=<sub>IOC</sub><sub>READ</sub>= (读)、 <code>_IOC_WRITE</code> (写)和
+<code>_IOC_READ | _IOC_WRITE</code> (双向)。数据传输的方向是从应用程序的角度来看的。
+</p>
+
+<p>
+命令码的数据长度字段表示涉及的用户数据的大小，这个成员的宽度依赖于体
+系结构，通常是13位或者14位。
+</p>
+
+<p>
+内核还定义了 <code>_IO()</code> 、 <code>_IOR()</code> 、 <code>_IOW()</code> 和 <code>_IOWR()</code> 这4个宏来辅助生成命令，这4
+个宏的通用定义代码如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">#define _IO(type, nr)     _IOC(_IOC_NONE, (type), (nr), 0)  
+
+#define _IOR(type, nr, size) _IOC(_IOC_READ, (type), (nr), (_IOC_TYPECHECK(size)))  
+
+#define _IOW(type, nr, size) _IOC(_IOC_WRITE, (type), (nr), (_IOC_TYPECHECK(size)))  
+
+#define _IOWR(type, nr, size) _IOC(_IOC_WRITE, (type), (nr), (_IOC_TYPECHECK(size)))  
+
+#define _IOC(dir, type, nr, size) \  
+
+       (((dir) &lt;&lt; _IOC_DIRSHIFT) |\  
+
+((type) &lt;&lt; _IOC_TYPESHIFT) | \  
+
+((nr) &lt;&lt; _IOC_NRSHIFT)  | \  
+
+((size) &lt;&lt; _IOC_SIZESHIFT))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-47" class="outline-2">
+<h2 id="sec-47">知识点46 configfs</h2>
+<div class="outline-text-2" id="text-47">
+<p>
+一种用户空间驱动的内核对象配置。它与sysfs类似。 configfs是一种基于
+Ram的文件系统， 从用户空间创建和销毁内核对象, 内核对象的生命周期完
+全由用户空间控制。而sysfs则是用于从用户
+空间查看和操纵内核空间创建的对象。通常挂载在  <code>/sys/kernel/config</code>
+下，对象生命周期由内核控制。
+</p>
+
+<p>
+在什么情况下用：
+</p>
+<ul class="org-ul">
+<li>当模块有很多参数需要配置时
+</li>
+<li>当需要动态创建内核对象并且内核对象需要修改配置时
+</li>
+</ul>
+
+<p>
+configfs可被编译为一个模块或直接编译进内核，可通过如下命令访问：
+</p>
+<pre class="example">
+mount  -t configfs none /config
+</pre>
+
+<p>
+顶层结构是 <code>struct configfs_subsystem</code> ，为configfs子系统结构，接着是
+<code>struct config_group</code> ，是configfs目录和属性的容器， <code>struct config_item</code>
+是configfs目录，代表可配置的内核对象， <code>struct configfs_attribute</code> 是目
+录下面的属性。
+</p>
+
+<p>
+具有相同属性和操作的一组item称为group。mkdir创建一个item，rmdir销毁
+一个item。
+</p>
+
+<p>
+示例程序：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">/*
+ *      LDT - Linux Driver Template - basic configfs
+ *
+ *      Copyright (C) 2012 Constantine Shulyupin http://www.makelinux.net/
+ *
+ *      Dual BSD/GPL License
+ *
+ *      based on configfs_example_explicit.c and much more simple, without containers, just 70 LOC
+ *
+ *      Sample usage:
+ *      sudo insmod ldt_configfs_basic.ko
+ *      ls /configfs/ldt_configfs_basic/
+ *      sudo sh -c "echo 123 &gt;  /configfs/ldt_configfs_basic/parameter"
+ *      cat /configfs/ldt_configfs_basic/parameter
+ *
+ */
+
+#include &lt;linux/module.h&gt;
+#include &lt;linux/configfs.h&gt;
+
+static int parameter;
+
+static ssize_t ldt_attr_description_show(struct config_item *item, char *page)
+{
+  return sprintf(page, "basic sample of configfs\n");
+}
+
+static ssize_t ldt_attr_parameter_show(struct config_item *item, char *page)
+{
+  return sprintf(page, "%d\n", parameter);
+}
+
+static ssize_t ldt_attr_parameter_store(struct config_item *item,  const char *page, size_t count)
+{
+        ssize_t ret = -EINVAL;
+        ret = kstrtoint(page, 0, &amp;parameter);
+        if (ret)
+          return ret;
+        ret = count;
+        return ret;
+}
+
+static struct configfs_attribute ldt_parameter_attr = {
+        .ca_owner = THIS_MODULE,
+        .ca_name = "parameter",
+        .ca_mode = S_IRUGO | S_IWUSR,
+        .show = ldt_attr_parameter_show,
+        .store = ldt_attr_parameter_store,
+};
+
+static struct configfs_attribute ldt_description_attr = {
+        .ca_owner = THIS_MODULE,
+        .ca_name = "description",
+        .ca_mode = S_IRUGO,
+        .show = ldt_attr_description_show,
+};
+
+static struct configfs_attribute *ldt_attrs[] = {
+        &amp;ldt_description_attr,
+        &amp;ldt_parameter_attr,
+        NULL,
+};
+
+
+static struct config_item_type ci_type = {
+  .ct_attrs = ldt_attrs,
+  .ct_owner = THIS_MODULE,
+};
+
+static struct configfs_subsystem ldt_subsys = {
+        .su_group = {
+                .cg_item = {
+                        .ci_namebuf = KBUILD_MODNAME,
+                        .ci_type = &amp;ci_type,
+                },
+        },
+};
+
+static int __init configfs_example_init(void)
+{
+        int ret;
+        config_group_init(&amp;ldt_subsys.su_group);
+        mutex_init(&amp;ldt_subsys.su_mutex);
+        ret = configfs_register_subsystem(&amp;ldt_subsys);
+        if (ret)
+                pr_err("Error %d while registering subsystem %s\n",
+                       ret, ldt_subsys.su_group.cg_item.ci_namebuf);
+        return ret;
+}
+
+static void __exit configfs_example_exit(void)
+{
+        configfs_unregister_subsystem(&amp;ldt_subsys);
+}
+
+module_init(configfs_example_init);
+module_exit(configfs_example_exit);
+MODULE_LICENSE("GPL");
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-48" class="outline-2">
+<h2 id="sec-48">Device Tree</h2>
+</div>
+
+<div id="outline-container-sec-49" class="outline-2">
+<h2 id="sec-49">＝iov<sub>iter</sub>= interface──新的异步IO接口</h2>
+<div class="outline-text-2" id="text-49">
+<p>
+AIO changed to read/write-iter
+<a href="https://lwn.net/Articles/625077/">https://lwn.net/Articles/625077/</a>  The iov<sub>iter</sub> interface
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-50" class="outline-2">
+<h2 id="sec-50">内核调试</h2>
+<div class="outline-text-2" id="text-50">
+<p>
+<a href="http://opensourceforu.com/2011/01/understanding-a-kernel-oops/">http://opensourceforu.com/2011/01/understanding-a-kernel-oops/</a>
+</p>
+
+<p>
+<a href="http://www.kerneloops.org/">http://www.kerneloops.org/</a>
+</p>
+
+<p>
+<a href="https://www.freebsd.org/doc/en/books/developers-handbook/kerneldebug.html">https://www.freebsd.org/doc/en/books/developers-handbook/kerneldebug.html</a>
+</p>
+
+<p>
+<a href="https://wiki.ubuntu.com/Kernel/KernelDebuggingTricks">https://wiki.ubuntu.com/Kernel/KernelDebuggingTricks</a>
+</p>
+
+
+
+
+
+
+<p>
+<a href="https://kernelnewbies.org/KernelMemoryAllocation">https://kernelnewbies.org/KernelMemoryAllocation</a>
 </p>
 </div>
 </div>

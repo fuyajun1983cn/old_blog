@@ -2,7 +2,7 @@
 layout: post
 date: 2016-03-09
 author: 山庄来客
-update: 2016-07-16
+update: 2016-11-03
 categories: wifi wpa_supplicant
 ---
 <div id="content">
@@ -11,19 +11,20 @@ categories: wifi wpa_supplicant
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#sec-1"><code>wpa_supplicant</code> 基本架构分析</a>
+<li><a href="#sec-1">基本架构分析</a>
 <ul>
 <li><a href="#sec-1-1">模块结构图</a></li>
 <li><a href="#sec-1-2">全局数据结构</a>
 <ul>
 <li><a href="#sec-1-2-1"><code>struct wpa_supplicant</code></a></li>
-<li><a href="#sec-1-2-2"><code>struct wpa_global</code></a></li>
-<li><a href="#sec-1-2-3"><code>struct wpa_radio</code></a></li>
-<li><a href="#sec-1-2-4"><code>struct wpa_radio_work</code></a></li>
-<li><a href="#sec-1-2-5"><code>struct nl80211_global</code></a></li>
-<li><a href="#sec-1-2-6"><code>struct wpa_driver_nl80211_data</code></a></li>
-<li><a href="#sec-1-2-7"><code>struct i802_bss</code></a></li>
-<li><a href="#sec-1-2-8"><code>struct nl80211_global</code></a></li>
+<li><a href="#sec-1-2-2"><code>struct wpa_config</code></a></li>
+<li><a href="#sec-1-2-3"><code>struct wpa_global</code></a></li>
+<li><a href="#sec-1-2-4"><code>struct wpa_radio</code></a></li>
+<li><a href="#sec-1-2-5"><code>struct wpa_radio_work</code></a></li>
+<li><a href="#sec-1-2-6"><code>struct nl80211_global</code></a></li>
+<li><a href="#sec-1-2-7"><code>struct wpa_driver_nl80211_data</code></a></li>
+<li><a href="#sec-1-2-8"><code>struct i802_bss</code></a></li>
+<li><a href="#sec-1-2-9"><code>struct nl80211_global</code></a></li>
 </ul>
 </li>
 <li><a href="#sec-1-3"><code>wpa_supplicant</code> 初始化分析</a>
@@ -39,7 +40,7 @@ categories: wifi wpa_supplicant
 <li><a href="#sec-1-4-2"><code>eloop_init()</code></a></li>
 <li><a href="#sec-1-4-3">注册事件处理函数</a></li>
 <li><a href="#sec-1-4-4">start event loop</a></li>
-<li><a href="#sec-1-4-5">其他一些 <code>eloop_*</code> 函数速速览</a></li>
+<li><a href="#sec-1-4-5">其他一些 <code>eloop_*</code> 函数速览</a></li>
 </ul>
 </li>
 <li><a href="#sec-1-5">ctrl interface</a>
@@ -71,25 +72,27 @@ categories: wifi wpa_supplicant
 <li><a href="#sec-1-11">State Machine</a>
 <ul>
 <li><a href="#sec-1-11-1">状态机的定义</a></li>
-<li><a href="#sec-1-11-2">WPA/WPA2</a></li>
-<li><a href="#sec-1-11-3">EAPOL</a></li>
-<li><a href="#sec-1-11-4">EAP</a></li>
-<li><a href="#sec-1-11-5">wpa statemachine状态变化</a></li>
+<li><a href="#sec-1-11-2">L2 Packet (EAPOL包)处理</a></li>
+<li><a href="#sec-1-11-3">EAP</a></li>
+<li><a href="#sec-1-11-4">EAPOL</a></li>
+<li><a href="#sec-1-11-5">WPA/WPA2</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#sec-2"><code>wpa_supplicant</code> 功能模块分析</a>
+<li><a href="#sec-2">功能模块分析</a>
 <ul>
 <li><a href="#sec-2-1">P2P</a>
 <ul>
 <li><a href="#sec-2-1-1">数据结构分析与初始化流程</a></li>
-<li><a href="#sec-2-1-2">基本连接流程</a></li>
-<li><a href="#sec-2-1-3">p2p管理</a></li>
-<li><a href="#sec-2-1-4">Go创建</a></li>
-<li><a href="#sec-2-1-5">socket control interface</a></li>
-<li><a href="#sec-2-1-6">nl80211 (p2p)</a></li>
-<li><a href="#sec-2-1-7">问题调试</a></li>
+<li><a href="#sec-2-1-2">P2P属性解析</a></li>
+<li><a href="#sec-2-1-3">基本连接流程</a></li>
+<li><a href="#sec-2-1-4">p2p管理</a></li>
+<li><a href="#sec-2-1-5">Go创建</a></li>
+<li><a href="#sec-2-1-6">socket control interface</a></li>
+<li><a href="#sec-2-1-7">nl80211 (p2p)</a></li>
+<li><a href="#sec-2-1-8">p2p VHT速率</a></li>
+<li><a href="#sec-2-1-9">问题调试</a></li>
 </ul>
 </li>
 <li><a href="#sec-2-2">bgscan (roaming) IAPP(Inter Access Point Protocol)</a></li>
@@ -102,25 +105,36 @@ categories: wifi wpa_supplicant
 <li><a href="#sec-2-4">SME</a></li>
 <li><a href="#sec-2-5">SoftAp</a>
 <ul>
-<li><a href="#sec-2-5-1">数据结构</a></li>
+<li><a href="#sec-2-5-1">软件构架图</a></li>
+<li><a href="#sec-2-5-2">数据结构</a></li>
+<li><a href="#sec-2-5-3">主要流程分析</a></li>
+<li><a href="#sec-2-5-4">VLAN client</a></li>
+<li><a href="#sec-2-5-5">问题拾遗(仅供参考)</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#sec-3"><code>wpa_supplicant</code> 代码修改</a>
+<li><a href="#sec-3">测试框架</a>
 <ul>
-<li><a href="#sec-3-1">add a conf parameter to start a GO as HT40 if allowed</a></li>
-<li><a href="#sec-3-2">add 165和169信道支持</a></li>
-<li><a href="#sec-3-3">P2P: Clear the discovery state incase of deffered GO Neg response</a></li>
-<li><a href="#sec-3-4">Android: P2P: Fix restriction of GO channels on A-band</a></li>
+<li><a href="#sec-3-1">环境准备</a></li>
 </ul>
 </li>
-<li><a href="#sec-4">常用代码片断</a>
+<li><a href="#sec-4">代码修改参考</a>
 <ul>
-<li><a href="#sec-4-1">遍历当前的接口</a></li>
-<li><a href="#sec-4-2">遍历接口上存在的SSID</a></li>
-<li><a href="#sec-4-3">遍历当前的接口(方法2)</a></li>
-<li><a href="#sec-4-4">遍历hostapd上的bss</a></li>
+<li><a href="#sec-4-1">add a conf parameter to start a GO as HT40 if allowed</a></li>
+<li><a href="#sec-4-2">add 165和169信道支持</a></li>
+<li><a href="#sec-4-3">P2P: Clear the discovery state incase of deffered GO Neg response</a></li>
+<li><a href="#sec-4-4">Android: P2P: Fix restriction of GO channels on A-band</a></li>
+<li><a href="#sec-4-5">add vht param to p2p operations</a></li>
+</ul>
+</li>
+<li><a href="#sec-5">常用代码片断</a>
+<ul>
+<li><a href="#sec-5-1">遍历当前的接口</a></li>
+<li><a href="#sec-5-2">遍历接口上存在的SSID</a></li>
+<li><a href="#sec-5-3">遍历当前的接口(方法2)</a></li>
+<li><a href="#sec-5-4">遍历hostapd上的bss</a></li>
+<li><a href="#sec-5-5">遍历 <code>wpa_supplicant</code> 上的bss list</a></li>
 </ul>
 </li>
 </ul>
@@ -128,7 +142,7 @@ categories: wifi wpa_supplicant
 </div>
 
 <div id="outline-container-sec-1" class="outline-2">
-<h2 id="sec-1"><code>wpa_supplicant</code> 基本架构分析<sup><a id="fnr.1" name="fnr.1" class="footref" href="#fn.1">1</a></sup> <sup>, </sup><sup><a id="fnr.2" name="fnr.2" class="footref" href="#fn.2">2</a></sup></h2>
+<h2 id="sec-1">基本架构分析<sup><a id="fnr.1" name="fnr.1" class="footref" href="#fn.1">1</a></sup> <sup>, </sup><sup><a id="fnr.2" name="fnr.2" class="footref" href="#fn.2">2</a></sup></h2>
 <div class="outline-text-2" id="text-1">
 </div><div id="outline-container-sec-1-1" class="outline-3">
 <h3 id="sec-1-1">模块结构图</h3>
@@ -146,13 +160,31 @@ categories: wifi wpa_supplicant
 <div class="outline-text-3" id="text-1-2">
 </div><div id="outline-container-sec-1-2-1" class="outline-4">
 <h4 id="sec-1-2-1"><code>struct wpa_supplicant</code></h4>
+<div class="outline-text-4" id="text-1-2-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016081220.png" alt="2016081220.png" />
+</p>
+</div>
+</div>
 </div>
 <div id="outline-container-sec-1-2-2" class="outline-4">
-<h4 id="sec-1-2-2"><code>struct wpa_global</code></h4>
+<h4 id="sec-1-2-2"><code>struct wpa_config</code></h4>
+<div class="outline-text-4" id="text-1-2-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016080921.png" alt="2016080921.png" />
+</p>
 </div>
+</div>
+</div>
+
 <div id="outline-container-sec-1-2-3" class="outline-4">
-<h4 id="sec-1-2-3"><code>struct wpa_radio</code></h4>
-<div class="outline-text-4" id="text-1-2-3">
+<h4 id="sec-1-2-3"><code>struct wpa_global</code></h4>
+</div>
+<div id="outline-container-sec-1-2-4" class="outline-4">
+<h4 id="sec-1-2-4"><code>struct wpa_radio</code></h4>
+<div class="outline-text-4" id="text-1-2-4">
 <div class="org-src-container">
 
 <pre class="src src-c">/**
@@ -174,9 +206,9 @@ struct wpa_radio {
 </div>
 </div>
 </div>
-<div id="outline-container-sec-1-2-4" class="outline-4">
-<h4 id="sec-1-2-4"><code>struct wpa_radio_work</code></h4>
-<div class="outline-text-4" id="text-1-2-4">
+<div id="outline-container-sec-1-2-5" class="outline-4">
+<h4 id="sec-1-2-5"><code>struct wpa_radio_work</code></h4>
+<div class="outline-text-4" id="text-1-2-5">
 <p>
 Radio work item, 数据结构定义如下：
 </p>
@@ -215,9 +247,9 @@ struct wpa_radio_work {
 </ol>
 </div>
 </div>
-<div id="outline-container-sec-1-2-5" class="outline-4">
-<h4 id="sec-1-2-5"><code>struct nl80211_global</code></h4>
-<div class="outline-text-4" id="text-1-2-5">
+<div id="outline-container-sec-1-2-6" class="outline-4">
+<h4 id="sec-1-2-6"><code>struct nl80211_global</code></h4>
+<div class="outline-text-4" id="text-1-2-6">
 <div class="org-src-container">
 
 <pre class="src src-c">struct nl80211_global {
@@ -241,12 +273,12 @@ struct wpa_radio_work {
 </p>
 </div>
 </div>
-<div id="outline-container-sec-1-2-6" class="outline-4">
-<h4 id="sec-1-2-6"><code>struct wpa_driver_nl80211_data</code></h4>
-</div>
 <div id="outline-container-sec-1-2-7" class="outline-4">
-<h4 id="sec-1-2-7"><code>struct i802_bss</code></h4>
-<div class="outline-text-4" id="text-1-2-7">
+<h4 id="sec-1-2-7"><code>struct wpa_driver_nl80211_data</code></h4>
+</div>
+<div id="outline-container-sec-1-2-8" class="outline-4">
+<h4 id="sec-1-2-8"><code>struct i802_bss</code></h4>
+<div class="outline-text-4" id="text-1-2-8">
 <div class="org-src-container">
 
 <pre class="src src-c">struct i802_bss {
@@ -283,9 +315,9 @@ struct wpa_radio_work {
 </p>
 </div>
 </div>
-<div id="outline-container-sec-1-2-8" class="outline-4">
-<h4 id="sec-1-2-8"><code>struct nl80211_global</code></h4>
-<div class="outline-text-4" id="text-1-2-8">
+<div id="outline-container-sec-1-2-9" class="outline-4">
+<h4 id="sec-1-2-9"><code>struct nl80211_global</code></h4>
+<div class="outline-text-4" id="text-1-2-9">
 <div class="org-src-container">
 
 <pre class="src src-c">struct nl80211_global {
@@ -386,7 +418,7 @@ struct wpa_radio_work {
 <div class="figure">
 <p><img src="/images/2015/2015122901.png" alt="2015122901.png" />
 </p>
-<p><span class="figure-number">Figure 7:</span> struct eloop<sub>data</sub></p>
+<p><span class="figure-number">Figure 9:</span> <code>struct eloop_data</code></p>
 </div>
 
 <p>
@@ -575,7 +607,7 @@ int eloop_register_signal_terminate(eloop_signal_handler handler,
 </div>
 
 <div id="outline-container-sec-1-4-5" class="outline-4">
-<h4 id="sec-1-4-5">其他一些 <code>eloop_*</code> 函数速速览</h4>
+<h4 id="sec-1-4-5">其他一些 <code>eloop_*</code> 函数速览</h4>
 <div class="outline-text-4" id="text-1-4-5">
 <div class="org-src-container">
 
@@ -782,12 +814,15 @@ callback函数 <code>wpa_supplicant_ctrl_iface_msg_cb</code> ， 在该函数中
 </li>
 <li>DISCONNECT
 </li>
-<li>SCAN
+<li>SCAN     
+
+<p>
 SCAN流程分析
 <code>wpa_supplicant_event</code> &#x2013;&gt; <code>EVENT_SCAN_RESULTS</code> &#x2013;&gt;
 <code>wpa_supplicant_event_scan_results</code>
 每次扫描结束会，会调用 <code>wpas_select_network_from_last_scan</code> 来
 选择一个网络进行连接。
+</p>
 </li>
 <li><code>SCAN_RESULTS</code>
 </li>
@@ -833,9 +868,16 @@ SCAN流程分析
 </p>
 <ul class="org-ul">
 <li><code>update_config</code> 
-     是否允许 <code>wpa_supplicant</code> 覆盖(更新)配置文件（当配置文件发生变化时）。
+
+<p>
+是否允许 <code>wpa_supplicant</code> 覆盖(更新)配置文件（当配置文件发生变化
+时）。
+</p>
 </li>
+
 <li><code>ctrl_interface</code> 
+
+<p>
 这是一个全局配置，指定了该参数后， <code>wpa_supplicant</code> 会打开一个控
 制接口，外部程序可以通过此控制接口来管理 <code>wpa_supplicant</code> 。 字符
 串的含义取决于使用的控制接口的机制。 但是，有一点，只要配置了该参
@@ -847,6 +889,7 @@ SCAN流程分析
 通过修改 <code>wpa_ctrl</code> 指定的目录的权限来控制访问 <code>wpa_supplicant</code>
 ， 默认情况下， <code>wpa_supplicant</code> 默认配置为使用GID为0， 即root权
 限。 例如：
+</p>
 <div class="org-src-container">
 
 <pre class="src src-sh"># DIR=/var/run/wpa_supplicant GROUP=wheel
@@ -868,17 +911,25 @@ udp)
 ctrl_interface=SDDL=D:= 。
 </pre>
 </li>
+
 <li><code>eapol_version</code> 
+
+<p>
 设置 <code>IEEE 802.1X/EAPOL</code> 的版本， <code>wpa_supplicant</code> 是基于 <code>IEEE
      802.1X-2004 EAPOL version 2</code>  实现的，  但是为了兼容不支持
 version 2的AP，该值默认为设置为1. 当使用MACSec时，该值应该设置
 为3，在 <code>IEEE Std 802.1X-2010</code> 中有定义。
+</p>
 </li>
+
 <li><code>ap_scan</code> 
+
+<p>
 默认情况下， <code>wpa_supplicant</code> 会请求驱动执行AP扫描，然后使用扫描
 结果来选择一个合适的AP。另一种选择就是驱动负责AP扫描并选择一个AP
 来关联， <code>wpa_supplicant</code> 只是基于驱动给出的关联信息去处理 EAPOL
 帧。 有如下一些取值：  
+</p>
 
 <p>
 1: <code>wpa_supplicant</code> initiates scanning and AP selection; if no APs
@@ -904,9 +955,20 @@ association parameters;
 AP模式下的网络 。当使用IBSS或AP模式，使用 <code>ap_scan=2</code> 可以强制立
 即创建新的网络，而不管扫描结果为何。
 </p>
+
+<p>
+配置连接隐藏AP时，还需要同时指定 
+</p>
+<pre class="example">
+ap_scan=1 scan_ssid=1
+</pre>
 </li>
+
 <li><code>passive_scan</code> 
-     是否强制被动扫描。
+
+<p>
+是否强制被动扫描。
+</p>
 
 <p>
 0:  Do normal scans (allow active scans) (default)
@@ -921,50 +983,87 @@ AP模式下的网络 。当使用IBSS或AP模式，使用 <code>ap_scan=2</code>
 如隐藏SSID的AP。
 </p>
 </li>
+
 <li><code>user_mpm</code> 
+
+<p>
 默认情况下， <code>wpa_supplicnat</code> 会为一个Open Mesh实现MPM(Mesh
 Peering Manager)，如果驱动实现了MPM，可以设置些值为0. 
+</p>
 
 <p>
 0: MPM lives in the driver
 </p>
 
 <p>
-1: wpa<sub>supplicant</sub> provides an MPM which handles peering (default)
+1: <code>wpa_supplicant</code> provides an MPM which handles peering
+(default)
 </p>
 </li>
+
 <li><code>max_peer_links</code> 
+
+<p>
 Maximum number of mesh peering currently maintained by the STA.
 Maximum number of peer links (0-255; default: 99)
+</p>
 </li>
+
 <li><code>mesh_max_inactivity</code> 
+
+<p>
 This timeout value is used in mesh STA to clean up inactive
 stations.
 Timeout in seconds to detect STA inactivity (default: 300
 seconds)
+</p>
 </li>
+
 <li><code>cert_in_cb</code> 
+
+<p>
 This controls whether peer certificates for authentication server
 and its certificate chain are included in EAP peer certificate
 events.
 This is enabled by default.
+</p>
 </li>
+
 <li><code>fast_reauth</code> 
+
+<p>
 快速重新认证。默认情况下，对于所有支持的EAP方法，快速重新认证是开
 启的。
+</p>
 </li>
+
 <li><code>opensc_engine_path</code> 
-     OpenSSL Engine support, 默认情况下，没有加载任何Engine.
+
+<p>
+OpenSSL Engine support, 默认情况下，没有加载任何Engine.
+</p>
 </li>
+
 <li><code>openssl_ciphers</code> 
-     OpenSSL cipher string
+
+<p>
+OpenSSL cipher string
+</p>
 </li>
+
 <li><code>load_dynamic_eap</code>
+
+<p>
 Dynamic EAP methods. 当EAP方法是编译成单独的so文件时，需要配置该
 项。默认情况下，EAP方法是静态编译到 <code>wpa_supplicant</code> 。
+</p>
 </li>
+
 <li><code>driver_param</code>
-     驱动接口参数, 在函数  <code>nl80211_set_param</code> 中设置。
+
+<p>
+驱动接口参数, 在函数  <code>nl80211_set_param</code> 中设置。
+</p>
 <pre class="example">
 driver_param=use_p2p_group_interface=1
 </pre>
@@ -975,45 +1074,98 @@ operation. 每次p2p 协商成功后，会创建一个group interface. 通过这
 求（GC与GO关联时的交互帧）
 </p>
 </li>
+
 <li><code>country</code>
-     国家码
+
+<p>
+国家码
+</p>
 </li>
+
 <li><code>dot11RSNAConfigPMKLifetime</code>
-     PMKSA最大存活时间，默认是43200秒.
+
+<p>
+PMKSA最大存活时间，默认是43200秒.
+</p>
 </li>
+
 <li><code>dot11RSNAConfigPMKReauthThreshold</code> 
-     重新认证的阀值(PMKSA值的百分比), 默认是70.
+
+<p>
+重新认证的阀值(PMKSA值的百分比), 默认是70.
+</p>
 </li>
+
 <li><code>dot11RSNAConfigSATimeout</code> 
-     安全关联的超时，默认是60秒。
+
+<p>
+安全关联的超时，默认是60秒。
+</p>
 </li>
+
 <li><code>uuid</code> 
-     Universally Unique IDentifier, 如果没有配置，会根据MAC地址来产生。
+
+<p>
+Universally Unique IDentifier, 如果没有配置，会根据MAC地址来产生。
+</p>
 </li>
+
 <li><code>device_name</code> 
-     设备名，字符串。
+
+<p>
+设备名，字符串。
+</p>
 </li>
+
 <li><code>manufacturer</code>
-     设备生产商， 字符串。
+
+<p>
+设备生产商， 字符串。
+</p>
 </li>
+
 <li><code>model_name</code>
-     设备模式。
+
+<p>
+设备模式。
+</p>
 </li>
+
 <li><code>model_number</code> 
-     模式编号。
+
+<p>
+模式编号。
+</p>
 </li>
+
 <li><code>serial_number</code>
-     序列号。
+
+<p>
+序列号。
+</p>
 </li>
+
 <li><code>device_type</code>
-     主设备类型，格式：&lt;categ&gt;-&lt;OUI&gt;-&lt;subcateg&gt;
+
+<p>
+主设备类型，格式：&lt;categ&gt;-&lt;OUI&gt;-&lt;subcateg&gt;
+</p>
 </li>
+
 <li><code>os_version</code>
-     操作系统版本号
+
+<p>
+操作系统版本号
+</p>
 </li>
+
 <li><code>config_methods</code>
-     WPS支持的方法。
+
+<p>
+WPS支持的方法。
+</p>
 </li>
+
 <li><code>wps_cred_processing</code>
 
 <p>
@@ -1030,58 +1182,119 @@ operation. 每次p2p 协商成功后，会创建一个group interface. 通过这
 ctrl<sub>iface</sub> to external program(s)
 </p>
 </li>
+
 <li><code>wps_vendor_ext_m1</code> 
-     Vendor attribute in WPS M1
+
+<p>
+Vendor attribute in WPS M1
+</p>
 </li>
+
 <li><code>wps_priority</code>
-     Priority for the networks added through WPS
+
+<p>
+Priority for the networks added through WPS
+</p>
 </li>
+
 <li><code>bss_max_count</code>
-     Maximum number of BSS entries to keep in memory
+
+<p>
+Maximum number of BSS entries to keep in memory
+</p>
 </li>
+
 <li><code>autoscan</code> 
-     Automatic scan
+
+<p>
+Automatic scan
+</p>
 </li>
+
 <li><code>filter_ssids</code> 
+
+<p>
 过滤SSID
 0： do not filter scan results (default)
 1： only include configured SSIDs in scan results/BSS table
+</p>
 </li>
+
 <li><code>ext_password_backend</code>
-     Password (and passphrase, etc.) backend for external storage
+
+<p>
+Password (and passphrase, etc.) backend for external storage
+</p>
 </li>
+
 <li><code>p2p_disabled</code>
-     禁用P2P功能。
+
+<p>
+禁用P2P功能。
+</p>
 </li>
+
 <li><code>p2p_go_max_inactivity</code>
-     检测STA是否活跃的超时值，默认是300秒。
+
+<p>
+检测STA是否活跃的超时值，默认是300秒。
+</p>
 </li>
+
 <li><code>p2p_passphrase_len</code>
-     GO随机产生的密码的长度，默认是8.
+
+<p>
+GO随机产生的密码的长度，默认是8.
+</p>
 </li>
+
 <li><code>p2p_search_delay</code>
+
+<p>
 Extra delay between concurrent P2P search iterations
 默认值为：500ms.
+</p>
 </li>
+
 <li><code>dtim_period</code>
-     efault value for DTIM period
+
+<p>
+efault value for DTIM period
+</p>
 </li>
+
 <li><code>beacon_int</code>
-     Default value for Beacon interval
+
+<p>
+Default value for Beacon interval
+</p>
 </li>
+
 <li><code>ap_vendor_elements</code>
+
+<p>
 Additional vendor specific elements for Beacon and Probe Response
 frames
+</p>
 </li>
+
 <li><code>ignore_old_scan_res</code>
-     Ignore scan results older than request
+
+<p>
+Ignore scan results older than request
+</p>
 </li>
+
 <li><code>scan_cur_freq</code>
+
+<p>
 Whether to scan only the current frequency
 0: Scan all available frequencies. (Default)
 1: Scan current operating frequency if another VIF on the same
 radio is already associated.
+</p>
 </li>
+
 <li><code>mac_addr</code>
 
 <p>
@@ -1118,20 +1331,39 @@ MAC address policy for pre-association operations
 </p>
 
 <ul class="org-ul">
-<li><code>config_ssid.h</code> Definition of per network configuration items
+<li><code>config_ssid.h</code> 
+
+<p>
+Definition of per network configuration items
+</p>
 </li>
-<li><code>config.h</code> Definition of the <code>wpa_supplicant</code> configuration
+
+<li><code>config.h</code> 
+
+<p>
+Definition of the <code>wpa_supplicant</code> configuration
+</p>
 </li>
-<li><code>config.c</code> Configuration parser and common functions
+
+<li><code>config.c</code> 
+
+<p>
+Configuration parser and common functions
+</p>
 </li>
-<li><code>config_file.c</code> Configuration backend for text files (e.g.,
-<code>wpa_supplicant</code>.
+
+<li><code>config_file.c</code> 
+
+<p>
+Configuration backend for text files (e.g.,  <code>wpa_supplicant</code>.
+</p>
 </li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
+
 <div id="outline-container-sec-1-7" class="outline-3">
 <h3 id="sec-1-7">Cryptographic functions</h3>
 <div class="outline-text-3" id="text-1-7">
@@ -1230,7 +1462,7 @@ recvfrom与sendto函数进行数据的收发，其目的地址结构为 <code>so
 </p>
 
 <p>
-Sockaddr<sub>ll结构如下：</sub>
+<code>Sockaddr_ll</code> 结构如下：
 </p>
 <div class="org-src-container">
 
@@ -1350,7 +1582,7 @@ Initialize Per-BSS data structures.
 <li>必须定义这个宏 <code>STATE_MACHINE_DATA</code> ，代表包含状态机变量的数据
 结构
 </li>
-<li>定义宏 <code>STATE_MACHINE_DEBUG_PREFIX</code> 已保证输出该状态机相关的打
+<li>定义宏 <code>STATE_MACHINE_DEBUG_PREFIX</code> 以保证输出该状态机相关的打
 印消息时，有相关的前缀信息出来。
 </li>
 <li>宏 <code>SM_ENTRY_MA</code> 用于定义一组共享一个数据结构的状态机。
@@ -1432,12 +1664,170 @@ static void sm_ ## machine ## _Step(STATE_MACHINE_DATA *sm)
 </li>
 </ol>
 </div>
+</li>
+<li><a id="sec-1-11-1-3" name="sec-1-11-1-3"></a>程序示例<br  /><div class="outline-text-5" id="text-1-11-1-3">
+<div class="org-src-container">
+
+<pre class="src src-c">/**
+ * Copyright (c)  2016     Yajun Fu (fuyajun1983cn@163.com)
+ * 
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
+#include "includes.h"
+
+#include "common.h"
+#include "wpa_debug.h"
+#include "state_machine.h"
+
+/**
+ * 每个实现状态机的文件都必须定义
+ * STATE_MACHINE_DATA:
+ * 它包含了一些状态变量。
+ * STATE_MACHINE_DEBUG_PREFIX:
+ * 打印信息的前缀
+ */
+
+/**
+ * 状态机API测试
+ */
+
+#ifdef FALSE
+#undef FALSE
+#endif
+#ifdef TRUE
+#undef TRUE
+#endif
+typedef enum { FALSE = 0, TRUE = 1 } Boolean;
+
+static int global = 0;
+
+struct fyj_sm
+{
+  enum {
+    FYJ_INITIALIZE,  FYJ_REQUEST, FYJ_RESPONSE, FYJ_FAILURE, FYJ_SUCCESS
+  }FYJ_state;
+  int val;
+  Boolean changed;//必须定义这个域
+};
+
+#define STATE_MACHINE_DATA struct fyj_sm
+#define STATE_MACHINE_DEBUG_PREFIX "FYJ"
+
+
+SM_STATE(FYJ, INITIALIZE)
+{
+  SM_ENTRY(FYJ, INITIALIZE);
+  sm-&gt;val++;
+}
+
+SM_STATE(FYJ, REQUEST)
+{
+  SM_ENTRY(FYJ, REQUEST);
+  sm-&gt;val++;
+}
+
+SM_STATE(FYJ, RESPONSE)
+{
+  SM_ENTRY(FYJ, RESPONSE);
+  sm-&gt;val++;
+}
+
+SM_STATE(FYJ, FAILURE)
+{
+  SM_ENTRY(FYJ, FAILURE);
+  sm-&gt;val++;
+}
+
+SM_STATE(FYJ, SUCCESS)
+{
+  SM_ENTRY(FYJ, SUCCESS);
+  sm-&gt;val++;
+}
+
+/**
+ * 状态机循环中心
+ */
+SM_STEP(FYJ)
+{
+  switch (sm-&gt;FYJ_state) {
+  case FYJ_INITIALIZE: {
+    printf("INITIALIE --&gt; REQUEST\n");
+    SM_ENTER(FYJ, REQUEST);
+    break;
+    case FYJ_REQUEST:
+      printf("REQUEST --&gt; RESPONSE\n");
+      SM_ENTER(FYJ, RESPONSE);
+      break;
+    case FYJ_RESPONSE:
+      printf("RESPONSE --&gt; SUCCESS\n");
+      SM_ENTER(FYJ,SUCCESS);
+      break;
+    case FYJ_SUCCESS:
+      printf("SUCCESS --&gt; FAILURE\n");
+      SM_ENTER(FYJ, FAILURE);
+    case FYJ_FAILURE:
+      printf("FAILURE --&gt; INITIALIZE\n");
+      SM_ENTER(FYJ, INITIALIZE);
+  default:
+    break;
+  }
+}
+}
+
+static int fyj_sm_step(struct fyj_sm *sm)
+{
+  int res = 0;
+    SM_STEP_RUN(FYJ);
+    if (sm-&gt;val &gt;  15) {//after 15 times state transition, stop.
+      res = -1;
+    }
+  return res;
+}
+
+static void fyj_sm_set_state(struct fyj_sm *sm,  int state)
+{
+  sm-&gt;FYJ_state = state;
+}
+
+static void fyj_sm_init(struct fyj_sm *sm)
+{
+  fyj_sm_set_state(sm, FYJ_FAILURE);
+  sm-&gt;val = 0;
+}
+
+int main(int argc, char *argv[])
+{
+  int res;
+  int select;
+  struct fyj_sm sm;
+  fyj_sm_init(&amp;sm);
+
+  do {
+    res = fyj_sm_step(&amp;sm);
+    sleep(1);
+  } while (res != -1);
+
+  return 0;
+}
+</pre>
+</div>
+</div>
 </li></ul>
 </div>
 <div id="outline-container-sec-1-11-2" class="outline-4">
-<h4 id="sec-1-11-2">WPA/WPA2</h4>
+<h4 id="sec-1-11-2">L2 Packet (EAPOL包)处理</h4>
 <div class="outline-text-4" id="text-1-11-2">
-</div><ul class="org-ul"><li><a id="sec-1-11-2-1" name="sec-1-11-2-1"></a>wpa state machine初始化<br  /><ul class="org-ul"><li><a id="sec-1-11-2-1-1" name="sec-1-11-2-1-1"></a>L2 Packet (EAPOL包)处理<br  /><div class="outline-text-6" id="text-1-11-2-1-1">
 <p>
 创建了一个链路层的套接字(<code>driver_nl802.11.c</code>)：
 </p>
@@ -1477,69 +1867,16 @@ static void sm_ ## machine ## _Step(STATE_MACHINE_DATA *sm)
 <li><code>wpa_supplicant.c</code>
 </li>
 </ol>
-
-
-<p>
-<code>wpa_supplicant_set_state</code>
-</p>
 </div>
-</li></ul>
-</li>
-<li><a id="sec-1-11-2-2" name="sec-1-11-2-2"></a>wpa Authenticator<br  /><div class="outline-text-5" id="text-1-11-2-2">
-<p>
-在 <code>hostapd_setup_wpa</code> 中会初始化 <code>wpa_authenticator</code>
-(wpa<sub>auth</sub><sub>glue</sub>.h), 标记为： <code>WPA_PROTO_WPA</code> <code>WPA_PROTO_RSN</code>
-</p>
-</div>
-</li>
-<li><a id="sec-1-11-2-3" name="sec-1-11-2-3"></a>WPA supplicant<br  /><div class="outline-text-5" id="text-1-11-2-3">
-<p>
-WPA功能代码如下：
-</p>
-<ul class="org-ul">
-<li><code>wpa.c and wpa.h</code> WPA state machine and 4-Way/Group Key Handshake
-processing
-</li>
-<li><code>preauth.c and preauth.h</code> PMKSA caching and pre-authentication
-(RSN/WPA2)
-</li>
-<li><code>wpa_i.h</code> Internal definitions for WPA code; not to be included
-to other modules.
-</li>
-</ul>
-</div>
-</li></ul>
 </div>
 <div id="outline-container-sec-1-11-3" class="outline-4">
-<h4 id="sec-1-11-3">EAPOL</h4>
+<h4 id="sec-1-11-3">EAP</h4>
 <div class="outline-text-4" id="text-1-11-3">
-<p>
-IEEE 802.1X-2004 - Supplicant - EAPOL state machines
-</p>
-</div>
-<ul class="org-ul"><li><a id="sec-1-11-3-1" name="sec-1-11-3-1"></a>EAPOL supplicant<br  /><div class="outline-text-5" id="text-1-11-3-1">
-<p>
-<code>eapol_supp_sm.c and eapol_supp_sm.h</code> EAPOL状态机和IEEE 802.1X处理。
-</p>
-</div>
-</li>
-<li><a id="sec-1-11-3-2" name="sec-1-11-3-2"></a>EAPOL Authenticator<br  /><div class="outline-text-5" id="text-1-11-3-2">
-<p>
-在 <code>ieee802_1x_init</code> 会初始化 <code>eapol_authenticator</code> 
-</p>
-</div>
-</li></ul>
-</div>
-
-<div id="outline-container-sec-1-11-4" class="outline-4">
-<h4 id="sec-1-11-4">EAP</h4>
-<div class="outline-text-4" id="text-1-11-4">
 <p>
 EAP Peer State Machine &amp; EAP Server State Machine, RFC4137 &amp; RFC3748
 </p>
 </div>
-
-<ul class="org-ul"><li><a id="sec-1-11-4-1" name="sec-1-11-4-1"></a>EAP peer<br  /><div class="outline-text-5" id="text-1-11-4-1">
+<ul class="org-ul"><li><a id="sec-1-11-3-1" name="sec-1-11-3-1"></a>EAP peer<br  /><div class="outline-text-5" id="text-1-11-3-1">
 <p>
 这个模块是个相对独立的模块，可单独使用。
 相关文件说明如下：
@@ -1575,24 +1912,177 @@ EAP Peer State Machine &amp; EAP Server State Machine, RFC4137 &amp; RFC3748
 <li><code>eap_aka.c, eap_fast.c, eap_gtc.c, eap_leap.c, eap_md5.c,
         eap_mschapv2.c, eap_otp.c, eap_peap.c, eap_-sim.c, eap_tls.c</code>
         其他EAP方法实现
+
+<p>
+初始化函数：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct eap_sm * eap_peer_sm_init(void *eapol_ctx,
+                                 const struct eapol_callbacks *eapol_cb,
+                                 void *msg_ctx, struct eap_config *conf)
+</pre>
+</div>
+<p>
+相关数据结构：
+</p>
+<ul class="org-ul">
+<li><code>eapol_ctx</code>
+          基于 <code>eap_sm</code> 状态机数据结构
+</li>
+
+<li><code>struct eapol_callbacks</code>
+          与状态机交互的回调函数
+</li>
+
+<li><code>struct eap_config</code> 
+          状态机配置相关的数据
+</li>
+</ul>
 </li>
 </ul>
 </div>
 </li>
 
-<li><a id="sec-1-11-4-2" name="sec-1-11-4-2"></a>EAP Server<br  /></li></ul>
+<li><a id="sec-1-11-3-2" name="sec-1-11-3-2"></a>EAP Server<br  /><div class="outline-text-5" id="text-1-11-3-2">
+<p>
+初始化函数：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c">struct eap_sm * eap_server_sm_init(void *eapol_ctx,
+                                   const struct eapol_callbacks *eapol_cb,
+                                   struct eap_config *conf)
+</pre>
+</div>
+<p>
+相关数据结构：
+</p>
+<ul class="org-ul">
+<li><code>eapol_ctx</code>
+            服务器端状态机相关数据结构。
+</li>
+<li><code>eapol_callbacks</code>
+</li>
+<li><code>eap_config</code>
+</li>
+</ul>
+</div>
+</li>
+
+<li><a id="sec-1-11-3-3" name="sec-1-11-3-3"></a>EAP Method<br  /><ul class="org-ul"><li><a id="sec-1-11-3-3-1" name="sec-1-11-3-3-1"></a>WSC<br  /><div class="outline-text-6" id="text-1-11-3-3-1">
+<p>
+Wi-Fi Protected Setup, 包含enrollee 和 registrar 的实现。
+</p>
+</div>
+</li></ul>
+</li></ul>
 </div>
 
+<div id="outline-container-sec-1-11-4" class="outline-4">
+<h4 id="sec-1-11-4">EAPOL</h4>
+<div class="outline-text-4" id="text-1-11-4">
+<p>
+IEEE 802.1X-2004 - Supplicant - EAPOL state machines, 处理
+EAPOL包的函数： <code>wpa_supplicant_rx_eapol</code> 。
+</p>
+</div>
+<ul class="org-ul"><li><a id="sec-1-11-4-1" name="sec-1-11-4-1"></a>EAPOL supplicant<br  /><div class="outline-text-5" id="text-1-11-4-1">
+<p>
+<code>eapol_supp_sm.c and eapol_supp_sm.h</code> EAPOL状态机和IEEE 802.1X处
+理。
+</p>
+
+<p>
+初始化函数 <code>wpa_supplicant_init_eapol</code>
+</p>
+</div>
+</li>
+<li><a id="sec-1-11-4-2" name="sec-1-11-4-2"></a>EAPOL Authenticator<br  /><div class="outline-text-5" id="text-1-11-4-2">
+<p>
+在 <code>ieee802_1x_init</code> 会初始化 <code>eapol_authenticator</code> 
+</p>
+</div>
+</li></ul>
+</div>
 <div id="outline-container-sec-1-11-5" class="outline-4">
-<h4 id="sec-1-11-5">wpa statemachine状态变化</h4>
+<h4 id="sec-1-11-5">WPA/WPA2</h4>
 <div class="outline-text-4" id="text-1-11-5">
+<p>
+WPA needs to have Supplicant and Authenticator
+implementations. In case of infrastructure/managed mode, the
+AP has WPA Authenticator and the client has WPA Supplicant. In
+case of adhoc/IBSS, all stations need to implement both the
+Authenticator and Supplicant roles. 
+</p>
+
+<p>
+WPA: TKIP
+</p>
+
+<p>
+WPA2: CCMP
+</p>
+
+<p>
+网络配置示例：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">network={
+        ssid="networkname"
+        key_mgmt=WPA-PSK
+        psk="longrandompassword"
+        proto=WPA2
+        pairwise=CCMP
+        group=CCMP
+}
+</pre>
+</div>
+
+<p>
+当关联成功后，会通过 <code>wpa_sm_notify_assoc</code>  来告知WPA
+State machine。这个函数会进行一些变量重置。
+</p>
+</div>
+
+<ul class="org-ul"><li><a id="sec-1-11-5-1" name="sec-1-11-5-1"></a>wpa Authenticator<br  /><div class="outline-text-5" id="text-1-11-5-1">
+<p>
+在 <code>hostapd_setup_wpa</code> 中会初始化 <code>wpa_authenticator</code>
+(wpa<sub>auth</sub><sub>glue</sub>.h), 标记为： <code>WPA_PROTO_WPA</code> <code>WPA_PROTO_RSN</code>
+</p>
+</div>
+</li>
+<li><a id="sec-1-11-5-2" name="sec-1-11-5-2"></a>WPA supplicant<br  /><div class="outline-text-5" id="text-1-11-5-2">
+<p>
+WPA功能代码如下：
+</p>
+<ul class="org-ul">
+<li><code>wpa.c and wpa.h</code> WPA state machine and 4-Way/Group Key Handshake
+processing
+</li>
+<li><code>preauth.c and preauth.h</code> PMKSA caching and pre-authentication
+(RSN/WPA2)
+</li>
+<li><code>wpa_i.h</code> Internal definitions for WPA code; not to be included
+to other modules.
+
+<p>
+在函数 <code>wpa_supplicant_init_wpa</code> 中初始化该状态机。
+</p>
+</li>
+</ul>
+</div>
+</li>
+
+<li><a id="sec-1-11-5-3" name="sec-1-11-5-3"></a>wpa statemachine状态变化<br  /><div class="outline-text-5" id="text-1-11-5-3">
 <p>
 设置当前状态： <code>wpa_supplicant_set_state</code>
 获取当前状态： <code>wpa_supplicant_get_state</code>
 </p>
 
 <p>
-访问当前状态机的状态(公供wpa状态机内部调用)： 
+访问当前状态机的状态(仅供wpa状态机内部调用)： 
 </p>
 <ol class="org-ol">
 <li>获取当前状态机的状态：  <code>wpa_sm_get_state</code>
@@ -1601,12 +2091,13 @@ EAP Peer State Machine &amp; EAP Server State Machine, RFC4137 &amp; RFC3748
 </li>
 </ol>
 </div>
+</li></ul>
 </div>
 </div>
 </div>
 
 <div id="outline-container-sec-2" class="outline-2">
-<h2 id="sec-2"><code>wpa_supplicant</code> 功能模块分析</h2>
+<h2 id="sec-2">功能模块分析</h2>
 <div class="outline-text-2" id="text-2">
 </div><div id="outline-container-sec-2-1" class="outline-3">
 <h3 id="sec-2-1">P2P</h3>
@@ -1615,8 +2106,38 @@ EAP Peer State Machine &amp; EAP Server State Machine, RFC4137 &amp; RFC3748
 <h4 id="sec-2-1-1">数据结构分析与初始化流程</h4>
 <div class="outline-text-4" id="text-2-1-1">
 </div><ul class="org-ul"><li><a id="sec-2-1-1-1" name="sec-2-1-1-1"></a>主要数据结构<br  /></li>
+<li><a id="sec-2-1-1-2" name="sec-2-1-1-2"></a>配置文件示例<br  /><div class="outline-text-5" id="text-2-1-1-2">
+<div class="org-src-container">
 
-<li><a id="sec-2-1-1-2" name="sec-2-1-1-2"></a>初始化流程<br  /><div class="outline-text-5" id="text-2-1-1-2">
+<pre class="src src-sh">ctrl_interface=/data/misc/wifi/sockets
+driver_param=use_p2p_group_interface=1
+update_config=1
+device_name=Android_9bf5
+manufacturer=ABC Inc.
+model_name=ABC Wireless Model
+model_number=1.0
+serial_number=2.0
+device_type=10-0050F204-5
+os_version=01020300
+config_methods=virtual_push_button physical_display keypad
+p2p_listen_reg_class=81
+p2p_listen_channel=1
+p2p_oper_reg_class=81
+p2p_oper_channel=1
+p2p_go_intent=14
+p2p_ssid_postfix=-Android_9bf5
+persistent_reconnect=1
+p2p_no_group_iface=1
+</pre>
+</div>
+<p>
+其中  <code>update_config</code> 选项用于支持实时更新配置信息，比如保存
+p2p persistent group。 如果想禁用persistent group，则将该选
+项配置为0是一种取巧的办法。
+</p>
+</div>
+</li>
+<li><a id="sec-2-1-1-3" name="sec-2-1-1-3"></a>初始化流程<br  /><div class="outline-text-5" id="text-2-1-1-3">
 <p>
 当Driver支持一个非网络接口的P2P Device接口时,
 </p>
@@ -1646,16 +2167,23 @@ device list列表）
 </div>
 </li></ul>
 </div>
-
 <div id="outline-container-sec-2-1-2" class="outline-4">
-<h4 id="sec-2-1-2">基本连接流程</h4>
+<h4 id="sec-2-1-2">P2P属性解析</h4>
 <div class="outline-text-4" id="text-2-1-2">
-</div><ul class="org-ul"><li><a id="sec-2-1-2-1" name="sec-2-1-2-1"></a>一般连接过程<br  /><div class="outline-text-5" id="text-2-1-2-1">
+<p>
+函数 <code>p2p_parse_p2p_ie</code> 分析
+</p>
+</div>
+</div>
+<div id="outline-container-sec-2-1-3" class="outline-4">
+<h4 id="sec-2-1-3">基本连接流程</h4>
+<div class="outline-text-4" id="text-2-1-3">
+</div><ul class="org-ul"><li><a id="sec-2-1-3-1" name="sec-2-1-3-1"></a>一般连接过程<br  /><div class="outline-text-5" id="text-2-1-3-1">
 
 <div class="figure">
 <p><img src="/images/2016/2016071202.png" alt="2016071202.png" />
 </p>
-<p><span class="figure-number">Figure 13:</span> P2P Standard Group Formation</p>
+<p><span class="figure-number">Figure 15:</span> P2P Standard Group Formation</p>
 </div>
 
 <ol class="org-ol">
@@ -1692,6 +2220,10 @@ GO会不停地发送Beacon帧，携带协商的BSSID信息，且 <code>group
 </p>
 
 <p>
+p2p设备连接测试实例：
+</p>
+
+<p>
 <a href="http://processors.wiki.ti.com/index.php/OMAP_Wireless_Connectivity_NLCP_WiFi_Direct_Configuration_Scripts">http://processors.wiki.ti.com/index.php/OMAP_Wireless_Connectivity_NLCP_WiFi_Direct_Configuration_Scripts</a>
 </p>
 
@@ -1705,12 +2237,12 @@ GO会不停地发送Beacon帧，携带协商的BSSID信息，且 <code>group
 </div>
 </li>
 
-<li><a id="sec-2-1-2-2" name="sec-2-1-2-2"></a>收到Invitation Request的交互过程<br  /><div class="outline-text-5" id="text-2-1-2-2">
+<li><a id="sec-2-1-3-2" name="sec-2-1-3-2"></a>收到Invitation Request的交互过程<br  /><div class="outline-text-5" id="text-2-1-3-2">
 
 <div class="figure">
 <p><img src="/images/2016/2016071203.png" alt="2016071203.png" />
 </p>
-<p><span class="figure-number">Figure 15:</span> P2P Persisten Group Formation</p>
+<p><span class="figure-number">Figure 17:</span> P2P Persisten Group Formation</p>
 </div>
 
 <ol class="org-ol">
@@ -1723,202 +2255,401 @@ Action帧，即 <code>P2P: Received Invitation Request from
 <code>P2P: Create a new interface p2p-p2p0-0 for the group</code>
 <code>nl80211: Create interface iftype 9 (P2P_GO)</code>
 </li>
-<li>发送 <code>Invitation Response</code> Action帧给对端。并回调
+<li>准备发送Invitation Response
+<ul class="org-ul">
+<li>标记当前状态：
+<pre class="example">
+p2p-&gt;pending_action_state = P2P_PENDING_INVITATION_RESPONSE
+</pre>
+</li>
+<li>调用 <code>p2p_send_action</code> 发送p2p invitation response
+调用 <code>wpas_send_action</code> , 也即 <code>offchannel_send_action(…)</code>
+, 在该函数中，将会用 <code>wpa_s-&gt;pending_action_tx</code> 标记本次TX
+Action。
+如果TX成功， 驱动会上报 <code>TX_STATUS</code> ， 此时就会调用
+<code>offchannel_send_action_tx_staus</code> ， 在该函数中会检查
+<code>wpa_s-&gt;pending_action_tx</code> 是否为空，如果为空，则会忽略本次事件。
+否则，才会调用回调函数 <code>wpas_p2p_send_action_tx_status</code> 则会进入后面的流程。
+</li>
+</ul>
+</li>
+<li>如果一切顺利，会回调
 <code>p2p_inviation_resp_cb</code> , 它会调用 <code>wpas_invitation_received</code>
 。
 </li>
 <li>调用 <code>p2p_stop_find</code> 。
+
+<p>
+示例日志：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">D/wpa_supplicant(  722): p2p0: Event RX_MGMT (20) received
+D/wpa_supplicant(  722): p2p0: Received Action frame: SA=16:f6:5a:ac:92:0e Category=4 DataLen=159 freq=2437 MHz
+D/wpa_supplicant(  722): P2P: RX P2P Public Action from 16:f6:5a:ac:92:0e
+D/wpa_supplicant(  722): P2P: P2P Public Action contents - hexdump(len=154): 03 02 dd 87 50 6f 9a 09 05 02 00 64 14 12 01 00 01 11 05 00 43 4e 04 7c 95 0b 35 00 43 4e 04 51 ...
+D/wpa_supplicant(  722): P2P: Received Invitation Request from 16:f6:5a:ac:92:0e (freq=2437)
+D/wpa_supplicant(  722): P2P: Parsing the received message
+D/wpa_supplicant(  722): P2P: * Dialog Token: 2
+D/wpa_supplicant(  722): P2P: Parsing P2P IE
+D/wpa_supplicant(  722): P2P: Attribute 5 length 2
+D/wpa_supplicant(  722): P2P: * Configuration Timeout
+D/wpa_supplicant(  722): P2P: Attribute 18 length 1
+D/wpa_supplicant(  722): P2P: * Invitation Flags: bitmap 0x1
+D/wpa_supplicant(  722): P2P: Attribute 17 length 5
+D/wpa_supplicant(  722): P2P: * Operating Channel: Country CN(0x04) Regulatory Class 124 Channel Number 149
+D/wpa_supplicant(  722): P2P: Attribute 11 length 53
+D/wpa_supplicant(  722): P2P: * Channel List: Country String 'CN(0x04)'
+D/wpa_supplicant(  722): P2P: Channel List - hexdump(len=53): 43 4e 04 51 0d 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 73 04 24 28 2c 30 7c 04 95 99 9d a1 7d 05 ...
+D/wpa_supplicant(  722): P2P: Attribute 15 length 28
+D/wpa_supplicant(  722): P2P: * P2P Group ID: Device Address 02:22:13:03:21:3c
+D/wpa_supplicant(  722): P2P: * P2P Group ID: SSID - hexdump(len=22): 44 49 52 45 43 54 2d 39 4e 2d 41 6e 64 72 6f 69 64 5f 36 39 62 34
+D/wpa_supplicant(  722): P2P: Attribute 13 length 24
+D/wpa_supplicant(  722): P2P: * Device Info: addr 16:f6:5a:ac:92:0e primary device type 10-0050F204-5 device name 'fyj' config methods 0x188
+D/wpa_supplicant(  722): P2P: Peer country - hexdump(len=3): 43 4e 04
+D/wpa_supplicant(  722): P2P: Own reg_classes 7 peer reg_classes 8 intersection reg_classes 7
+D/wpa_supplicant(  722): P2P: own channels: 81:1,2,3,4,5,6,7,8,9,10,11,12,13 115:36,40,44,48 124:149,153,157,161 116:36,44 117:40,48 126:149,157 127:153,161
+D/wpa_supplicant(  722): P2P: peer channels: 81:1,2,3,4,5,6,7,8,9,10,11,12,13 115:36,40,44,48 124:149,153,157,161 125:149,153,157,161,165 116:36,44 117:40,48 126:149,157 127:153,161
+D/wpa_supplicant(  722): P2P: intersection: 81:1,2,3,4,5,6,7,8,9,10,11,12,13 115:36,40,44,48 124:149,153,157,161 116:36,44 117:40,48 126:149,157 127:153,161
+D/wpa_supplicant(  722): P2P: Create a new interface p2p-p2p0-1 for the group
+D/wpa_supplicant(  722): nl80211: Create interface iftype 9 (P2P_GO)
+D/wpa_supplicant(  722): nl80211: New interface p2p-p2p0-1 created: ifindex=11
+D/wpa_supplicant(  722): P2P: Created pending virtual interface p2p-p2p0-1 addr 06:22:13:03:21:3c
+D/wpa_supplicant(  722): P2P: Own frequency preference: 0 MHz
+D/wpa_supplicant(  722): p2p0: Determining shared radio frequencies (max len 1)
+D/wpa_supplicant(  722): p2p0: Shared frequencies (len=1): completed iteration
+D/wpa_supplicant(  722): p2p0: freq[0]: 2437, flags=0x1
+D/wpa_supplicant(  722): p2p0: Shared frequencies (len=1): valid for P2P
+D/wpa_supplicant(  722): p2p0: freq[0]: 2437, flags=0x1
+D/wpa_supplicant(  722): P2P: Trying to prefer a channel already used by one of the interfaces
+D/wpa_supplicant(  722): P2P: Own frequency preference: 2437 MHz
+D/wpa_supplicant(  722): P2P: No extra channels available - trying to force channel to match a channel already used by one of the interfaces
+D/wpa_supplicant(  722): P2P: Invitation processing forced frequency 2437 MHz
+D/wpa_supplicant(  722): P2P: * Dialog Token: 2
+D/wpa_supplicant(  722): P2P: * P2P IE header
+D/wpa_supplicant(  722): P2P: * Status: 0
+D/wpa_supplicant(  722): P2P: * Configuration Timeout: GO 0 (*10ms)  client 0 (*10ms)
+D/wpa_supplicant(  722): P2P: * Operating Channel: Regulatory Class 81 Channel 6
+D/wpa_supplicant(  722): P2P: * P2P Group BSSID 06:22:13:03:21:3c
+D/wpa_supplicant(  722): P2P: * Channel List - hexdump(len=46): 58 58 04 51 0d 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 73 04 24 28 2c 30 7c 04 95 99 9d a1 74 02 ...
+D/wpa_supplicant(  722): P2P: Schedule new radio work for Action frame TX (listen_freq=-1 send_freq=-1)
+D/wpa_supplicant(  722): p2p0: Add radio work 'p2p-send-action'@0x7fab01c470
+D/wpa_supplicant(  722): p2p0: First radio work item in the queue - schedule start immediately
+D/wpa_supplicant(  722): p2p0: Starting radio work 'p2p-send-action'@0x7fab01c470 after 0.000113 second wait
+D/wpa_supplicant(  722): Off-channel: Send action frame: freq=2437 dst=16:f6:5a:ac:92:0e src=02:22:13:03:21:3c bssid=02:22:13:03:21:3c len=104
+D/wpa_supplicant(  722): Off-channel: Schedule Action frame to be transmitted once the driver gets to the requested channel
+D/wpa_supplicant(  722): nl80211: Remain-on-channel cookie 0x4d2 for freq=2437 MHz duration=200
+D/wpa_supplicant(  722): nl80211: Ignore RTM_NEWLINK event for foreign ifindex 11
+D/wpa_supplicant(  722): nl80211: Event message available
+D/wpa_supplicant(  722): nl80211: Drv Event 55 (NL80211_CMD_REMAIN_ON_CHANNEL) received for p2p0
+D/wpa_supplicant(  722): nl80211: Remain-on-channel event (cancel=0 freq=2437 channel_type=0 duration=200 cookie=0x4d2 (match))
+D/wpa_supplicant(  722): p2p0: Event REMAIN_ON_CHANNEL (21) received
+D/wpa_supplicant(  722): Off-channel: Send Action callback (without_roc=0 pending_action_tx=0x7fab04f420 pending_action_tx_done=0)
+D/wpa_supplicant(  722): Off-channel: Sending pending Action frame to 16:f6:5a:ac:92:0e using interface p2p0
+D/wpa_supplicant(  722): nl80211: Send Action frame (ifindex=9, freq=2437 MHz wait=0 ms no_cck=1)
+D/wpa_supplicant(  722): nl80211: CMD_FRAME freq=2437 wait=0 no_cck=1 no_ack=0 offchanok=1
+D/wpa_supplicant(  722): CMD_FRAME - hexdump(len=128): d0 00 00 00 16 f6 5a ac 92 0e 02 22 13 03 21 3c 02 22 13 03 21 3c 00 00 04 09 50 6f 9a 09 04 02 ...
+D/wpa_supplicant(  722): nl80211: Frame TX command accepted; cookie 0x1f
+D/wpa_supplicant(  722): P2P: Ignore remain-on-channel callback (off_channel_freq=2437 pending_listen_freq=0 freq=2437 duration=200)
+D/wpa_supplicant(  722): nl80211: Event message available
+D/wpa_supplicant(  722): nl80211: Drv Event 60 (NL80211_CMD_FRAME_TX_STATUS) received for p2p0
+D/wpa_supplicant(  722): nl80211: MLME event 60 (NL80211_CMD_FRAME_TX_STATUS) on p2p0(02:22:13:03:21:3c) A1=16:f6:5a:ac:92:0e A2=02:22:13:03:21:3c
+D/wpa_supplicant(  722): nl80211: MLME event frame - hexdump(len=128): d0 00 00 00 16 f6 5a ac 92 0e 02 22 13 03 21 3c 02 22 13 03 21 3c 00 00 04 09 50 6f 9a 09 04 02 ...
+D/wpa_supplicant(  722): nl80211: Frame TX status event
+D/wpa_supplicant(  722): nl80211: Action TX status: cookie=01f (match) (ack=1)
+D/wpa_supplicant(  722): p2p0: Event TX_STATUS (18) received
+D/wpa_supplicant(  722): p2p0: EVENT_TX_STATUS dst=16:f6:5a:ac:92:0e type=0 stype=13
+D/wpa_supplicant(  722): Off-channel: Delete matching pending action frame
+D/wpa_supplicant(  722): Off-channel: TX status result=0 cb=0x55817df9a4
+D/wpa_supplicant(  722): P2P: Action frame TX callback (state=8 freq=2437 dst=16:f6:5a:ac:92:0e src=02:22:13:03:21:3c bssid=02:22:13:03:21:3c result=0
+D/wpa_supplicant(  722): P2P: Invitation Response TX callback: success=1
+D/wpa_supplicant(  722): p2p0: Radio work 'p2p-send-action'@0x7fab01c470 done in 0.004818 seconds
+D/wpa_supplicant(  722): Off-channel: Action frame sequence done notification
+D/wpa_supplicant(  722): nl80211: Cancel remain-on-channel with cookie 0x4d2
+D/wpa_supplicant(  722): P2P: Invitation from peer 16:f6:5a:ac:92:0e was accepted; op_freq=2437 MHz, SSID=DIRECT-9N-Android_69b4
+D/wpa_supplicant(  722): P2P: Stopping find
+D/wpa_supplicant(  722): P2P: Clear timeout (state=SEARCH)
+I/wpa_supplicant(  722): P2P-FIND-STOPPED 
+D/wpa_supplicant(  722): CTRL_IFACE monitor sent successfully to /data/misc/wifi/sockets/wpa_ctrl_501-2\x00
+D/wpa_supplicant(  722): P2P: State SEARCH -&gt; IDLE
+D/wpa_supplicant(  722): nl80211: Disable Probe Request reporting nl_preq=0x888888f7238a85c9
+D/wpa_supplicant(  722): P2P: Set GO freq based on forced frequency 2437 MHz
+D/wpa_supplicant(  722): p2p0: Determining shared radio frequencies (max len 1)
+D/wpa_supplicant(  722): p2p0: Shared frequencies (len=1): completed iteration
+D/wpa_supplicant(  722): p2p0: freq[0]: 2437, flags=0x1
+D/wpa_supplicant(  722): p2p0: Shared frequencies (len=1): valid for P2P
+D/wpa_supplicant(  722): p2p0: freq[0]: 2437, flags=0x1
+D/wpa_supplicant(  722): P2P: Pending virtual interface exists - skip creation of a new one
+D/wpa_supplicant(  722): Override interface parameter: ctrl_interface ('/data/misc/wifi/sockets' -&gt; '/data/misc/wifi/sockets')
+D/wpa_supplicant(  722): Initializing interface 'p2p-p2p0-1' conf 'N/A' driver 'nl80211' ctrl_interface '/data/misc/wifi/sockets' bridge 'N/A'
+I/wpa_supplicant(  722): rfkill: Cannot open RFKILL control device
+D/wpa_supplicant(  722): nl80211: RFKILL status not available
+D/wpa_supplicant(  722): nl80211: TDLS supported
+D/wpa_supplicant(  722): nl80211: TDLS external setup
+D/wpa_supplicant(  722): nl80211: Supported cipher 00-0f-ac:1
+D/wpa_supplicant(  722): nl80211: Supported cipher 00-0f-ac:5
+D/wpa_supplicant(  722): nl80211: Supported cipher 00-0f-ac:2
+D/wpa_supplicant(  722): nl80211: Supported cipher 00-0f-ac:4
+D/wpa_supplicant(  722): nl80211: Use separate P2P group interface (driver advertised support)
+D/wpa_supplicant(  722): nl80211: Disable use_monitor with device_ap_sme since no monitor mode support detected
+D/wpa_supplicant(  722): nl80211: interface p2p-p2p0-1 in phy phy0
+D/wpa_supplicant(  722): nl80211: Set mode ifindex 11 iftype 9 (P2P_GO)
+D/wpa_supplicant(  722): nl80211: Setup AP(p2p-p2p0-1) - device_ap_sme=1 use_monitor=0
+D/wpa_supplicant(  722): nl80211: Subscribe to mgmt frames with AP handle 0x7fab020d40 (device SME)
+D/wpa_supplicant(  722): nl80211: Register frame type=0xd0 (WLAN_FC_STYPE_ACTION) nl_handle=0x7fab020d40 match=
+D/wpa_supplicant(  722): nl80211: Enable Probe Request reporting nl_preq=0x7fab020d00
+D/wpa_supplicant(  722): nl80211: Register frame type=0x40 (WLAN_FC_STYPE_PROBE_REQ) nl_handle=0x7fab020d00 match=
+D/wpa_supplicant(  722): netlink: Operstate: ifindex=11 linkmode=1 (userspace-control), operstate=5 (IF_OPER_DORMANT)
+D/wpa_supplicant(  722): nl80211: driver param='use_p2p_group_interface=1'
+D/wpa_supplicant(  722): nl80211: Use separate P2P group interface
+D/wpa_supplicant(  722): Add interface p2p-p2p0-1 to existing radio phy0
+D/wpa_supplicant(  722): nl80211: Regulatory information - country=CN
+D/wpa_supplicant(  722): nl80211: 2402-2482 @ 40 MHz 0 mBm
+D/wpa_supplicant(  722): nl80211: 5170-5250 @ 80 MHz 0 mBm
+D/wpa_supplicant(  722): nl80211: 5250-5330 @ 80 MHz 0 mBm
+D/wpa_supplicant(  722): nl80211: 5735-5835 @ 80 MHz 0 mBm
+D/wpa_supplicant(  722): nl80211: 57240-59400 @ 2160 MHz 0 mBm
+D/wpa_supplicant(  722): nl80211: 59400-63720 @ 2160 MHz 0 mBm
+D/wpa_supplicant(  722): nl80211: 63720-65880 @ 2160 MHz 0 mBm
+D/wpa_supplicant(  722): nl80211: Added 802.11b mode based on 802.11g information
+D/wpa_supplicant(  722): p2p-p2p0-1: Own MAC address: 06:22:13:03:21:3c
+D/wpa_supplicant(  722): wpa_driver_nl80211_set_key: ifindex=11 (p2p-p2p0-1) alg=0 addr=0x0 key_idx=0 set_tx=0 seq_len=0 key_len=0
+D/wpa_supplicant(  722): wpa_driver_nl80211_set_key: ifindex=11 (p2p-p2p0-1) alg=0 addr=0x0 key_idx=1 set_tx=0 seq_len=0 key_len=0
+D/wpa_supplicant(  722): wpa_driver_nl80211_set_key: ifindex=11 (p2p-p2p0-1) alg=0 addr=0x0 key_idx=2 set_tx=0 seq_len=0 key_len=0
+D/wpa_supplicant(  722): wpa_driver_nl80211_set_key: ifindex=11 (p2p-p2p0-1) alg=0 addr=0x0 key_idx=3 set_tx=0 seq_len=0 key_len=0
+D/wpa_supplicant(  722): wpa_driver_nl80211_set_key: ifindex=11 (p2p-p2p0-1) alg=0 addr=0x0 key_idx=4 set_tx=0 seq_len=0 key_len=0
+D/wpa_supplicant(  722): wpa_driver_nl80211_set_key: ifindex=11 (p2p-p2p0-1) alg=0 addr=0x0 key_idx=5 set_tx=0 seq_len=0 key_len=0
+D/wpa_supplicant(  722): p2p-p2p0-1: RSN: flushing PMKID list in the driver
+D/wpa_supplicant(  722): nl80211: Flush PMKIDs
+D/wpa_supplicant(  722): p2p-p2p0-1: State: DISCONNECTED -&gt; INACTIVE
+D/wpa_supplicant(  722): CTRL_IFACE monitor sent successfully to /data/misc/wifi/sockets/wpa_ctrl_501-2\x00
+D/wpa_supplicant(  722): TDLS: TDLS operation supported by driver
+D/wpa_supplicant(  722): TDLS: Driver uses external link setup
+D/wpa_supplicant(  722): p2p-p2p0-1: WPS: UUID from the first interface: f4e2daaf-c657-5753-8c74-4603f22eafc0
+D/wpa_supplicant(  722): EAPOL: SUPP_PAE entering state DISCONNECTED
+D/wpa_supplicant(  722): EAPOL: Supplicant port status: Unauthorized
+D/wpa_supplicant(  722): nl80211: Skip set_supp_port(unauthorized) while not associated
+D/wpa_supplicant(  722): EAPOL: KEY_RX entering state NO_KEY_RECEIVE
+D/wpa_supplicant(  722): EAPOL: SUPP_BE entering state INITIALIZE
+D/wpa_supplicant(  722): EAP: EAP entering state DISABLED
+D/wpa_supplicant(  722): Using existing control interface directory.
+D/wpa_supplicant(  722): p2p-p2p0-1: Added interface p2p-p2p0-1
+D/wpa_supplicant(  722): p2p-p2p0-1: State: INACTIVE -&gt; DISCONNECTED
+D/wpa_supplicant(  722): nl80211: Set p2p-p2p0-1 operstate 0-&gt;0 (DORMANT)
+D/wpa_supplicant(  722): netlink: Operstate: ifindex=11 linkmode=-1 (no change), operstate=5 (IF_OPER_DORMANT)
+D/wpa_supplicant(  722): CTRL_IFACE monitor sent successfully to /data/misc/wifi/sockets/wpa_ctrl_501-2\x00
+D/wpa_supplicant(  722): p2p0: P2P: Use separate group interface p2p-p2p0-1
+D/wpa_supplicant(  722): p2p-p2p0-1: P2P: Starting GO
+D/wpa_supplicant(  722): p2p-p2p0-1: P2P: Request scan (that will be skipped) to start GO)
+D/wpa_supplicant(  722): p2p-p2p0-1: Setting scan request: 0.000000 sec
+D/wpa_supplicant(  722): p2p-p2p0-1: State: DISCONNECTED -&gt; SCANNING
+D/wpa_supplicant(  722): CTRL_IFACE monitor sent successfully to /data/misc/wifi/sockets/wpa_ctrl_501-2\x00
+D/wpa_supplicant(  722): Start a pre-selected network without scan step
+D/wpa_supplicant(  722): Setting up AP (SSID='DIRECT-9N-Android_69b4')
+D/wpa_supplicant(  722): nl80211: Setup AP operations for P2P group (GO)
+D/wpa_supplicant(  722): nl80211: Set mode ifindex 11 iftype 9 (P2P_GO)
+D/wpa_supplicant(  722): nl80211: Unsubscribe mgmt frames handle 0x888888f7238a85c9 (start AP)
+D/wpa_supplicant(  722): nl80211: Setup AP(p2p-p2p0-1) - device_ap_sme=1 use_monitor=0
+D/wpa_supplicant(  722): nl80211: Subscribe to mgmt frames with AP handle 0x7fab020d40 (device SME)
+D/wpa_supplicant(  722): nl80211: Register frame type=0xd0 (WLAN_FC_STYPE_ACTION) nl_handle=0x7fab020d40 match=
+D/wpa_supplicant(  722): nl80211: Probe Request reporting already on! nl_preq=0x888888f7238a8589
+D/wpa_supplicant(  722): nl80211: Set freq 2437 (ht_enabled=0, vht_enabled=0, bandwidth=0 MHz, cf1=0 MHz, cf2=0 MHz)
+D/wpa_supplicant(  722): P2P: * Capability dev=25 group=eb
+D/wpa_supplicant(  722): P2P: * Device Info
+D/wpa_supplicant(  722): P2P: Update GO Probe Response P2P IE - hexdump(len=62): dd 0d 50 6f 9a 0a 00 00 06 01 10 1c 44 00 32 dd 2d 50 6f 9a 09 02 02 00 25 eb 0d 21 00 02 22 13 ...
+D/wpa_supplicant(  722): P2P: * P2P IE header
+D/wpa_supplicant(  722): P2P: * Capability dev=25 group=eb
+D/wpa_supplicant(  722): P2P: * Device ID: 02:22:13:03:21:3c
+D/wpa_supplicant(  722): P2P: Update GO Beacon P2P IE - hexdump(len=35): dd 0d 50 6f 9a 0a 00 00 06 01 10 1c 44 00 32 dd 12 50 6f 9a 09 02 02 00 25 eb 03 06 00 02 22 13 ...
+D/wpa_supplicant(  722): P2P: GO - group idle
+D/wpa_supplicant(  722): P2P: * Capability dev=25 group=ab
+D/wpa_supplicant(  722): P2P: * Device Info
+D/wpa_supplicant(  722): P2P: Update GO Probe Response P2P IE - hexdump(len=62): dd 0d 50 6f 9a 0a 00 00 06 01 10 1c 44 00 32 dd 2d 50 6f 9a 09 02 02 00 25 ab 0d 21 00 02 22 13 ...
+D/wpa_supplicant(  722): P2P: * P2P IE header
+D/wpa_supplicant(  722): P2P: * Capability dev=25 group=ab
+D/wpa_supplicant(  722): P2P: * Device ID: 02:22:13:03:21:3c
+D/wpa_supplicant(  722): P2P: Update GO Beacon P2P IE - hexdump(len=35): dd 0d 50 6f 9a 0a 00 00 06 01 10 1c 44 00 32 dd 12 50 6f 9a 09 02 02 00 25 ab 03 06 00 02 22 13 ...
+D/wpa_supplicant(  722): phy: phy0
+D/wpa_supplicant(  722): BSS count 1, BSSID mask 00:00:00:00:00:00 (0 bits)
+D/wpa_supplicant(  722): nl80211: Regulatory information - country=CN
+D/wpa_supplicant(  722): nl80211: 2402-2482 @ 40 MHz 0 mBm
+D/wpa_supplicant(  722): nl80211: 5170-5250 @ 80 MHz 0 mBm
+D/wpa_supplicant(  722): nl80211: 5250-5330 @ 80 MHz 0 mBm
+D/wpa_supplicant(  722): nl80211: 5735-5835 @ 80 MHz 0 mBm
+D/wpa_supplicant(  722): nl80211: 57240-59400 @ 2160 MHz 0 mBm
+D/wpa_supplicant(  722): nl80211: 59400-63720 @ 2160 MHz 0 mBm
+D/wpa_supplicant(  722): nl80211: 63720-65880 @ 2160 MHz 0 mBm
+D/wpa_supplicant(  722): nl80211: Added 802.11b mode based on 802.11g information
+D/wpa_supplicant(  722): Allowed channel: mode=1 chan=1 freq=2412 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=1 chan=2 freq=2417 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=1 chan=3 freq=2422 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=1 chan=4 freq=2427 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=1 chan=5 freq=2432 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=1 chan=6 freq=2437 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=1 chan=7 freq=2442 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=1 chan=8 freq=2447 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=1 chan=9 freq=2452 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=1 chan=10 freq=2457 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=1 chan=11 freq=2462 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=1 chan=12 freq=2467 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=1 chan=13 freq=2472 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=2 chan=36 freq=5180 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=2 chan=38 freq=5190 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=2 chan=40 freq=5200 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=2 chan=44 freq=5220 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=2 chan=46 freq=5230 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=2 chan=48 freq=5240 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=2 chan=149 freq=5745 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=2 chan=151 freq=5755 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=2 chan=153 freq=5765 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=2 chan=157 freq=5785 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=2 chan=159 freq=5795 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=2 chan=161 freq=5805 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=2 chan=165 freq=5825 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=0 chan=1 freq=2412 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=0 chan=2 freq=2417 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=0 chan=3 freq=2422 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=0 chan=4 freq=2427 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=0 chan=5 freq=2432 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=0 chan=6 freq=2437 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=0 chan=7 freq=2442 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=0 chan=8 freq=2447 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=0 chan=9 freq=2452 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=0 chan=10 freq=2457 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=0 chan=11 freq=2462 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=0 chan=12 freq=2467 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Allowed channel: mode=0 chan=13 freq=2472 MHz max_tx_power=0 dBm
+D/wpa_supplicant(  722): Completing interface initialization
+D/wpa_supplicant(  722): Mode: IEEE 802.11g  Channel: 6  Frequency: 2437 MHz
+D/wpa_supplicant(  722): DFS 0 channels required radar detection
+D/wpa_supplicant(  722): nl80211: Set freq 2437 (ht_enabled=1, vht_enabled=0, bandwidth=20 MHz, cf1=2437 MHz, cf2=0 MHz)
+D/wpa_supplicant(  722): RATE[0] rate=60 flags=0x1
+D/wpa_supplicant(  722): RATE[1] rate=90 flags=0x0
+D/wpa_supplicant(  722): RATE[2] rate=120 flags=0x1
+D/wpa_supplicant(  722): RATE[3] rate=180 flags=0x0
+D/wpa_supplicant(  722): RATE[4] rate=240 flags=0x1
+D/wpa_supplicant(  722): RATE[5] rate=360 flags=0x0
+D/wpa_supplicant(  722): RATE[6] rate=480 flags=0x0
+D/wpa_supplicant(  722): RATE[7] rate=540 flags=0x0
+D/wpa_supplicant(  722): hostapd_setup_bss(hapd=0x7fab0c4c00 (p2p-p2p0-1), first=1)
+D/wpa_supplicant(  722): p2p-p2p0-1: Flushing old station entries
+D/wpa_supplicant(  722): nl80211: flush -&gt; DEL_STATION p2p-p2p0-1 (all)
+D/wpa_supplicant(  722): p2p-p2p0-1: Deauthenticate all stations
+D/wpa_supplicant(  722): nl80211: sta_remove -&gt; DEL_STATION p2p-p2p0-1 ff:ff:ff:ff:ff:ff --&gt; 0 (Success)
+D/wpa_supplicant(  722): wpa_driver_nl80211_set_key: ifindex=11 (p2p-p2p0-1) alg=0 addr=0x0 key_idx=0 set_tx=0 seq_len=0 key_len=0
+D/wpa_supplicant(  722): wpa_driver_nl80211_set_key: ifindex=11 (p2p-p2p0-1) alg=0 addr=0x0 key_idx=1 set_tx=0 seq_len=0 key_len=0
+D/wpa_supplicant(  722): wpa_driver_nl80211_set_key: ifindex=11 (p2p-p2p0-1) alg=0 addr=0x0 key_idx=2 set_tx=0 seq_len=0 key_len=0
+D/wpa_supplicant(  722): wpa_driver_nl80211_set_key: ifindex=11 (p2p-p2p0-1) alg=0 addr=0x0 key_idx=3 set_tx=0 seq_len=0 key_len=0
+E/wpa_supplicant(  722): Using interface p2p-p2p0-1 with hwaddr 06:22:13:03:21:3c and ssid "DIRECT-9N-Android_69b4"
+D/wpa_supplicant(  722): WPS: Use configured UUID - hexdump(len=16): f4 e2 da af c6 57 57 53 8c 74 46 03 f2 2e af c0
+D/wpa_supplicant(  722): WPS: Build Beacon IEs
+D/wpa_supplicant(  722): WPS:  * Version (hardcoded 0x10)
+D/wpa_supplicant(  722): WPS:  * Wi-Fi Protected Setup State (2)
+D/wpa_supplicant(  722): WPS:  * Version2 (0x20)
+D/wpa_supplicant(  722): WPS:  * Device Name
+D/wpa_supplicant(  722): WPS:  * Primary Device Type
+D/wpa_supplicant(  722): WPS: Build Probe Response IEs
+D/wpa_supplicant(  722): WPS:  * Version (hardcoded 0x10)
+D/wpa_supplicant(  722): WPS:  * Wi-Fi Protected Setup State (2)
+D/wpa_supplicant(  722): WPS:  * Response Type (3)
+D/wpa_supplicant(  722): WPS:  * UUID-E
+D/wpa_supplicant(  722): WPS:  * Manufacturer
+D/wpa_supplicant(  722): WPS:  * Model Name
+D/wpa_supplicant(  722): WPS:  * Model Number
+D/wpa_supplicant(  722): WPS:  * Serial Number
+D/wpa_supplicant(  722): WPS:  * Primary Device Type
+D/wpa_supplicant(  722): WPS:  * Device Name
+D/wpa_supplicant(  722): WPS:  * Config Methods (4108)
+D/wpa_supplicant(  722): WPS:  * Version2 (0x20)
+D/wpa_supplicant(  722): WPS: Building WPS IE for (Re)Association Response
+D/wpa_supplicant(  722): WPS:  * Version (hardcoded 0x10)
+D/wpa_supplicant(  722): WPS:  * Response Type (3)
+D/wpa_supplicant(  722): WPS:  * Version2 (0x20)
+D/wpa_supplicant(  722): P2P: * P2P IE header
+D/wpa_supplicant(  722): Get randomness: len=32 entropy=857
+D/wpa_supplicant(  722): random from os_get_random - hexdump(len=32): [REMOVED]
+D/wpa_supplicant(  722): random_mix_pool - hexdump(len=20): [REMOVED]
+D/wpa_supplicant(  722): random from internal pool - hexdump(len=16): [REMOVED]
+D/wpa_supplicant(  722): random_mix_pool - hexdump(len=20): [REMOVED]
+D/wpa_supplicant(  722): random from internal pool - hexdump(len=16): [REMOVED]
+D/wpa_supplicant(  722): mixed random - hexdump(len=32): [REMOVED]
+D/wpa_supplicant(  722): GMK - hexdump(len=32): [REMOVED]
+D/wpa_supplicant(  722): Get randomness: len=32 entropy=825
+D/wpa_supplicant(  722): random from os_get_random - hexdump(len=32): [REMOVED]
+D/wpa_supplicant(  722): random_mix_pool - hexdump(len=20): [REMOVED]
+D/wpa_supplicant(  722): random from internal pool - hexdump(len=16): [REMOVED]
+D/wpa_supplicant(  722): random_mix_pool - hexdump(len=20): [REMOVED]
+D/wpa_supplicant(  722): random from internal pool - hexdump(len=16): [REMOVED]
+D/wpa_supplicant(  722): mixed random - hexdump(len=32): [REMOVED]
+D/wpa_supplicant(  722): Key Counter - hexdump(len=32): [REMOVED]
+D/wpa_supplicant(  722): WPA: Delay group state machine start until Beacon frames have been configured
+D/wpa_supplicant(  722): WPS: Building WPS IE for (Re)Association Response
+D/wpa_supplicant(  722): WPS:  * Version (hardcoded 0x10)
+D/wpa_supplicant(  722): WPS:  * Response Type (3)
+D/wpa_supplicant(  722): WPS:  * Version2 (0x20)
+D/wpa_supplicant(  722): P2P: * P2P IE header
+D/wpa_supplicant(  722): nl80211: Set beacon (beacon_set=0)
+D/wpa_supplicant(  722): nl80211: Beacon head - hexdump(len=73): 80 00 00 00 ff ff ff ff ff ff 06 22 13 03 21 3c 06 22 13 03 21 3c 00 00 00 00 00 00 00 00 00 00 ...
+D/wpa_supplicant(  722): nl80211: Beacon tail - hexdump(len=198): 2a 01 04 30 14 01 00 00 0f ac 04 01 00 00 0f ac 04 01 00 00 0f ac 02 0c 00 2d 1a 6c 00 1f ff ff ...
+D/wpa_supplicant(  722): nl80211: ifindex=11
+D/wpa_supplicant(  722): nl80211: beacon_int=100
+D/wpa_supplicant(  722): nl80211: dtim_period=2
+D/wpa_supplicant(  722): nl80211: ssid - hexdump(len=22): 44 49 52 45 43 54 2d 39 4e 2d 41 6e 64 72 6f 69 64 5f 36 39 62 34
+D/wpa_supplicant(  722): nl80211: hidden SSID not in use
+D/wpa_supplicant(  722): nl80211: privacy=1
+D/wpa_supplicant(  722): nl80211: auth_algs=0x1
+D/wpa_supplicant(  722): nl80211: wpa_version=0x2
+D/wpa_supplicant(  722): nl80211: key_mgmt_suites=0x2
+D/wpa_supplicant(  722): nl80211: pairwise_ciphers=0x10
+D/wpa_supplicant(  722): nl80211: group_cipher=0x10
+D/wpa_supplicant(  722): nl80211: beacon_ies - hexdump(len=95): 7f 04 00 00 00 02 dd 34 00 50 f2 04 10 4a 00 01 10 10 44 00 01 02 10 49 00 06 00 37 2a 00 01 20 ...
+D/wpa_supplicant(  722): nl80211: proberesp_ies - hexdump(len=206): 7f 04 00 00 00 02 dd 88 00 50 f2 04 10 4a 00 01 10 10 44 00 01 02 10 3b 00 01 03 10 47 00 10 f4 ...
+D/wpa_supplicant(  722): nl80211: assocresp_ies - hexdump(len=53): 7f 04 00 00 00 02 dd 18 00 50 f2 04 10 4a 00 01 10 10 3b 00 01 03 10 49 00 06 00 37 2a 00 01 20 ...
+D/wpa_supplicant(  722): nl80211: ap_max_inactivity=300
+D/wpa_supplicant(  722): WPA: Start group state machine to set initial keys
+D/wpa_supplicant(  722): WPA: group state machine entering state GTK_INIT (VLAN-ID 0)
+D/wpa_supplicant(  722): Get randomness: len=16 entropy=793
+D/wpa_supplicant(  722): random from os_get_random - hexdump(len=16): [REMOVED]
+D/wpa_supplicant(  722): random_mix_pool - hexdump(len=20): [REMOVED]
+D/wpa_supplicant(  722): random from internal pool - hexdump(len=16): [REMOVED]
+D/wpa_supplicant(  722): mixed random - hexdump(len=16): [REMOVED]
+D/wpa_supplicant(  722): GTK - hexdump(len=16): [REMOVED]
+D/wpa_supplicant(  722): WPA: group state machine entering state SETKEYSDONE (VLAN-ID 0)
+D/wpa_supplicant(  722): wpa_driver_nl80211_set_key: ifindex=11 (p2p-p2p0-1) alg=3 addr=0x55818a3338 key_idx=1 set_tx=1 seq_len=0 key_len=16
+D/wpa_supplicant(  722): nl80211: KEY_DATA - hexdump(len=16): [REMOVED]
+D/wpa_supplicant(  722):    broadcast key
+D/wpa_supplicant(  722): nl80211: Set p2p-p2p0-1 operstate 0-&gt;1 (UP)
+D/wpa_supplicant(  722): netlink: Operstate: ifindex=11 linkmode=-1 (no change), operstate=6 (IF_OPER_UP)
+D/wpa_supplicant(  722): Failed to set TX queue parameters for queue 0.
+D/wpa_supplicant(  722): Failed to set TX queue parameters for queue 1.
+D/wpa_supplicant(  722): Failed to set TX queue parameters for queue 2.
+D/wpa_supplicant(  722): Failed to set TX queue parameters for queue 3.
+I/wpa_supplicant(  722): p2p-p2p0-1: interface state UNINITIALIZED-&gt;ENABLED
+I/wpa_supplicant(  722): p2p-p2p0-1: AP-ENABLED 
+D/wpa_supplicant(  722): CTRL_IFACE monitor sent successfully to /data/misc/wifi/sockets/wpa_ctrl_501-2\x00
+D/wpa_supplicant(  722): p2p-p2p0-1: State: SCANNING -&gt; COMPLETED
+I/wpa_supplicant(  722): p2p-p2p0-1: CTRL-EVENT-CONNECTED - Connection to 06:22:13:03:21:3c completed [id=0 id_str=]
+D/wpa_supplicant(  722): CTRL_IFACE monitor sent successfully to /data/misc/wifi/sockets/wpa_ctrl_501-2\x00
+D/wpa_supplicant(  722): nl80211: Set p2p-p2p0-1 operstate 1-&gt;1 (UP)
+D/wpa_supplicant(  722): netlink: Operstate: ifindex=11 linkmode=-1 (no change), operstate=6 (IF_OPER_UP)
+D/wpa_supplicant(  722): CTRL_IFACE monitor sent successfully to /data/misc/wifi/sockets/wpa_ctrl_501-2\x00
+D/wpa_supplicant(  722): P2P: Group setup without provisioning
+D/wpa_supplicant(  722): CTRL_IFACE monitor sent successfully to /data/misc/wifi/sockets/wpa_ctrl_501-2\x00
+I/wpa_supplicant(  722): P2P-GROUP-STARTED p2p-p2p0-1 GO ssid="DIRECT-9N-Android_69b4" freq=2437 passphrase="pBwxz1h5" go_dev_addr=02:22:13:03:21:3c [PERSISTENT]
+D/wpa_supplicant(  722): P2P: Storing credentials for a persistent group (GO Dev Addr 02:22:13:03:21:3c)
+D/wpa_supplicant(  722): P2P: Update existing persistent group entry
+D/wpa_supplicant(  722): p2p-p2p0-1: P2P: Start group formation timeout of 30 seconds until first data connection on GO
+D/wpa_supplicant(  722): p2p-p2p0-1: Setup of interface done.
+D/wpa_supplicant(  722): RTM_NEWLINK: ifi_index=11 ifname=p2p-p2p0-1 operstate=0 linkmode=0 ifi_family=0 ifi_flags=0x11043 ([UP][RUNNING][LOWER_UP])
+D/wpa_supplicant(  722): RTM_NEWLINK: ifi_index=11 ifname=p2p-p2p0-1 operstate=5 linkmode=0 ifi_family=0 ifi_flags=0x11003 ([UP][LOWER_UP])
+</pre>
+</div>
 </li>
 </ol>
 </div>
 </li>
 
-<li><a id="sec-2-1-2-3" name="sec-2-1-2-3"></a>Driver 当GC时的交互过程：<br  /><div class="outline-text-5" id="text-2-1-2-3">
-<pre class="example">
-1. CFG80211_PKT: RX P2P_PROVISION_REQ 11
-2. CFG80211_PKT: TX P2P_PROVISION_RSP 11
-3. CFG80211_PKT: RX GO_NEGOCIACTION_REQ 11
-4. CFG80211_PKT: TX GO_NEGOCIACTION_RSP 11
-   这时，会启动Virutal Inferace： RTMP_CFG80211_VirtualIF_Init
-
-5. CFG80211_OpsRemainOnChannel   listen
-6. CFG80211_PKT: TX GO_NEGOCIACTION_REQ 11
-7. CFG80211_PKT: RX GO_NEGOCIACTION_RSP 11
-8. CFG80211_PKT: TX GO_NEGOCIACTION_CONFIRM 11
-   CFG80211_VirtualIF_Open, 会出现："(ApCliIfUp) ApCli can't startup Due to CFG80211 No connect yet."
-9. CFG80211_OpsConnect
-   80211&gt; Connect bssid 16:f6:5a:ac:92:0e
-   APCLI Connection onGoing.....
-   AP_CLI WPS Connection onGoing.....
-   80211&gt; APCLI CONNECTING SSID = DIRECT-si-
-   Set_ApCli_Enable_Proc::(enable = 1)
-   (ApCliIfDown) ApCli interface[0] startdown.
-   80211&gt; APCLI CONNECTING SSID = DIRECT-si-
-   80211&gt; CFG80211_OpsStaChg ==&gt;
-   80211&gt; Change STA(00:00:00:00:00:00) ==&gt;
-   80211&gt; CFG80211_OpsStaChg ==&gt;
-   80211&gt; Change STA(00:00:00:00:00:00) ==&gt;
-   80211&gt; CFG80211_OpsStaChg ==&gt;
-   80211&gt; Change STA(00:00:00:00:00:00) ==&gt;
-   80211&gt; CFG80211_OpsStaChg ==&gt;
-   80211&gt; Change STA(00:00:00:00:00:00) ==&gt;
-   (ApCliIfUp) ApCli interface[0] startup.
-   (ApCliCtrlJoinReqAction) Start Probe Req.
-   ApCli SYNC - Start Probe the SSID  on channel =1
-   SYNC - receive desired PROBE_RSP at JoinWaitProbeRsp... Channel
-   = 1
-   PeerBeaconAtJoinAction HT===&gt;Central Channel = 1, Control
-   Channel = 1,  .
-   APCLI AUTH - Send AUTH request seq#1 (Alg=0)...
-   APCLI AUTH - Receive AUTH_RSP seq#2 to me (Alg=0, Status=0)
-   APCLI_ASSOC - Send ASSOC request...
-   ApCliPeerAssocRspSanity() found wfd ie in assoc response frame,
-   it's wfd connect.
-   APCLI_ASSOC - receive ASSOC_RSP to me (status=0)
-   ApCliPeerAssocRspAction:: recv peer ASSOC RSP from
-   16:f6:5a:ac:92:0e.    bP2pClient = 1
-   ApCliAssocPostProc===&gt; 11n HT STA
-   !!! APCLI LINK UP - IF(apcli0) AuthMode(0)=OPEN,
-   WepStatus(1)=NONE !!!
-   MacTableInsertEntry - allocate entry #2, Total= 1
-   80211&gt; CFG80211_OpsStaChg ==&gt;
-   80211&gt; Change STA(16:F6:5A:AC:92:0E) ==&gt;
-   =WPS-Start=
-   Receive EAP-Packet frame, TYPE = 0, Length = 5
-   CFG80211 EAPOL Indicate_Legacy_Packet
-   CFG80211_PKT: RX ACTION Frame 1
-   CFG80211_PKT: P2P_CHECK ACTION Frame 1
-   80211&gt; CFG80211_OpsDisconnect ==&gt;
-   80211&gt; ReasonCode = 3
-   AUTH - Send DE-AUTH request (Reason=3)..
-   !!! APCLI LINK DOWN - IF(apcli0)!!!   
-   =WPS-End=
-   ++++++++ ApCliLinkDown::  Keep BssTable on Channel
-   = 1. ++++++++      BSSID = [16:f6:5a:ac:92:0e].  p2p_bssid =
-   [16:f6:5a:ac:92:0e].
-   80211&gt; CFG80211_LostGoInform ==&gt; 
-   (ApCliIfDown) ApCli interface[0] startdown.
-
-   80211&gt; CFG80211_OpsConnect ==&gt;
-
-   =4-way-handshake=
-   80211&gt; Connect bssid 16:f6:5a:ac:92:0e
-   (ApCliIfUp) ApCli interface[0] startup.
-   (ApCliCtrlJoinReqAction) Start Probe Req.
-   SYNC - receive desired PROBE_RSP at JoinWaitProbeRsp... Channel
-   = 1
-   ApCliPeerProbeRspAtJoinAction::  Swich Channel = 1. and STOP
-   Scanning!!
-   APCLI AUTH - Send AUTH request seq#1 (Alg=0)...
-   APCLI AUTH - Receive AUTH_RSP seq#2 to me (Alg=0, Status=0)
-   APCLI_ASSOC - Send ASSOC request...
-   ApCliMlmeAssocReqAction:: APCLI WPA_ASSOC_IE FROM SUPPLICANT
-   (ApCliCtrlAssocReqTimeoutAction) Assoc Req Timeout.
-
-   (ApCliIfUp) ApCli interface[0] startup.
-
-   (ApCliCtrlJoinReqAction) Start Probe Req.
-   SYNC - receive desired PROBE_RSP at JoinWaitProbeRsp... Channel
-   = 1
-   ApCliPeerProbeRspAtJoinAction::  Swich Channel = 1. and STOP
-   Scanning!!
-   APCLI AUTH - Send AUTH request seq#1 (Alg=0)...
-   Deauth: 7e:b2:32:e7:7c:25, 16:f6:5a:ac:92:0e
-   APCLI AUTH_RSP - receive DE-AUTH from our AP
-   APCLI AUTH - AuthTimeout
-   (ApCliIfUp) ApCli interface[0] startup.
-   (ApCliCtrlJoinReqAction) Start Probe Req.
-   SYNC - receive desired PROBE_RSP at JoinWaitProbeRsp... Channel
-   = 1
-   ApCliPeerProbeRspAtJoinAction::  Swich Channel = 1. and STOP
-   Scanning!!
-
-   APCLI AUTH - Send AUTH request seq#1 (Alg=0)...
-   APCLI AUTH - Receive AUTH_RSP seq#2 to me (Alg=0, Status=0)
-   (ApCliCtrlAuthRspAction) Auth Rsp Success.
-   APCLI_ASSOC - Send ASSOC request...
-   APCLI_ASSOC - receive ASSOC_RSP to me (status=0)
-   ApCliPeerAssocRspAction:: recv peer ASSOC RSP from
-   16:f6:5a:ac:92:0e.    bP2pClient = 1
-
-   !!! APCLI LINK UP - IF(apcli0) AuthMode(7)=WPA2PSK,
-   WepStatus(6)=AES !!!
-
-   MacTableInsertEntry - allocate entry #2, Total= 1
-
-   Receive EAPOL-Key frame, TYPE = 3, Length = 95
-   CFG80211 EAPOL Indicate_Legacy_Packet
-   80211&gt; CFG80211_OpsKeyAdd ==&gt;
-   AsicAddSharedKeyEntry BssIndex=8, KeyIdx=1
-
-   !!!P2P Group STARTED
-
-   DHCP
-   DHCP_DISCOVER
-   DHCP_OFFER
-   DHCP_REQUEST
-   DHCP_ACK
-</pre>
-</div>
-</li>
-
-<li><a id="sec-2-1-2-4" name="sec-2-1-2-4"></a>Driver当GO时的交互过程：<br  /><div class="outline-text-5" id="text-2-1-2-4">
-<pre class="example">
-1. P2P Listen  
-   CFG80211_PKT: ROC CHANNEL_LOCK 11
-   CFG80211_PKT: TX ProbeRsp Frame 11
-   CFG80211_PKT: TX ProbeRsp Frame 11
-
-2. Receive P2P Invite
-   CFG80211_PKT: RX P2P_INVITE_REQ 11
-   CFG80211_PKT: TX P2P_INVITE_RSP 11
-
-3. CFG80211_PKT: RX GO_NEGOCIACTION_REQ 11
-
-4. CFG80211_PKT: TX GO_NEGOCIACTION_REQ 1
-
-5. CFG80211_PKT: RX GO_NEGOCIACTION_RSP 1
-
-6. CFG80211_PKT: TX GO_NEGOCIACTION_CONFIRM 1
-
-7. GroupNegotiatioCFG80211_VirtualIF_Open: ===&gt; 8,p2p-p2p0-2
-   rocessMessage   (ApCliIfUp) ApCli can't startup Due to
-   CFG80211 No connect yet.
-   ==&gt; RTMP_CFG80211_VirtualIF_CancelP2pClient.
-   ==&gt; RTMP_CFG80211_VirtualIF_CancelP2pClient HIT.
-   80211&gt; Change to IFTYPE_AP 3!
-   80211&gt; Change the Interface to AP Mode
-   80211&gt; CFG80211_OpsStaDel ==&gt;
-   Deauthenticate all stations!
-
-8. 80211&gt; Set the channel in AP Mode
-   80211&gt; CFG80211DRV_OpsBeaconSet ==&gt; 1
-   New AP BSSID 7e:b2:32:e7:7c:25
-   CFG80211_PKT: TX ProbeRsp Frame 11
-   AUTH - MBSS(0), Rcv AUTH seq#1, Alg=0, Status=0 from
-   [wcid=255]86:38:38:b0:7f:ee
-   AUTH_RSP - Send AUTH response (SUCCESS)...
-   ASSOC - MBSS(0), receive ASSOC request from
-   86:38:38:b0:7f:ee
-   SSOC - Send ASSOC response (Status=0)...
-   =WPS=
-   ####### Send L2 Frame Mac=86:38:38:b0:7f:ee
-   CFG80211_PKT: RX ACTION Frame 11
-   CFG80211 EAPOL Indicate_Legacy_Packet
-
-9. P2P_GROUP_STARTED_STR
-   ASSOC - receive DIS-ASSOC(seq-1765) request from
-   86:38:38:b0:7f:ee, reason=8
-
-   AUTH_RSP - Send AUTH response (SUCCESS)...
-   ASSOC - Send ASSOC response (Status=0)...
-   =4-way handshake=
-   ####### Send L2 Frame Mac=86:38:38:b0:7f:ee
-</pre>
-</div>
-</li>
-
-<li><a id="sec-2-1-2-5" name="sec-2-1-2-5"></a>Action帧的接收<br  /><div class="outline-text-5" id="text-2-1-2-5">
+<li><a id="sec-2-1-3-3" name="sec-2-1-3-3"></a>Action帧的接收<br  /><div class="outline-text-5" id="text-2-1-3-3">
 
 <div class="figure">
 <p><img src="/images/2016/2016012901.png" alt="2016012901.png" />
@@ -1927,7 +2658,7 @@ Action帧，即 <code>P2P: Received Invitation Request from
 </div>
 </li>
 
-<li><a id="sec-2-1-2-6" name="sec-2-1-2-6"></a>Action帧的发送<br  /><div class="outline-text-5" id="text-2-1-2-6">
+<li><a id="sec-2-1-3-4" name="sec-2-1-3-4"></a>Action帧的发送<br  /><div class="outline-text-5" id="text-2-1-3-4">
 <p>
 Action帧发送后，Driver会反馈发送的状态，即发送成功与否。
 </p>
@@ -1935,6 +2666,7 @@ Action帧发送后，Driver会反馈发送的状态，即发送成功与否。
 <p>
 通过 <code>struct p2p_cfg</code> 的回调接口： <code>send_action</code> ， 实际注册的
 函数为： <code>wpas_send_action</code> , 该函数会调用
+<code>wpas_send_action_work</code> 或
 <code>offchannel_send_action</code> ，并注册了回调函数 :
 <code>wpas_p2p_send_action_tx_status</code> ， 通过该接口，将发送Action帧
 的结果反馈上来。底层是通过  <code>EVENT_TX_STATUS</code> 消息来通知的，通
@@ -1949,7 +2681,7 @@ Action帧发送后，Driver会反馈发送的状态，即发送成功与否。
 </div>
 </li>
 
-<li><a id="sec-2-1-2-7" name="sec-2-1-2-7"></a>p2p协商时信道的选择<br  /><div class="outline-text-5" id="text-2-1-2-7">
+<li><a id="sec-2-1-3-5" name="sec-2-1-3-5"></a>p2p协商时信道的选择<br  /><div class="outline-text-5" id="text-2-1-3-5">
 <ol class="org-ol">
 <li>在获取peer信息前，选择oper Channel
 <pre class="example">
@@ -1963,12 +2695,25 @@ p2p_reselect_channel
 </li>
 </ol>
 </div>
+</li>
+
+<li><a id="sec-2-1-3-6" name="sec-2-1-3-6"></a>处理Probe Request<br  /><div class="outline-text-5" id="text-2-1-3-6">
+<p>
+在p2p过程中，Probe Request是在上层处理的，处理函数有：
+</p>
+<pre class="example">
+wpas_p2p_probe_req_rx
+</pre>
+<p>
+当p2p停止listen的时候，进入p2p find阶段会临时禁用probe
+request reporting.
+</p>
+</div>
 </li></ul>
 </div>
-
-<div id="outline-container-sec-2-1-3" class="outline-4">
-<h4 id="sec-2-1-3">p2p管理</h4>
-<div class="outline-text-4" id="text-2-1-3">
+<div id="outline-container-sec-2-1-4" class="outline-4">
+<h4 id="sec-2-1-4">p2p管理</h4>
+<div class="outline-text-4" id="text-2-1-4">
 <p>
 当 <code>wpa_s-&gt;drv_flags</code> &amp; <code>WPA_DRIVER_FLAGS_P2P_MGMT</code> 为真时，代表相关的P2P
 管理操作会由Driver去实现。上层对P2P的一些操作，最终会透过netlink发
@@ -1987,9 +2732,9 @@ p2p_reselect_channel
 </div>
 </div>
 
-<div id="outline-container-sec-2-1-4" class="outline-4">
-<h4 id="sec-2-1-4">Go创建</h4>
-<div class="outline-text-4" id="text-2-1-4">
+<div id="outline-container-sec-2-1-5" class="outline-4">
+<h4 id="sec-2-1-5">Go创建</h4>
+<div class="outline-text-4" id="text-2-1-5">
 <p>
 入口函数： <code>wpa_driver_nl80211_set_ap</code> 
 Ignore deauth event in AP mode
@@ -2003,9 +2748,9 @@ Ignore deauth event in AP mode
 </ul>
 </div>
 </div>
-<div id="outline-container-sec-2-1-5" class="outline-4">
-<h4 id="sec-2-1-5">socket control interface</h4>
-<div class="outline-text-4" id="text-2-1-5">
+<div id="outline-container-sec-2-1-6" class="outline-4">
+<h4 id="sec-2-1-6">socket control interface</h4>
+<div class="outline-text-4" id="text-2-1-6">
 <ul class="org-ul">
 <li><code>p2p_find</code>  
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
@@ -2161,6 +2906,10 @@ P2P状态机置为： <code>P2P_SEARCH_WHEN_READY</code> , 表示有个未决的
 </tbody>
 </table>
 
+<pre class="example">
+P2P_CONNECT 56:8c:a0:91:0f:23 pbc persistent join
+</pre>
+
 <p>
 这个命令直接会入口函数是 <code>p2p_ctrl_connect</code> ， 在解析
 <code>p2p_connect</code> 命令的参数后， 会进入  <code>wpas_p2p_connect</code> ，里面会
@@ -2182,6 +2931,15 @@ Roaming过程：
 wpas_wps_temp_disable(wpa_s, selected);
 wpa_s-&gt;reassociate = 1;
 </pre>
+
+<p>
+当一个设备(GC))发出 p2p connect连接请求后， 另一个设备(GO)会弹出一个对话
+框出来，在没有接受之前， GC不能与GO进行关联， <code>wpa_supplicant</code>
+会出现“  skip - WPS AP without active PBC Registrar”这个日志，
+即GO作为WPS Registar的角色还未被激活，当用户接受后，则会激活WPS
+Registar的角色， 最终是通过 <code>wps_registrar_button_pushed</code> 来激活
+的。
+</p>
 </li>
 
 <li><code>p2p_listen</code>
@@ -2289,8 +3047,10 @@ WFD Source设备， 大致流程如下：
 </table>
 </li>
 <li><code>p2p_prov_disc</code>
+<pre class="example">
+P2P_PROV_DISC 12:bf:48:cd:ab:7d pbc
+</pre>
 </li>
-
 <li><code>p2p_get_passphrase</code>
 </li>
 <li><code>p2p_serv_disc_req</code>
@@ -2449,9 +3209,9 @@ D/wpa_supplicant( 7409 7409): P2P: Remove group interface p2p-p2p0-0
 </ul>
 </div>
 </div>
-<div id="outline-container-sec-2-1-6" class="outline-4">
-<h4 id="sec-2-1-6">nl80211 (p2p)</h4>
-<div class="outline-text-4" id="text-2-1-6">
+<div id="outline-container-sec-2-1-7" class="outline-4">
+<h4 id="sec-2-1-7">nl80211 (p2p)</h4>
+<div class="outline-text-4" id="text-2-1-7">
 <ul class="org-ul">
 <li><code>NL80211_CMD_REMAIN_ON_CHANNEL</code>
 </li>
@@ -2481,11 +3241,34 @@ TX for group negotiation or invitation
 </ul>
 </div>
 </div>
+<div id="outline-container-sec-2-1-8" class="outline-4">
+<h4 id="sec-2-1-8">p2p VHT速率</h4>
+<div class="outline-text-4" id="text-2-1-8">
+<p>
+p2p过程中使用VHT：
+</p>
+<ol class="org-ol">
+<li>双方设备物理网卡要支持VHT
+</li>
+<li>p2p GO在启动时，需要配置VHT Enabled, 配置时是通过
+wpa<sub>supplicant从上层下参数到driver的。</sub>(p2p<sub>go</sub><sub>vht</sub>=1,可以在配置文件中明确指定)
+</li>
+<li>p2p GC在与GO连接时，需要带vht参数，即显示表明希望GO和GC关联成功后，
+以VHT的速率进行数据传输（p2p<sub>group</sub><sub>add</sub>, p2p<sub>connect</sub>, p2p<sub>invite三个</sub>
+接口都可以带下来)。
+</li>
+</ol>
 
-<div id="outline-container-sec-2-1-7" class="outline-4">
-<h4 id="sec-2-1-7">问题调试</h4>
-<div class="outline-text-4" id="text-2-1-7">
-</div><ul class="org-ul"><li><a id="sec-2-1-7-1" name="sec-2-1-7-1"></a>P2p Standard Group Formation<br  /><div class="outline-text-5" id="text-2-1-7-1">
+<p>
+函数 <code>nl80211_set_channel</code> 会设置Channel相关信息：HT, Channel Width
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-1-9" class="outline-4">
+<h4 id="sec-2-1-9">问题调试</h4>
+<div class="outline-text-4" id="text-2-1-9">
+</div><ul class="org-ul"><li><a id="sec-2-1-9-1" name="sec-2-1-9-1"></a>P2p Standard Group Formation<br  /><div class="outline-text-5" id="text-2-1-9-1">
 <ul class="org-ul">
 <li>Could not find peer or be found by peer
 <ul class="org-ul">
@@ -2534,7 +3317,7 @@ when acts as GO(sniffer if possible)
 </div>
 </li>
 
-<li><a id="sec-2-1-7-2" name="sec-2-1-7-2"></a>P2P persistent Group Formation<br  /><div class="outline-text-5" id="text-2-1-7-2">
+<li><a id="sec-2-1-9-2" name="sec-2-1-9-2"></a>P2P persistent Group Formation<br  /><div class="outline-text-5" id="text-2-1-9-2">
 <ul class="org-ul">
 <li>Invitation request/response handshake work ok(need sniffer)
 </li>
@@ -2544,10 +3327,36 @@ when acts as GO(sniffer if possible)
 </li>
 </ul>
 </div>
+</li>
+
+<li><a id="sec-2-1-9-3" name="sec-2-1-9-3"></a>P2P Negotiation Failed, status = -1<br  /><div class="outline-text-5" id="text-2-1-9-3">
+<p>
+在进行p2p连接测试时，出现协商失败，状态码为-1
+对应信息为："FAILED; Information is currently unavailable"
+</p>
+
+<p>
+表明对方还会准备好GO协商。
+</p>
+
+<p>
+This code 1 is expected behavior when you have not accepted
+the connection on the recipient. 
+</p>
+
+<p>
+在Android设备，一般会弹出对话框，需要点击确认。
+</p>
+
+<p>
+当状态码-1时，此时先主动发起协商的设备要等待对方发起协商请
+求，当然如果在一定时间内未收到对方的协商请求，则本次协商过程将会
+判定为失败。          
+</p>
+</div>
 </li></ul>
 </div>
 </div>
-
 <div id="outline-container-sec-2-2" class="outline-3">
 <h3 id="sec-2-2">bgscan (roaming) IAPP(Inter Access Point Protocol)</h3>
 <div class="outline-text-3" id="text-2-2">
@@ -2633,10 +3442,22 @@ I/wpa_supplicant(  716): wlan0: EPBUG: Going to authenticate
 <h3 id="sec-2-3">WPS</h3>
 <div class="outline-text-3" id="text-2-3">
 <p>
-在P2P GO与GC关联后，会进行WPS交互过程。交互时的一些信息会透过
+在P2P GO与GC第一次关联后，会进行WPS交互过程，成功后，会打印
+"WPS-REG-SUCCESS", 之后才会有"P2P-GROUP-FORMATION-SUCCESS",
+"P2P-GROUP-STARTED"消息，产生的passphrase或psk作为后面的4步握手过程密
+钥产生时所需要的PMK. 交互时的一些信息会透过
 Association Request携带的IE信息来提供，如果底层驱动上报的
 Association Request中相关的IE信息为空，则WPS过程将会终止。
 在GO协议完成后，会开始WPS协商的过程。
+</p>
+
+<p>
+WPS过程结束后，会调用 <code>wpa_supplicant_eapol_cb</code> 。
+</p>
+
+<p>
+配置项 <code>wps_strict_check</code> 选项开启后，会严格按照WPS规范检查WPS数据
+格式。
 </p>
 
 
@@ -2723,7 +3544,12 @@ WPS超时时间为120秒。
        设置回调接口： <code>p2p_go_configured</code>
 </li>
 <li><code>wpa_supplicant_req_scan</code>
-       发起一次扫描。
+       该函数并不是要进行一次扫描，而是通过如下调用流程启动AP/GO
+
+<div class="figure">
+<p><img src="/images/2016/2016090210.png" alt="2016090210.png" />
+</p>
+</div>
 </li>
 </ol>
 </div>
@@ -2745,6 +3571,12 @@ separate authentication and association commands.
 #define WPA_DRIVER_FLAGS_SME            0x00000020
 </pre>
 </div>
+
+<p>
+一旦 <code>WPA_DRIVER_FLAGS_SME</code> 这个能力项打开（前提是驱动要分别注册
+cfg80211<sub>ops</sub> 的auth/assoc回调函数 ）， 则auth/assoc组包发送的逻辑会移到wpa<sub>supplicant这</sub>
+一层来做 。
+</p>
 </div>
 </div>
 
@@ -2755,6 +3587,16 @@ separate authentication and association commands.
 hostapd是一个用户空间程序，实现了AP和认证服务器的功能。通过配置文件
 hostapd.conf 来修改一些Wifi参数。
 </p>
+</div>
+
+<div id="outline-container-sec-2-5-1" class="outline-4">
+<h4 id="sec-2-5-1">软件构架图</h4>
+<div class="outline-text-4" id="text-2-5-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016090206.png" alt="2016090206.png" />
+</p>
+</div>
 
 <div class="org-src-container">
 <label class="org-src-name">hostapd配置文件示例</label>
@@ -2764,21 +3606,869 @@ ssid=woody_hostap
 hw_mode=g 
 channel=6 
 ieee80211n=1
-auth_algs=0
-wpa=1 
+auth_algs=3
+wpa=0
 wpa_passphrase=12345678
 wpa_key_mgmt=WPA-PSK 
-wpa_pairwise=TKIP
+wpa_pairwise=TKIP CCMP
 wpa_ptk_rekey=600
+
+
+##### hostapd configuration file ##############################################
+# Empty lines and lines starting with # are ignored
+
+# AP netdevice name (without 'ap' postfix, i.e., wlan0 uses wlan0ap for
+# management frames); ath0 for madwifi
+interface=wlan0
+
+# In case of madwifi and nl80211 driver interfaces, an additional configuration
+# parameter, bridge, must be used to notify hostapd if the interface is
+# included in a bridge. This parameter is not used with Host AP driver.
+#bridge=br0
+
+# Driver interface type (hostap/wired/madwifi/prism54/test/nl80211/bsd);
+# default: hostap)
+# Use driver=test if building hostapd as a standalone RADIUS server that does
+# not control any wireless/wired driver.
+driver=nl80211
+
+# hostapd event logger configuration
+#
+# Two output method: syslog and stdout (only usable if not forking to
+# background).
+#
+# Module bitfield (ORed bitfield of modules that will be logged; -1 = all
+# modules):
+# bit 0 (1) = IEEE 802.11
+# bit 1 (2) = IEEE 802.1X
+# bit 2 (4) = RADIUS
+# bit 3 (8) = WPA
+# bit 4 (16) = driver interface
+# bit 5 (32) = IAPP
+# bit 6 (64) = MLME
+#
+# Levels (minimum value for logged events):
+#  0 = verbose debugging
+#  1 = debugging
+#  2 = informational messages
+#  3 = notification
+#  4 = warning
+#
+logger_syslog=-1
+logger_syslog_level=2
+logger_stdout=-1
+logger_stdout_level=2
+
+# Dump file for state information (on SIGUSR1)
+dump_file=/tmp/hostapd.dump
+
+# Interface for separate control program. If this is specified, hostapd
+# will create this directory and a UNIX domain socket for listening to requests
+# from external programs (CLI/GUI, etc.) for status information and
+# configuration. The socket file will be named based on the interface name, so
+# multiple hostapd processes/interfaces can be run at the same time if more
+# than one interface is used.
+# /var/run/hostapd is the recommended directory for sockets and by default,
+# hostapd_cli will use it when trying to connect with hostapd.
+ctrl_interface=/var/run/hostapd
+
+# Access control for the control interface can be configured by setting the
+# directory to allow only members of a group to use sockets. This way, it is
+# possible to run hostapd as root (since it needs to change network
+# configuration and open raw sockets) and still allow GUI/CLI components to be
+# run as non-root users. However, since the control interface can be used to
+# change the network configuration, this access needs to be protected in many
+# cases. By default, hostapd is configured to use gid 0 (root). If you
+# want to allow non-root users to use the contron interface, add a new group
+# and change this value to match with that group. Add users that should have
+# control interface access to this group.
+#
+# This variable can be a group name or gid.
+#ctrl_interface_group=wheel
+ctrl_interface_group=0
+
+
+##### IEEE 802.11 related configuration #######################################
+
+# SSID to be used in IEEE 802.11 management frames
+ssid=test
+
+# Country code (ISO/IEC 3166-1).  Used to set regulatory domain.
+# Modify as needed to indicate country in which device is operating.
+# This can limit available channels and transmit power.
+# (default: US)
+#country_code=US
+
+# Enable IEEE 802.11d. This advertises the country_code and the set of allowed
+# channels and transmit power levels based on the regulatory limits. The
+# country_code setting must be configured with the correct country for
+# IEEE 802.11d functions.
+# (default: 0 = disabled)
+#ieee80211d=1
+
+# Enable IEEE 802.11h. This enables the TPC and DFS services when operating
+# in a regulatory domain which requires them.  Once enabled it will be 
+# operational only when working in hw_mode a and in countries where it is
+# required. The end user should not be allowed to disable this.
+# The country_code setting must be configured with the correct country for
+# IEEE 802.11h to function. 
+# When IEEE 802.11h is operational, the channel_policy and configured channel 
+# settings will be ignored but will behave as though the channel_policy is
+# set to "3" (automatic channel selection). When IEEE 802.11h is enabled but
+# not operational (for example, if the radio mode is changed from "a" to "b")
+# the channel_policy and channel settings take effect again. 
+# (default: 1 = enabled)
+#ieee80211h=1
+
+# Operation mode (a = IEEE 802.11a, b = IEEE 802.11b, g = IEEE 802.11g,
+# Default: IEEE 802.11b
+hw_mode=g
+
+# Channel number (IEEE 802.11)
+# (default: 0, i.e., not set, used with channel_policy=2)
+channel=1
+
+# Beacon interval in kus (1.024 ms) (default: 100; range 15..65535)
+beacon_int=100
+
+# DTIM (delivery trafic information message) period (range 1..255):
+# number of beacons between DTIMs (1 = every beacon includes DTIM element)
+# (default: 2)
+dtim_period=2
+
+# Maximum number of stations allowed in station table. New stations will be
+# rejected after the station table is full. IEEE 802.11 has a limit of 2007
+# different association IDs, so this number should not be larger than that.
+# (default: 2007)
+max_num_sta=255
+
+# RTS/CTS threshold; 2347 = disabled (default); range 0..2347
+# If this field is not included in hostapd.conf, hostapd will not control
+# RTS threshold and 'iwconfig wlan# rts &lt;val&gt;' can be used to set it.
+rts_threshold=2347
+
+# Fragmentation threshold; 2346 = disabled (default); range 256..2346
+# If this field is not included in hostapd.conf, hostapd will not control
+# fragmentation threshold and 'iwconfig wlan# frag &lt;val&gt;' can be used to set
+# it.
+fragm_threshold=2346
+
+# Rate configuration
+# Default is to enable all rates supported by the hardware. This configuration
+# item allows this list be filtered so that only the listed rates will be left
+# in the list. If the list is empty, all rates are used. This list can have
+# entries that are not in the list of rates the hardware supports (such entries
+# are ignored). The entries in this list are in 100 kbps, i.e., 11 Mbps = 110.
+# If this item is present, at least one rate have to be matching with the rates
+# hardware supports.
+# default: use the most common supported rate setting for the selected
+# hw_mode (i.e., this line can be removed from configuration file in most
+# cases)
+#supported_rates=10 20 55 110 60 90 120 180 240 360 480 540
+
+# Basic rate set configuration
+# List of rates (in 100 kbps) that are included in the basic rate set.
+# If this item is not included, usually reasonable default set is used.
+#basic_rates=10 20
+#basic_rates=10 20 55 110
+#basic_rates=60 120 240
+
+# Station MAC address -based authentication
+# Please note that this kind of access control requires a driver that uses
+# hostapd to take care of management frame processing and as such, this can be
+# used with driver=hostap or driver=nl80211, but not with driver=madwifi.
+# 0 = accept unless in deny list
+# 1 = deny unless in accept list
+# 2 = use external RADIUS server (accept/deny lists are searched first)
+macaddr_acl=0
+
+# Accept/deny lists are read from separate files (containing list of
+# MAC addresses, one per line). Use absolute path name to make sure that the
+# files can be read on SIGHUP configuration reloads.
+#accept_mac_file=/etc/hostapd.accept
+#deny_mac_file=/etc/hostapd.deny
+
+# IEEE 802.11 specifies two authentication algorithms. hostapd can be
+# configured to allow both of these or only one. Open system authentication
+# should be used with IEEE 802.1X.
+# Bit fields of allowed authentication algorithms:
+# bit 0 = Open System Authentication
+# bit 1 = Shared Key Authentication (requires WEP)
+auth_algs=3
+
+# Send empty SSID in beacons and ignore probe request frames that do not
+# specify full SSID, i.e., require stations to know SSID.
+# default: disabled (0)
+# 1 = send empty (length=0) SSID in beacon and ignore probe request for
+#     broadcast SSID
+# 2 = clear SSID (ASCII 0), but keep the original length (this may be required
+#     with some clients that do not support empty SSID) and ignore probe
+#     requests for broadcast SSID
+ignore_broadcast_ssid=0
+
+# TX queue parameters (EDCF / bursting)
+# default for all these fields: not set, use hardware defaults
+# tx_queue_&lt;queue name&gt;_&lt;param&gt;
+# queues: data0, data1, data2, data3, after_beacon, beacon
+#               (data0 is the highest priority queue)
+# parameters:
+#   aifs: AIFS (default 2)
+#   cwmin: cwMin (1, 3, 7, 15, 31, 63, 127, 255, 511, 1023)
+#   cwmax: cwMax (1, 3, 7, 15, 31, 63, 127, 255, 511, 1023); cwMax &gt;= cwMin
+#   burst: maximum length (in milliseconds with precision of up to 0.1 ms) for
+#          bursting
+#
+# Default WMM parameters (IEEE 802.11 draft; 11-03-0504-03-000e):
+# These parameters are used by the access point when transmitting frames
+# to the clients.
+#
+# Low priority / AC_BK = background
+#tx_queue_data3_aifs=7
+#tx_queue_data3_cwmin=15
+#tx_queue_data3_cwmax=1023
+#tx_queue_data3_burst=0
+# Note: for IEEE 802.11b mode: cWmin=31 cWmax=1023 burst=0
+#
+# Normal priority / AC_BE = best effort
+#tx_queue_data2_aifs=3
+#tx_queue_data2_cwmin=15
+#tx_queue_data2_cwmax=63
+#tx_queue_data2_burst=0
+# Note: for IEEE 802.11b mode: cWmin=31 cWmax=127 burst=0
+#
+# High priority / AC_VI = video
+#tx_queue_data1_aifs=1
+#tx_queue_data1_cwmin=7
+#tx_queue_data1_cwmax=15
+#tx_queue_data1_burst=3.0
+# Note: for IEEE 802.11b mode: cWmin=15 cWmax=31 burst=6.0
+#
+# Highest priority / AC_VO = voice
+#tx_queue_data0_aifs=1
+#tx_queue_data0_cwmin=3
+#tx_queue_data0_cwmax=7
+#tx_queue_data0_burst=1.5
+# Note: for IEEE 802.11b mode: cWmin=7 cWmax=15 burst=3.3
+#
+# Special queues; normally not user configurable
+#
+#tx_queue_after_beacon_aifs=2
+#tx_queue_after_beacon_cwmin=15
+#tx_queue_after_beacon_cwmax=1023
+#tx_queue_after_beacon_burst=0
+#
+#tx_queue_beacon_aifs=2
+#tx_queue_beacon_cwmin=3
+#tx_queue_beacon_cwmax=7
+#tx_queue_beacon_burst=1.5
+
+# 802.1D Tag to AC mappings
+# WMM specifies following mapping of data frames to different ACs. This mapping
+# can be configured using Linux QoS/tc and sch_pktpri.o module.
+# 802.1D Tag    802.1D Designation      Access Category WMM Designation
+# 1             BK                      AC_BK           Background
+# 2             -                       AC_BK           Background
+# 0             BE                      AC_BE           Best Effort
+# 3             EE                      AC_VI           Video
+# 4             CL                      AC_VI           Video
+# 5             VI                      AC_VI           Video
+# 6             VO                      AC_VO           Voice
+# 7             NC                      AC_VO           Voice
+# Data frames with no priority information: AC_BE
+# Management frames: AC_VO
+# PS-Poll frames: AC_BE
+
+# Default WMM parameters (IEEE 802.11 draft; 11-03-0504-03-000e):
+# for 802.11a or 802.11g networks
+# These parameters are sent to WMM clients when they associate.
+# The parameters will be used by WMM clients for frames transmitted to the
+# access point.
+#
+# note - txop_limit is in units of 32microseconds
+# note - acm is admission control mandatory flag. 0 = admission control not
+# required, 1 = mandatory
+# note - here cwMin and cmMax are in exponent form. the actual cw value used
+# will be (2^n)-1 where n is the value given here
+#
+wme_enabled=1
+#
+# Low priority / AC_BK = background
+wme_ac_bk_cwmin=4
+wme_ac_bk_cwmax=10
+wme_ac_bk_aifs=7
+wme_ac_bk_txop_limit=0
+wme_ac_bk_acm=0
+# Note: for IEEE 802.11b mode: cWmin=5 cWmax=10
+#
+# Normal priority / AC_BE = best effort
+wme_ac_be_aifs=3
+wme_ac_be_cwmin=4
+wme_ac_be_cwmax=10
+wme_ac_be_txop_limit=0
+wme_ac_be_acm=0
+# Note: for IEEE 802.11b mode: cWmin=5 cWmax=7
+#
+# High priority / AC_VI = video
+wme_ac_vi_aifs=2
+wme_ac_vi_cwmin=3
+wme_ac_vi_cwmax=4
+wme_ac_vi_txop_limit=94
+wme_ac_vi_acm=0
+# Note: for IEEE 802.11b mode: cWmin=4 cWmax=5 txop_limit=188
+#
+# Highest priority / AC_VO = voice
+wme_ac_vo_aifs=2
+wme_ac_vo_cwmin=2
+wme_ac_vo_cwmax=3
+wme_ac_vo_txop_limit=47
+wme_ac_vo_acm=0
+# Note: for IEEE 802.11b mode: cWmin=3 cWmax=4 burst=102
+
+# Associate as a station to another AP while still acting as an AP on the same
+# channel.
+#assoc_ap_addr=00:12:34:56:78:9a
+
+# Static WEP key configuration
+#
+# The key number to use when transmitting.
+# It must be between 0 and 3, and the corresponding key must be set.
+# default: not set
+#wep_default_key=0
+# The WEP keys to use.
+# A key may be a quoted string or unquoted hexadecimal digits.
+# The key length should be 5, 13, or 16 characters, or 10, 26, or 32
+# digits, depending on whether 40-bit (64-bit), 104-bit (128-bit), or
+# 128-bit (152-bit) WEP is used.
+# Only the default key must be supplied; the others are optional.
+# default: not set
+#wep_key0=123456789a
+#wep_key1="vwxyz"
+#wep_key2=0102030405060708090a0b0c0d
+#wep_key3=".2.4.6.8.0.23"
+
+# Station inactivity limit
+#
+# If a station does not send anything in ap_max_inactivity seconds, an
+# empty data frame is sent to it in order to verify whether it is
+# still in range. If this frame is not ACKed, the station will be
+# disassociated and then deauthenticated. This feature is used to
+# clear station table of old entries when the STAs move out of the
+# range.
+#
+# The station can associate again with the AP if it is still in range;
+# this inactivity poll is just used as a nicer way of verifying
+# inactivity; i.e., client will not report broken connection because
+# disassociation frame is not sent immediately without first polling
+# the STA with a data frame.
+# default: 300 (i.e., 5 minutes)
+#ap_max_inactivity=300
+
+# Enable/disable internal bridge for packets between associated stations.
+#
+# When IEEE 802.11 is used in managed mode, packets are usually send through
+# the AP even if they are from a wireless station to another wireless station.
+# This functionality requires that the AP has a bridge functionality that sends
+# frames back to the same interface if their destination is another associated
+# station. In addition, broadcast/multicast frames from wireless stations will
+# be sent both to the host system net stack (e.g., to eventually wired network)
+# and back to the wireless interface.
+#
+# The internal bridge is implemented within the wireless kernel module and it
+# bypasses kernel filtering (netfilter/iptables/ebtables). If direct
+# communication between the stations needs to be prevented, the internal
+# bridge can be disabled by setting bridge_packets=0.
+#
+# Note: If this variable is not included in hostapd.conf, hostapd does not
+# change the configuration and iwpriv can be used to set the value with
+# 'iwpriv wlan# param 10 0' command. If the variable is in hostapd.conf,
+# hostapd will override possible iwpriv configuration whenever configuration
+# file is reloaded.
+#
+# default: do not control from hostapd (80211.o defaults to 1=enabled)
+#bridge_packets=1
+
+# Maximum allowed Listen Interval (how many Beacon periods STAs are allowed to
+# remain asleep). Default: 65535 (no limit apart from field size)
+#max_listen_interval=100
+
+##### IEEE 802.1X-2004 related configuration ##################################
+
+# Require IEEE 802.1X authorization
+#ieee8021x=1
+
+# IEEE 802.1X/EAPOL version
+# hostapd is implemented based on IEEE Std 802.1X-2004 which defines EAPOL
+# version 2. However, there are many client implementations that do not handle
+# the new version number correctly (they seem to drop the frames completely).
+# In order to make hostapd interoperate with these clients, the version number
+# can be set to the older version (1) with this configuration value.
+#eapol_version=2
+
+# Optional displayable message sent with EAP Request-Identity. The first \0
+# in this string will be converted to ASCII-0 (nul). This can be used to
+# separate network info (comma separated list of attribute=value pairs); see,
+# e.g., RFC 4284.
+#eap_message=hello
+#eap_message=hello\0networkid=netw,nasid=foo,portid=0,NAIRealms=example.com
+
+# WEP rekeying (disabled if key lengths are not set or are set to 0)
+# Key lengths for default/broadcast and individual/unicast keys:
+# 5 = 40-bit WEP (also known as 64-bit WEP with 40 secret bits)
+# 13 = 104-bit WEP (also known as 128-bit WEP with 104 secret bits)
+#wep_key_len_broadcast=5
+#wep_key_len_unicast=5
+# Rekeying period in seconds. 0 = do not rekey (i.e., set keys only once)
+#wep_rekey_period=300
+
+# EAPOL-Key index workaround (set bit7) for WinXP Supplicant (needed only if
+# only broadcast keys are used)
+eapol_key_index_workaround=0
+
+# EAP reauthentication period in seconds (default: 3600 seconds; 0 = disable
+# reauthentication).
+#eap_reauth_period=3600
+
+# Use PAE group address (01:80:c2:00:00:03) instead of individual target
+# address when sending EAPOL frames with driver=wired. This is the most common
+# mechanism used in wired authentication, but it also requires that the port
+# is only used by one station.
+#use_pae_group_addr=1
+
+##### Integrated EAP server ###################################################
+
+# Optionally, hostapd can be configured to use an integrated EAP server
+# to process EAP authentication locally without need for an external RADIUS
+# server. This functionality can be used both as a local authentication server
+# for IEEE 802.1X/EAPOL and as a RADIUS server for other devices.
+
+# Use integrated EAP server instead of external RADIUS authentication
+# server. This is also needed if hostapd is configured to act as a RADIUS
+# authentication server.
+eap_server=0
+
+# Path for EAP server user database
+#eap_user_file=/etc/hostapd.eap_user
+
+# CA certificate (PEM or DER file) for EAP-TLS/PEAP/TTLS
+#ca_cert=/etc/hostapd.ca.pem
+
+# Server certificate (PEM or DER file) for EAP-TLS/PEAP/TTLS
+#server_cert=/etc/hostapd.server.pem
+
+# Private key matching with the server certificate for EAP-TLS/PEAP/TTLS
+# This may point to the same file as server_cert if both certificate and key
+# are included in a single file. PKCS#12 (PFX) file (.p12/.pfx) can also be
+# used by commenting out server_cert and specifying the PFX file as the
+# private_key.
+#private_key=/etc/hostapd.server.prv
+
+# Passphrase for private key
+#private_key_passwd=secret passphrase
+
+# Enable CRL verification.
+# Note: hostapd does not yet support CRL downloading based on CDP. Thus, a
+# valid CRL signed by the CA is required to be included in the ca_cert file.
+# This can be done by using PEM format for CA certificate and CRL and
+# concatenating these into one file. Whenever CRL changes, hostapd needs to be
+# restarted to take the new CRL into use.
+# 0 = do not verify CRLs (default)
+# 1 = check the CRL of the user certificate
+# 2 = check all CRLs in the certificate path
+#check_crl=1
+
+# dh_file: File path to DH/DSA parameters file (in PEM format)
+# This is an optional configuration file for setting parameters for an
+# ephemeral DH key exchange. In most cases, the default RSA authentication does
+# not use this configuration. However, it is possible setup RSA to use
+# ephemeral DH key exchange. In addition, ciphers with DSA keys always use
+# ephemeral DH keys. This can be used to achieve forward secrecy. If the file
+# is in DSA parameters format, it will be automatically converted into DH
+# params. This parameter is required if anonymous EAP-FAST is used.
+# You can generate DH parameters file with OpenSSL, e.g.,
+# "openssl dhparam -out /etc/hostapd.dh.pem 1024"
+#dh_file=/etc/hostapd.dh.pem
+
+# Configuration data for EAP-SIM database/authentication gateway interface.
+# This is a text string in implementation specific format. The example
+# implementation in eap_sim_db.c uses this as the UNIX domain socket name for
+# the HLR/AuC gateway (e.g., hlr_auc_gw). In this case, the path uses "unix:"
+# prefix.
+#eap_sim_db=unix:/tmp/hlr_auc_gw.sock
+
+# Encryption key for EAP-FAST PAC-Opaque values. This key must be a secret,
+# random value. It is configured as a 16-octet value in hex format. It can be
+# generated, e.g., with the following command:
+# od -tx1 -v -N16 /dev/random | colrm 1 8 | tr -d ' '
+#pac_opaque_encr_key=000102030405060708090a0b0c0d0e0f
+
+# EAP-FAST authority identity (A-ID)
+#eap_fast_a_id=test server
+
+# EAP-SIM and EAP-AKA protected success/failure indication using AT_RESULT_IND
+# (default: 0 = disabled).
+#eap_sim_aka_result_ind=1
+
+# Trusted Network Connect (TNC)
+# If enabled, TNC validation will be required before the peer is allowed to
+# connect. Note: This is only used with EAP-TTLS and EAP-FAST. If any other
+# EAP method is enabled, the peer will be allowed to connect without TNC.
+#tnc=1
+
+
+##### IEEE 802.11f - Inter-Access Point Protocol (IAPP) #######################
+
+# Interface to be used for IAPP broadcast packets
+#iapp_interface=eth0
+
+
+##### RADIUS client configuration #############################################
+# for IEEE 802.1X with external Authentication Server, IEEE 802.11
+# authentication with external ACL for MAC addresses, and accounting
+
+# The own IP address of the access point (used as NAS-IP-Address)
+own_ip_addr=127.0.0.1
+
+# Optional NAS-Identifier string for RADIUS messages. When used, this should be
+# a unique to the NAS within the scope of the RADIUS server. For example, a
+# fully qualified domain name can be used here.
+# When using IEEE 802.11r, nas_identifier must be set and must be between 1 and
+# 48 octets long.
+#nas_identifier=ap.example.com
+
+# RADIUS authentication server
+#auth_server_addr=127.0.0.1
+#auth_server_port=1812
+#auth_server_shared_secret=secret
+
+# RADIUS accounting server
+#acct_server_addr=127.0.0.1
+#acct_server_port=1813
+#acct_server_shared_secret=secret
+
+# Secondary RADIUS servers; to be used if primary one does not reply to
+# RADIUS packets. These are optional and there can be more than one secondary
+# server listed.
+#auth_server_addr=127.0.0.2
+#auth_server_port=1812
+#auth_server_shared_secret=secret2
+#
+#acct_server_addr=127.0.0.2
+#acct_server_port=1813
+#acct_server_shared_secret=secret2
+
+# Retry interval for trying to return to the primary RADIUS server (in
+# seconds). RADIUS client code will automatically try to use the next server
+# when the current server is not replying to requests. If this interval is set,
+# primary server will be retried after configured amount of time even if the
+# currently used secondary server is still working.
+#radius_retry_primary_interval=600
+
+
+# Interim accounting update interval
+# If this is set (larger than 0) and acct_server is configured, hostapd will
+# send interim accounting updates every N seconds. Note: if set, this overrides
+# possible Acct-Interim-Interval attribute in Access-Accept message. Thus, this
+# value should not be configured in hostapd.conf, if RADIUS server is used to
+# control the interim interval.
+# This value should not be less 600 (10 minutes) and must not be less than
+# 60 (1 minute).
+#radius_acct_interim_interval=600
+
+# Dynamic VLAN mode; allow RADIUS authentication server to decide which VLAN
+# is used for the stations. This information is parsed from following RADIUS
+# attributes based on RFC 3580 and RFC 2868: Tunnel-Type (value 13 = VLAN),
+# Tunnel-Medium-Type (value 6 = IEEE 802), Tunnel-Private-Group-ID (value
+# VLANID as a string). vlan_file option below must be configured if dynamic
+# VLANs are used.
+# 0 = disabled (default)
+# 1 = option; use default interface if RADIUS server does not include VLAN ID
+# 2 = required; reject authentication if RADIUS server does not include VLAN ID
+#dynamic_vlan=0
+
+# VLAN interface list for dynamic VLAN mode is read from a separate text file.
+# This list is used to map VLAN ID from the RADIUS server to a network
+# interface. Each station is bound to one interface in the same way as with
+# multiple BSSIDs or SSIDs. Each line in this text file is defining a new
+# interface and the line must include VLAN ID and interface name separated by
+# white space (space or tab).
+#vlan_file=/etc/hostapd.vlan
+
+# Interface where 802.1q tagged packets should appear when a RADIUS server is
+# used to determine which VLAN a station is on.  hostapd creates a bridge for
+# each VLAN.  Then hostapd adds a VLAN interface (associated with the interface
+# indicated by 'vlan_tagged_interface') and the appropriate wireless interface
+# to the bridge.
+#vlan_tagged_interface=eth0
+
+
+##### RADIUS authentication server configuration ##############################
+
+# hostapd can be used as a RADIUS authentication server for other hosts. This
+# requires that the integrated EAP server is also enabled and both
+# authentication services are sharing the same configuration.
+
+# File name of the RADIUS clients configuration for the RADIUS server. If this
+# commented out, RADIUS server is disabled.
+#radius_server_clients=/etc/hostapd.radius_clients
+
+# The UDP port number for the RADIUS authentication server
+#radius_server_auth_port=1812
+
+# Use IPv6 with RADIUS server (IPv4 will also be supported using IPv6 API)
+#radius_server_ipv6=1
+
+
+##### WPA/IEEE 802.11i configuration ##########################################
+
+# Enable WPA. Setting this variable configures the AP to require WPA (either
+# WPA-PSK or WPA-RADIUS/EAP based on other configuration). For WPA-PSK, either
+# wpa_psk or wpa_passphrase must be set and wpa_key_mgmt must include WPA-PSK.
+# For WPA-RADIUS/EAP, ieee8021x must be set (but without dynamic WEP keys),
+# RADIUS authentication server must be configured, and WPA-EAP must be included
+# in wpa_key_mgmt.
+# This field is a bit field that can be used to enable WPA (IEEE 802.11i/D3.0)
+# and/or WPA2 (full IEEE 802.11i/RSN):
+# bit0 = WPA
+# bit1 = IEEE 802.11i/RSN (WPA2) (dot11RSNAEnabled)
+#wpa=1
+
+# WPA pre-shared keys for WPA-PSK. This can be either entered as a 256-bit
+# secret in hex format (64 hex digits), wpa_psk, or as an ASCII passphrase
+# (8..63 characters) that will be converted to PSK. This conversion uses SSID
+# so the PSK changes when ASCII passphrase is used and the SSID is changed.
+# wpa_psk (dot11RSNAConfigPSKValue)
+# wpa_passphrase (dot11RSNAConfigPSKPassPhrase)
+#wpa_psk=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+#wpa_passphrase=secret passphrase
+
+# Optionally, WPA PSKs can be read from a separate text file (containing list
+# of (PSK,MAC address) pairs. This allows more than one PSK to be configured.
+# Use absolute path name to make sure that the files can be read on SIGHUP
+# configuration reloads.
+#wpa_psk_file=/etc/hostapd.wpa_psk
+
+# Set of accepted key management algorithms (WPA-PSK, WPA-EAP, or both). The
+# entries are separated with a space.
+# (dot11RSNAConfigAuthenticationSuitesTable)
+#wpa_key_mgmt=WPA-PSK WPA-EAP
+
+# Set of accepted cipher suites (encryption algorithms) for pairwise keys
+# (unicast packets). This is a space separated list of algorithms:
+# CCMP = AES in Counter mode with CBC-MAC [RFC 3610, IEEE 802.11i/D7.0]
+# TKIP = Temporal Key Integrity Protocol [IEEE 802.11i/D7.0]
+# Group cipher suite (encryption algorithm for broadcast and multicast frames)
+# is automatically selected based on this configuration. If only CCMP is
+# allowed as the pairwise cipher, group cipher will also be CCMP. Otherwise,
+# TKIP will be used as the group cipher.
+# (dot11RSNAConfigPairwiseCiphersTable)
+# Pairwise cipher for WPA (v1) (default: TKIP)
+#wpa_pairwise=TKIP CCMP
+# Pairwise cipher for RSN/WPA2 (default: use wpa_pairwise value)
+#rsn_pairwise=CCMP
+
+# Time interval for rekeying GTK (broadcast/multicast encryption keys) in
+# seconds. (dot11RSNAConfigGroupRekeyTime)
+#wpa_group_rekey=600
+
+# Rekey GTK when any STA that possesses the current GTK is leaving the BSS.
+# (dot11RSNAConfigGroupRekeyStrict)
+#wpa_strict_rekey=1
+
+# Time interval for rekeying GMK (master key used internally to generate GTKs
+# (in seconds).
+#wpa_gmk_rekey=86400
+
+# Enable IEEE 802.11i/RSN/WPA2 pre-authentication. This is used to speed up
+# roaming be pre-authenticating IEEE 802.1X/EAP part of the full RSN
+# authentication and key handshake before actually associating with a new AP.
+# (dot11RSNAPreauthenticationEnabled)
+#rsn_preauth=1
+#
+# Space separated list of interfaces from which pre-authentication frames are
+# accepted (e.g., 'eth0' or 'eth0 wlan0wds0'. This list should include all
+# interface that are used for connections to other APs. This could include
+# wired interfaces and WDS links. The normal wireless data interface towards
+# associated stations (e.g., wlan0) should not be added, since
+# pre-authentication is only used with APs other than the currently associated
+# one.
+#rsn_preauth_interfaces=eth0
+
+# peerkey: Whether PeerKey negotiation for direct links (IEEE 802.11e) is
+# allowed. This is only used with RSN/WPA2.
+# 0 = disabled (default)
+# 1 = enabled
+#peerkey=1
+
+# ieee80211w: Whether management frame protection is enabled
+# 0 = disabled (default)
+# 1 = optional
+# 2 = required
+#ieee80211w=0
+
+
+##### IEEE 802.11r configuration ##############################################
+
+# Mobility Domain identifier (dot11FTMobilityDomainID, MDID)
+# MDID is used to indicate a group of APs (within an ESS, i.e., sharing the
+# same SSID) between which a STA can use Fast BSS Transition.
+# 2-octet identifier as a hex string.
+#mobility_domain=a1b2
+
+# PMK-R0 Key Holder identifier (dot11FTR0KeyHolderID)
+# 1 to 48 octet identifier.
+# This is configured with nas_identifier (see RADIUS client section above).
+
+# Default lifetime of the PMK-RO in minutes; range 1..65535
+# (dot11FTR0KeyLifetime)
+#r0_key_lifetime=10000
+
+# PMK-R1 Key Holder identifier (dot11FTR1KeyHolderID)
+# 6-octet identifier as a hex string.
+#r1_key_holder=000102030405
+
+# Reassociation deadline in time units (TUs / 1.024 ms; range 1000..65535)
+# (dot11FTReassociationDeadline)
+#reassociation_deadline=1000
+
+# List of R0KHs in the same Mobility Domain
+# format: &lt;MAC address&gt; &lt;NAS Identifier&gt; &lt;128-bit key as hex string&gt;
+# This list is used to map R0KH-ID (NAS Identifier) to a destination MAC
+# address when requesting PMK-R1 key from the R0KH that the STA used during the
+# Initial Mobility Domain Association.
+#r0kh=02:01:02:03:04:05 r0kh-1.example.com 000102030405060708090a0b0c0d0e0f
+#r0kh=02:01:02:03:04:06 r0kh-2.example.com 00112233445566778899aabbccddeeff
+# And so on.. One line per R0KH.
+
+# List of R1KHs in the same Mobility Domain
+# format: &lt;MAC address&gt; &lt;R0KH-ID&gt; &lt;128-bit key as hex string&gt;
+# This list is used to map R1KH-ID to a destination MAC address when sending
+# PMK-R1 key from the R0KH. This is also the list of authorized R1KHs in the MD
+# that can request PMK-R1 keys.
+#r1kh=02:01:02:03:04:05 02:11:22:33:44:55 000102030405060708090a0b0c0d0e0f
+#r1kh=02:01:02:03:04:06 02:11:22:33:44:66 00112233445566778899aabbccddeeff
+# And so on.. One line per R1KH.
+
+# Whether PMK-R1 push is enabled at R0KH
+# 0 = do not push PMK-R1 to all configured R1KHs (default)
+# 1 = push PMK-R1 to all configured R1KHs whenever a new PMK-R0 is derived
+#pmk_r1_push=1
+
+##### Passive scanning ########################################################
+# Scan different channels every N seconds. 0 = disable passive scanning.
+#passive_scan_interval=60
+
+# Listen N usecs on each channel when doing passive scanning.
+# This value plus the time needed for changing channels should be less than
+# 32 milliseconds (i.e. 32000 usec) to avoid interruptions to normal
+# operations. Time needed for channel changing varies based on the used wlan
+# hardware.
+# default: disabled (0)
+#passive_scan_listen=10000
+
+# Passive scanning mode:
+# 0 = scan all supported modes (802.11a/b/g/Turbo) (default)
+# 1 = scan only the mode that is currently used for normal operations
+#passive_scan_mode=1
+
+# Maximum number of entries kept in AP table (either for passive scanning or
+# for detecting Overlapping Legacy BSS Condition). The oldest entry will be
+# removed when adding a new entry that would make the list grow over this
+# limit. Note! Wi-Fi certification for IEEE 802.11g requires that OLBC is
+# enabled, so this field should not be set to 0 when using IEEE 802.11g.
+# default: 255
+#ap_table_max_size=255
+
+# Number of seconds of no frames received after which entries may be deleted
+# from the AP table. Since passive scanning is not usually performed frequently
+# this should not be set to very small value. In addition, there is no
+# guarantee that every scan cycle will receive beacon frames from the
+# neighboring APs.
+# default: 60
+#ap_table_expiration_time=3600
+
+
+##### Multiple BSSID support ##################################################
+#
+# Above configuration is using the default interface (wlan#, or multi-SSID VLAN
+# interfaces). Other BSSIDs can be added by using separator 'bss' with
+# default interface name to be allocated for the data packets of the new BSS.
+#
+# hostapd will generate BSSID mask based on the BSSIDs that are
+# configured. hostapd will verify that dev_addr &amp; MASK == dev_addr. If this is
+# not the case, the MAC address of the radio must be changed before starting
+# hostapd (ifconfig wlan0 hw ether &lt;MAC addr&gt;).
+#
+# BSSIDs are assigned in order to each BSS, unless an explicit BSSID is
+# specified using the 'bssid' parameter.
+# If an explicit BSSID is specified, it must be chosen such that it:
+# - results in a valid MASK that covers it and the dev_addr
+# - is not the same as the MAC address of the radio
+# - is not the same as any other explicitly specified BSSID
+#
+# Please note that hostapd uses some of the values configured for the first BSS
+# as the defaults for the following BSSes. However, it is recommended that all
+# BSSes include explicit configuration of all relevant configuration items.
+#
+#bss=wlan0_0
+#ssid=test2
+# most of the above items can be used here (apart from radio interface specific
+# items, like channel)
+
+#bss=wlan0_1
+#bssid=00:13:10:95:fe:0b
+# ...
 </pre>
+</div>
+
+<p>
+If you want to use the preconfigure passphrase, set the AP into
+configured state instead (wps<sub>state</sub>=2).
+</p>
+
+<p>
+hostapd does not touch almost any of the Data frames going through
+the AP. The only Data frames it uses are related to authentication
+and key setup (EAPOL frames, RSN pre-authentication) and if
+ProxyARP is enabled, some of ARP/NS/NA frames. 
+</p>
+
+<p>
+IEEE 802.11 functions:
+</p>
+<ul class="org-ul">
+<li>authentication (and deauthentication)
+</li>
+<li>association (reassociation, and disassociation)
+</li>
+<li>data transmission between two wireless stations
+</li>
+<li>power saving (PS) mode signaling
+</li>
+<li>frame buffering for PS stations
+</li>
+</ul>
 </div>
 </div>
 
-<div id="outline-container-sec-2-5-1" class="outline-4">
-<h4 id="sec-2-5-1">数据结构</h4>
-<div class="outline-text-4" id="text-2-5-1">
-<ol class="org-ol">
+<div id="outline-container-sec-2-5-2" class="outline-4">
+<h4 id="sec-2-5-2">数据结构</h4>
+<div class="outline-text-4" id="text-2-5-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016080901.jpg" alt="2016080901.jpg" />
+</p>
+</div>
+
+<ul class="org-ul">
+<li>A <code>hostapd_interfaces</code> has at least one <code>hostapd_iface</code>.
+</li>
+
+<li>A <code>hostapd_iface</code> has at least one bss(<code>hostapd_data</code>)
+</li>
+
 <li><code>struct hapd_interfaces</code>
+全局数据结构，定义了一系列公共回调函数，并统计了当前实际虚拟接
+口的数量与引用。
 <div class="org-src-container">
 
 <pre class="src src-c">struct hapd_interfaces {
@@ -2809,9 +4499,677 @@ wpa_ptk_rekey=600
 </pre>
 </div>
 </li>
-</ol>
+
+<li><code>struct hostapd_iface</code>
+      per-interface data structure.
+</li>
+</ul>
 
 
+<ol class="org-ol">
+<li><code>struct hostapd_config</code>
+<div class="org-src-container">
+
+<pre class="src src-c">/**
+ * struct hostapd_config - Per-radio interface configuration
+ */
+struct hostapd_config {
+        struct hostapd_bss_config **bss, *last_bss;
+        size_t num_bss;
+
+        u16 beacon_int;
+        int rts_threshold;
+        int fragm_threshold;
+        u8 send_probe_response;
+        u8 channel;
+        u8 acs;
+        struct wpa_freq_range_list acs_ch_list;
+        enum hostapd_hw_mode hw_mode; /* HOSTAPD_MODE_IEEE80211A, .. */
+        enum {
+                LONG_PREAMBLE = 0,
+                SHORT_PREAMBLE = 1
+        } preamble;
+
+        int *supported_rates;
+        int *basic_rates;
+
+        const struct wpa_driver_ops *driver;
+        char *driver_params;
+
+        int ap_table_max_size;
+        int ap_table_expiration_time;
+
+        unsigned int track_sta_max_num;
+        unsigned int track_sta_max_age;
+
+        char country[3]; /* first two octets: country code as described in
+                          * ISO/IEC 3166-1. Third octet:
+                          * ' ' (ascii 32): all environments
+                          * 'O': Outdoor environemnt only
+                          * 'I': Indoor environment only
+                          */
+
+        int ieee80211d;
+
+        int ieee80211h; /* DFS */
+
+        /*
+         * Local power constraint is an octet encoded as an unsigned integer in
+         * units of decibels. Invalid value -1 indicates that Power Constraint
+         * element will not be added.
+         */
+        int local_pwr_constraint;
+
+        /* Control Spectrum Management bit */
+        int spectrum_mgmt_required;
+
+        struct hostapd_tx_queue_params tx_queue[NUM_TX_QUEUES];
+
+        /*
+         * WMM AC parameters, in same order as 802.1D, i.e.
+         * 0 = BE (best effort)
+         * 1 = BK (background)
+         * 2 = VI (video)
+         * 3 = VO (voice)
+         */
+        struct hostapd_wmm_ac_params wmm_ac_params[4];
+
+        int ht_op_mode_fixed;
+        u16 ht_capab;
+        int ieee80211n;
+        int secondary_channel;
+        int no_pri_sec_switch;
+        int require_ht;
+        int obss_interval;
+        u32 vht_capab;
+        int ieee80211ac;
+        int require_vht;
+        u8 vht_oper_chwidth;
+        u8 vht_oper_centr_freq_seg0_idx;
+        u8 vht_oper_centr_freq_seg1_idx;
+
+#ifdef CONFIG_FST
+        struct fst_iface_cfg fst_cfg;
+#endif /* CONFIG_FST */
+
+#ifdef CONFIG_P2P
+        u8 p2p_go_ctwindow;
+#endif /* CONFIG_P2P */
+
+#ifdef CONFIG_TESTING_OPTIONS
+        double ignore_probe_probability;
+        double ignore_auth_probability;
+        double ignore_assoc_probability;
+        double ignore_reassoc_probability;
+        double corrupt_gtk_rekey_mic_probability;
+        int ecsa_ie_only;
+#endif /* CONFIG_TESTING_OPTIONS */
+
+#ifdef CONFIG_ACS
+        unsigned int acs_num_scans;
+        struct acs_bias {
+                int channel;
+                double bias;
+        } *acs_chan_bias;
+        unsigned int num_acs_chan_bias;
+#endif /* CONFIG_ACS */
+};
+</pre>
+</div>
+</li>
+
+<li><code>struct hostapd_bss_config</code>
+<div class="org-src-container">
+
+<pre class="src src-c">/**
+ * struct hostapd_bss_config - Per-BSS configuration
+ */
+struct hostapd_bss_config {
+        char iface[IFNAMSIZ + 1];
+        char bridge[IFNAMSIZ + 1];
+        char vlan_bridge[IFNAMSIZ + 1];
+        char wds_bridge[IFNAMSIZ + 1];
+
+        enum hostapd_logger_level logger_syslog_level, logger_stdout_level;
+
+        unsigned int logger_syslog; /* module bitfield */
+        unsigned int logger_stdout; /* module bitfield */
+
+        int max_num_sta; /* maximum number of STAs in station table */
+
+        int dtim_period;
+        int bss_load_update_period;
+
+        int ieee802_1x; /* use IEEE 802.1X */
+        int eapol_version;
+        int eap_server; /* Use internal EAP server instead of external
+                         * RADIUS server */
+        struct hostapd_eap_user *eap_user;
+        char *eap_user_sqlite;
+        char *eap_sim_db;
+        unsigned int eap_sim_db_timeout;
+        int eap_server_erp; /* Whether ERP is enabled on internal EAP server */
+        struct hostapd_ip_addr own_ip_addr;
+        char *nas_identifier;
+        struct hostapd_radius_servers *radius;
+        int acct_interim_interval;
+        int radius_request_cui;
+        struct hostapd_radius_attr *radius_auth_req_attr;
+        struct hostapd_radius_attr *radius_acct_req_attr;
+        int radius_das_port;
+        unsigned int radius_das_time_window;
+        int radius_das_require_event_timestamp;
+        struct hostapd_ip_addr radius_das_client_addr;
+        u8 *radius_das_shared_secret;
+        size_t radius_das_shared_secret_len;
+
+        struct hostapd_ssid ssid;
+
+        char *eap_req_id_text; /* optional displayable message sent with
+                                * EAP Request-Identity */
+        size_t eap_req_id_text_len;
+        int eapol_key_index_workaround;
+
+        size_t default_wep_key_len;
+        int individual_wep_key_len;
+        int wep_rekeying_period;
+        int broadcast_key_idx_min, broadcast_key_idx_max;
+        int eap_reauth_period;
+        int erp_send_reauth_start;
+        char *erp_domain;
+
+        int ieee802_11f; /* use IEEE 802.11f (IAPP) */
+        char iapp_iface[IFNAMSIZ + 1]; /* interface used with IAPP broadcast
+                                        * frames */
+
+        enum {
+                ACCEPT_UNLESS_DENIED = 0,
+                DENY_UNLESS_ACCEPTED = 1,
+                USE_EXTERNAL_RADIUS_AUTH = 2
+        } macaddr_acl;
+        struct mac_acl_entry *accept_mac;
+        int num_accept_mac;
+        struct mac_acl_entry *deny_mac;
+        int num_deny_mac;
+        int wds_sta;
+        int isolate;
+        int start_disabled;
+
+        int auth_algs; /* bitfield of allowed IEEE 802.11 authentication
+                        * algorithms, WPA_AUTH_ALG_{OPEN,SHARED,LEAP} */
+
+        int wpa; /* bitfield of WPA_PROTO_WPA, WPA_PROTO_RSN */
+        int wpa_key_mgmt;
+#ifdef CONFIG_IEEE80211W
+        enum mfp_options ieee80211w;
+        int group_mgmt_cipher;
+        /* dot11AssociationSAQueryMaximumTimeout (in TUs) */
+        unsigned int assoc_sa_query_max_timeout;
+        /* dot11AssociationSAQueryRetryTimeout (in TUs) */
+        int assoc_sa_query_retry_timeout;
+#endif /* CONFIG_IEEE80211W */
+        enum {
+                PSK_RADIUS_IGNORED = 0,
+                PSK_RADIUS_ACCEPTED = 1,
+                PSK_RADIUS_REQUIRED = 2
+        } wpa_psk_radius;
+        int wpa_pairwise;
+        int wpa_group;
+        int wpa_group_rekey;
+        int wpa_strict_rekey;
+        int wpa_gmk_rekey;
+        int wpa_ptk_rekey;
+        int rsn_pairwise;
+        int rsn_preauth;
+        char *rsn_preauth_interfaces;
+        int peerkey;
+
+#ifdef CONFIG_IEEE80211R
+        /* IEEE 802.11r - Fast BSS Transition */
+        u8 mobility_domain[MOBILITY_DOMAIN_ID_LEN];
+        u8 r1_key_holder[FT_R1KH_ID_LEN];
+        u32 r0_key_lifetime;
+        u32 reassociation_deadline;
+        struct ft_remote_r0kh *r0kh_list;
+        struct ft_remote_r1kh *r1kh_list;
+        int pmk_r1_push;
+        int ft_over_ds;
+#endif /* CONFIG_IEEE80211R */
+
+        char *ctrl_interface; /* directory for UNIX domain sockets */
+#ifndef CONFIG_NATIVE_WINDOWS
+        gid_t ctrl_interface_gid;
+#endif /* CONFIG_NATIVE_WINDOWS */
+        int ctrl_interface_gid_set;
+
+        char *ca_cert;
+        char *server_cert;
+        char *private_key;
+        char *private_key_passwd;
+        int check_crl;
+        unsigned int tls_session_lifetime;
+        char *ocsp_stapling_response;
+        char *ocsp_stapling_response_multi;
+        char *dh_file;
+        char *openssl_ciphers;
+        u8 *pac_opaque_encr_key;
+        u8 *eap_fast_a_id;
+        size_t eap_fast_a_id_len;
+        char *eap_fast_a_id_info;
+        int eap_fast_prov;
+        int pac_key_lifetime;
+        int pac_key_refresh_time;
+        int eap_sim_aka_result_ind;
+        int tnc;
+        int fragment_size;
+        u16 pwd_group;
+
+        char *radius_server_clients;
+        int radius_server_auth_port;
+        int radius_server_acct_port;
+        int radius_server_ipv6;
+
+        int use_pae_group_addr; /* Whether to send EAPOL frames to PAE group
+                                 * address instead of individual address
+                                 * (for driver_wired.c).
+                                 */
+
+        int ap_max_inactivity;
+        int ignore_broadcast_ssid;
+        int no_probe_resp_if_max_sta;
+
+        int wmm_enabled;
+        int wmm_uapsd;
+
+        struct hostapd_vlan *vlan;
+
+        macaddr bssid;
+
+        /*
+         * Maximum listen interval that STAs can use when associating with this
+         * BSS. If a STA tries to use larger value, the association will be
+         * denied with status code 51.
+         */
+        u16 max_listen_interval;
+
+        int disable_pmksa_caching;
+        int okc; /* Opportunistic Key Caching */
+
+        int wps_state;
+#ifdef CONFIG_WPS
+        int wps_independent;
+        int ap_setup_locked;
+        u8 uuid[16];
+        char *wps_pin_requests;
+        char *device_name;
+        char *manufacturer;
+        char *model_name;
+        char *model_number;
+        char *serial_number;
+        u8 device_type[WPS_DEV_TYPE_LEN];
+        char *config_methods;
+        u8 os_version[4];
+        char *ap_pin;
+        int skip_cred_build;
+        u8 *extra_cred;
+        size_t extra_cred_len;
+        int wps_cred_processing;
+        int force_per_enrollee_psk;
+        u8 *ap_settings;
+        size_t ap_settings_len;
+        char *upnp_iface;
+        char *friendly_name;
+        char *manufacturer_url;
+        char *model_description;
+        char *model_url;
+        char *upc;
+        struct wpabuf *wps_vendor_ext[MAX_WPS_VENDOR_EXTENSIONS];
+        int wps_nfc_pw_from_config;
+        int wps_nfc_dev_pw_id;
+        struct wpabuf *wps_nfc_dh_pubkey;
+        struct wpabuf *wps_nfc_dh_privkey;
+        struct wpabuf *wps_nfc_dev_pw;
+#endif /* CONFIG_WPS */
+        int pbc_in_m1;
+        char *server_id;
+
+#define P2P_ENABLED BIT(0)
+#define P2P_GROUP_OWNER BIT(1)
+#define P2P_GROUP_FORMATION BIT(2)
+#define P2P_MANAGE BIT(3)
+#define P2P_ALLOW_CROSS_CONNECTION BIT(4)
+        int p2p;
+#ifdef CONFIG_P2P
+        u8 ip_addr_go[4];
+        u8 ip_addr_mask[4];
+        u8 ip_addr_start[4];
+        u8 ip_addr_end[4];
+#endif /* CONFIG_P2P */
+
+        int disassoc_low_ack;
+        int skip_inactivity_poll;
+
+#define TDLS_PROHIBIT BIT(0)
+#define TDLS_PROHIBIT_CHAN_SWITCH BIT(1)
+        int tdls;
+        int disable_11n;
+        int disable_11ac;
+
+        /* IEEE 802.11v */
+        int time_advertisement;
+        char *time_zone;
+        int wnm_sleep_mode;
+        int bss_transition;
+
+        /* IEEE 802.11u - Interworking */
+        int interworking;
+        int access_network_type;
+        int internet;
+        int asra;
+        int esr;
+        int uesa;
+        int venue_info_set;
+        u8 venue_group;
+        u8 venue_type;
+        u8 hessid[ETH_ALEN];
+
+        /* IEEE 802.11u - Roaming Consortium list */
+        unsigned int roaming_consortium_count;
+        struct hostapd_roaming_consortium *roaming_consortium;
+
+        /* IEEE 802.11u - Venue Name duples */
+        unsigned int venue_name_count;
+        struct hostapd_lang_string *venue_name;
+
+        /* IEEE 802.11u - Network Authentication Type */
+        u8 *network_auth_type;
+        size_t network_auth_type_len;
+
+        /* IEEE 802.11u - IP Address Type Availability */
+        u8 ipaddr_type_availability;
+        u8 ipaddr_type_configured;
+
+        /* IEEE 802.11u - 3GPP Cellular Network */
+        u8 *anqp_3gpp_cell_net;
+        size_t anqp_3gpp_cell_net_len;
+
+        /* IEEE 802.11u - Domain Name */
+        u8 *domain_name;
+        size_t domain_name_len;
+
+        unsigned int nai_realm_count;
+        struct hostapd_nai_realm_data *nai_realm_data;
+
+        struct dl_list anqp_elem; /* list of struct anqp_element */
+
+        u16 gas_comeback_delay;
+        int gas_frag_limit;
+
+        u8 qos_map_set[16 + 2 * 21];
+        unsigned int qos_map_set_len;
+
+        int osen;
+        int proxy_arp;
+        int na_mcast_to_ucast;
+#ifdef CONFIG_HS20
+        int hs20;
+        int disable_dgaf;
+        u16 anqp_domain_id;
+        unsigned int hs20_oper_friendly_name_count;
+        struct hostapd_lang_string *hs20_oper_friendly_name;
+        u8 *hs20_wan_metrics;
+        u8 *hs20_connection_capability;
+        size_t hs20_connection_capability_len;
+        u8 *hs20_operating_class;
+        u8 hs20_operating_class_len;
+        struct hs20_icon {
+                u16 width;
+                u16 height;
+                char language[3];
+                char type[256];
+                char name[256];
+                char file[256];
+        } *hs20_icons;
+        size_t hs20_icons_count;
+        u8 osu_ssid[SSID_MAX_LEN];
+        size_t osu_ssid_len;
+        struct hs20_osu_provider {
+                unsigned int friendly_name_count;
+                struct hostapd_lang_string *friendly_name;
+                char *server_uri;
+                int *method_list;
+                char **icons;
+                size_t icons_count;
+                char *osu_nai;
+                unsigned int service_desc_count;
+                struct hostapd_lang_string *service_desc;
+        } *hs20_osu_providers, *last_osu;
+        size_t hs20_osu_providers_count;
+        unsigned int hs20_deauth_req_timeout;
+        char *subscr_remediation_url;
+        u8 subscr_remediation_method;
+#endif /* CONFIG_HS20 */
+
+        u8 wps_rf_bands; /* RF bands for WPS (WPS_RF_*) */
+
+#ifdef CONFIG_RADIUS_TEST
+        char *dump_msk_file;
+#endif /* CONFIG_RADIUS_TEST */
+
+        struct wpabuf *vendor_elements;
+
+        unsigned int sae_anti_clogging_threshold;
+        int *sae_groups;
+
+        char *wowlan_triggers; /* Wake-on-WLAN triggers */
+
+#ifdef CONFIG_TESTING_OPTIONS
+        u8 bss_load_test[5];
+        u8 bss_load_test_set;
+        struct wpabuf *own_ie_override;
+#endif /* CONFIG_TESTING_OPTIONS */
+
+#define MESH_ENABLED BIT(0)
+        int mesh;
+
+        int radio_measurements;
+
+        int vendor_vht;
+
+        char *no_probe_resp_if_seen_on;
+        char *no_auth_if_seen_on;
+};
+</pre>
+</div>
+</li>
+
+<li><code>struct hostapd_data</code>
+
+<div class="org-src-container">
+
+<pre class="src src-c">/**
+ * struct hostapd_data - hostapd per-BSS data structure
+ */
+struct hostapd_data {
+        struct hostapd_iface *iface;
+        struct hostapd_config *iconf;
+        struct hostapd_bss_config *conf;
+        int interface_added; /* virtual interface added for this BSS */
+        unsigned int started:1;
+        unsigned int disabled:1;
+        unsigned int reenable_beacon:1;
+
+        u8 own_addr[ETH_ALEN];
+
+        int num_sta; /* number of entries in sta_list */
+        struct sta_info *sta_list; /* STA info list head */
+#define STA_HASH_SIZE 256
+#define STA_HASH(sta) (sta[5])
+        struct sta_info *sta_hash[STA_HASH_SIZE];
+
+        /*
+         * Bitfield for indicating which AIDs are allocated. Only AID values
+         * 1-2007 are used and as such, the bit at index 0 corresponds to AID
+         * 1.
+         */
+#define AID_WORDS ((2008 + 31) / 32)
+        u32 sta_aid[AID_WORDS];
+
+        const struct wpa_driver_ops *driver;
+        void *drv_priv;
+
+        void (*new_assoc_sta_cb)(struct hostapd_data *hapd,
+                                 struct sta_info *sta, int reassoc);
+
+        void *msg_ctx; /* ctx for wpa_msg() calls */
+        void *msg_ctx_parent; /* parent interface ctx for wpa_msg() calls */
+
+        struct radius_client_data *radius;
+        u32 acct_session_id_hi, acct_session_id_lo;
+        struct radius_das_data *radius_das;
+
+        struct iapp_data *iapp;
+
+        struct hostapd_cached_radius_acl *acl_cache;
+        struct hostapd_acl_query_data *acl_queries;
+
+        struct wpa_authenticator *wpa_auth;
+        struct eapol_authenticator *eapol_auth;
+
+        struct rsn_preauth_interface *preauth_iface;
+        struct os_reltime michael_mic_failure;
+        int michael_mic_failures;
+        int tkip_countermeasures;
+
+        int ctrl_sock;
+        struct wpa_ctrl_dst *ctrl_dst;
+
+        void *ssl_ctx;
+        void *eap_sim_db_priv;
+        struct radius_server_data *radius_srv;
+        struct dl_list erp_keys; /* struct eap_server_erp_key */
+
+        int parameter_set_count;
+
+        /* Time Advertisement */
+        u8 time_update_counter;
+        struct wpabuf *time_adv;
+
+#ifdef CONFIG_FULL_DYNAMIC_VLAN
+        struct full_dynamic_vlan *full_dynamic_vlan;
+#endif /* CONFIG_FULL_DYNAMIC_VLAN */
+
+        struct l2_packet_data *l2;
+        struct wps_context *wps;
+
+        int beacon_set_done;
+        struct wpabuf *wps_beacon_ie;
+        struct wpabuf *wps_probe_resp_ie;
+#ifdef CONFIG_WPS
+        unsigned int ap_pin_failures;
+        unsigned int ap_pin_failures_consecutive;
+        struct upnp_wps_device_sm *wps_upnp;
+        unsigned int ap_pin_lockout_time;
+
+        struct wps_stat wps_stats;
+#endif /* CONFIG_WPS */
+
+        struct hostapd_probereq_cb *probereq_cb;
+        size_t num_probereq_cb;
+
+        void (*public_action_cb)(void *ctx, const u8 *buf, size_t len,
+                                 int freq);
+        void *public_action_cb_ctx;
+        void (*public_action_cb2)(void *ctx, const u8 *buf, size_t len,
+                                  int freq);
+        void *public_action_cb2_ctx;
+
+        int (*vendor_action_cb)(void *ctx, const u8 *buf, size_t len,
+                                int freq);
+        void *vendor_action_cb_ctx;
+
+        void (*wps_reg_success_cb)(void *ctx, const u8 *mac_addr,
+                                   const u8 *uuid_e);
+        void *wps_reg_success_cb_ctx;
+
+        void (*wps_event_cb)(void *ctx, enum wps_event event,
+                             union wps_event_data *data);
+        void *wps_event_cb_ctx;
+
+        void (*sta_authorized_cb)(void *ctx, const u8 *mac_addr,
+                                  int authorized, const u8 *p2p_dev_addr);
+        void *sta_authorized_cb_ctx;
+
+        void (*setup_complete_cb)(void *ctx);
+        void *setup_complete_cb_ctx;
+
+        void (*new_psk_cb)(void *ctx, const u8 *mac_addr,
+                           const u8 *p2p_dev_addr, const u8 *psk,
+                           size_t psk_len);
+        void *new_psk_cb_ctx;
+
+        /* channel switch parameters */
+        struct hostapd_freq_params cs_freq_params;
+        u8 cs_count;
+        int cs_block_tx;
+        unsigned int cs_c_off_beacon;
+        unsigned int cs_c_off_proberesp;
+        int csa_in_progress;
+        unsigned int cs_c_off_ecsa_beacon;
+        unsigned int cs_c_off_ecsa_proberesp;
+
+        /* BSS Load */
+        unsigned int bss_load_update_timeout;
+
+#ifdef CONFIG_P2P
+        struct p2p_data *p2p;
+        struct p2p_group *p2p_group;
+        struct wpabuf *p2p_beacon_ie;
+        struct wpabuf *p2p_probe_resp_ie;
+
+        /* Number of non-P2P association stations */
+        int num_sta_no_p2p;
+
+        /* Periodic NoA (used only when no non-P2P clients in the group) */
+        int noa_enabled;
+        int noa_start;
+        int noa_duration;
+#endif /* CONFIG_P2P */
+#ifdef CONFIG_INTERWORKING
+        size_t gas_frag_limit;
+#endif /* CONFIG_INTERWORKING */
+#ifdef CONFIG_PROXYARP
+        struct l2_packet_data *sock_dhcp;
+        struct l2_packet_data *sock_ndisc;
+#endif /* CONFIG_PROXYARP */
+#ifdef CONFIG_MESH
+        int num_plinks;
+        int max_plinks;
+        void (*mesh_sta_free_cb)(struct sta_info *sta);
+        struct wpabuf *mesh_pending_auth;
+        struct os_reltime mesh_pending_auth_time;
+#endif /* CONFIG_MESH */
+
+#ifdef CONFIG_SQLITE
+        struct hostapd_eap_user tmp_eap_user;
+#endif /* CONFIG_SQLITE */
+
+#ifdef CONFIG_SAE
+        /** Key used for generating SAE anti-clogging tokens */
+        u8 sae_token_key[8];
+        struct os_reltime last_sae_token_key_update;
+        int dot11RSNASAERetransPeriod; /* msec */
+#endif /* CONFIG_SAE */
+
+#ifdef CONFIG_TESTING_OPTIONS
+        unsigned int ext_mgmt_frame_handling:1;
+        unsigned int ext_eapol_frame_io:1;
+
+        struct l2_packet_data *l2_test;
+#endif /* CONFIG_TESTING_OPTIONS */
+};
+</pre>
+</div>
 
 <p>
 WifiStateMachine: (Initial State)
@@ -2837,18 +5195,393 @@ CMD<sub>TETHER</sub><sub>STATE</sub><sub>CHANGE</sub>
 <p>
 wifi.tethering.interface
 </p>
-</div>
-</div>
+</li>
+</ol>
 </div>
 </div>
 
+<div id="outline-container-sec-2-5-3" class="outline-4">
+<h4 id="sec-2-5-3">主要流程分析</h4>
+<div class="outline-text-4" id="text-2-5-3">
+</div><ul class="org-ul"><li><a id="sec-2-5-3-1" name="sec-2-5-3-1"></a>hostapd初始化过程<br  /><div class="outline-text-5" id="text-2-5-3-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016072902.png" alt="2016072902.png" />
+</p>
+</div>
+</div>
+
+<ul class="org-ul"><li><a id="sec-2-5-3-1-1" name="sec-2-5-3-1-1"></a><code>hostapd_global_init</code><br  /><div class="outline-text-6" id="text-2-5-3-1-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016080901.png" alt="2016080901.png" />
+</p>
+</div>
+</div>
+</li>
+
+
+
+<li><a id="sec-2-5-3-1-2" name="sec-2-5-3-1-2"></a><code>hostapd_interface_init</code><br  /><div class="outline-text-6" id="text-2-5-3-1-2">
+<p>
+<code>hostapd_init</code>:  读取配置文件的参数设置， 初始化BSS数据，返回
+<code>struct hostapd_iface</code> 数据结构。
+</p>
+</div>
+</li>
+
+<li><a id="sec-2-5-3-1-3" name="sec-2-5-3-1-3"></a><code>hostapd_interface_init_bss</code><br  /><div class="outline-text-6" id="text-2-5-3-1-3">
+<p>
+Read configuration file and init BSS data
+</p>
+
+<p>
+This is similar to <code>hostapd_interface_init()</code>, but for a case
+where the configuration is used to add a single BSS instead
+of all BSSes for a radio. 
+</p>
+</div>
+</li>
+
+<li><a id="sec-2-5-3-1-4" name="sec-2-5-3-1-4"></a><code>hostapd_driver_init</code><br  /><div class="outline-text-6" id="text-2-5-3-1-4">
+
+<div class="figure">
+<p><img src="/images/2016/2016081601.png" alt="2016081601.png" />
+</p>
+</div>
+
+<ol class="org-ol">
+<li>注册bss事件处理函数 。
+</li>
+<li>设置接口模式为AP模式，并将接口启动。
+</li>
+<li>注册EAPOL包的监听处理函数（发送状态以及处理接收到的
+EAPOL数据包）
+</li>
+</ol>
+</div>
+</li>
+
+<li><a id="sec-2-5-3-1-5" name="sec-2-5-3-1-5"></a><code>hostapd_setup_interface</code><br  /><div class="outline-text-6" id="text-2-5-3-1-5">
+<p>
+函数调用流程
+</p>
+
+<div class="figure">
+<p><img src="/images/2016/2016081501.png" alt="2016081501.png" />
+</p>
+</div>
+
+<p>
+在 <code>hostapd_setup_bss</code> 函数中， 比较重要的初始化过程有：
+</p>
+<ol class="org-ol">
+<li><code>hostapd_setup_wpa_psk</code>
+</li>
+<li><code>hostapd_set_ssid</code>
+</li>
+<li><code>hostapd_init_wps</code>
+</li>
+<li><code>ieee802_1x_init</code>
+</li>
+<li><code>hostapd_setup_wpa</code>
+</li>
+<li><code>ieee802_11_set_beacon</code>
+</li>
+<li><code>wpa_init_keys</code>
+</li>
+</ol>
+</div>
+</li>
+
+<li><a id="sec-2-5-3-1-6" name="sec-2-5-3-1-6"></a><code>hostapd_global_ctrl_iface_init</code><br  /><div class="outline-text-6" id="text-2-5-3-1-6">
+<p>
+创建control socket, 以便外部程序可以与hostapd之间进行通信，
+处理外部程序发送过来的命令，向外部程序回报事件。
+</p>
+</div>
+</li>
+
+<li><a id="sec-2-5-3-1-7" name="sec-2-5-3-1-7"></a><code>hostapd_global_run</code><br  /></li></ul>
+</li>
+
+<li><a id="sec-2-5-3-2" name="sec-2-5-3-2"></a>注册管理帧<br  /><div class="outline-text-5" id="text-2-5-3-2">
+<p>
+hostapd与 <code>wpa_supplicant</code> 的一个明显的区别就是需要在用户空
+间处理管理帧，默认情况下，管理帧是不会上报到用户空间的，为
+止，需要向内核请求注册感兴趣的管理帧。这样，driver才会将管
+理帧上报给用户空间。
+</p>
+
+<p>
+driver上报的管理帧通过 <code>NL80211_CMD_FRAME</code> 命令通知，在
+hostapd接口初始化时，通过 <code>nl80211_register_frame</code> 函数向内
+核注册需要自己处理的管理帧：
+具体的调用流程如下：
+</p>
+
+<div class="figure">
+<p><img src="/images/2016/2016081902.png" alt="2016081902.png" />
+</p>
+</div>
+</div>
+</li>
+
+<li><a id="sec-2-5-3-3" name="sec-2-5-3-3"></a>管理帧的处理<br  /><div class="outline-text-5" id="text-2-5-3-3">
+<p>
+当driver将注册的管理帧送上来时，hostapd会进行相应的处理
+</p>
+
+
+<div class="figure">
+<p><img src="/images/2016/2016082201.png" alt="2016082201.png" />
+</p>
+</div>
+
+<p>
+响应的Action帧通过 <code>NL80211_CMD_FRAME</code> 命令传递给driver去处理。
+</p>
+</div>
+
+<ul class="org-ul"><li><a id="sec-2-5-3-3-1" name="sec-2-5-3-3-1"></a>TX<br  /><div class="outline-text-6" id="text-2-5-3-3-1">
+
+<div class="figure">
+<p><img src="/images/2016/2016090701.png" alt="2016090701.png" />
+</p>
+</div>
+</div>
+</li>
+
+<li><a id="sec-2-5-3-3-2" name="sec-2-5-3-3-2"></a>RX<br  /><div class="outline-text-6" id="text-2-5-3-3-2">
+
+<div class="figure">
+<p><img src="/images/2016/2016090702.png" alt="2016090702.png" />
+</p>
+</div>
+</div>
+</li>
+
+
+<li><a id="sec-2-5-3-3-3" name="sec-2-5-3-3-3"></a>处理Auth Req<br  /><div class="outline-text-6" id="text-2-5-3-3-3">
+<div class="org-src-container">
+<label class="org-src-name">处理Auth Req时的日志</label>
+<pre class="src src-sh">nl80211: RX frame freq=2412 ssi_signal=-30 stype=11 len=30
+wlan1: Event RX_MGMT (20) received
+mgmt::auth
+authentication: STA=02:00:00:00:01:00 auth_alg=0 auth_transaction=1 status_code=0 wep=0
+  New STA
+ap_sta_add: register ap_handle_timer timeout for 02:00:00:00:01:00 (300 seconds - ap_max_inactivity)
+wlan1: STA 02:00:00:00:01:00 IEEE 802.11: authentication OK (open system)
+wlan1: STA 02:00:00:00:01:00 MLME: MLME-AUTHENTICATE.indication(02:00:00:00:01:00, OPEN_SYSTEM)
+wlan1: STA 02:00:00:00:01:00 MLME: MLME-DELETEKEYS.request(02:00:00:00:01:00)
+authentication reply: STA=02:00:00:00:01:00 auth_alg=0 auth_transaction=2 resp=0 (IE len=0)
+nl80211: send_mlme - noack=0 freq=0 no_cck=0 offchanok=0 wait_time=0 fc=0xb0 nlmode=3
+nl80211: send_mlme -&gt; send_frame
+nl80211: send_frame - Use bss-&gt;freq=2412
+nl80211: send_frame -&gt; send_frame_cmd
+nl80211: CMD_FRAME freq=2412 wait=0 no_cck=0 no_ack=0 offchanok=0
+CMD_FRAME - hexdump(len=30): b0 00 00 00 02 00 00 00 01 00 02 00 00 00 00 00 02 00 00 00 00 00 00 00 00 00 02 00 00 00
+nl80211: Frame TX command accepted; cookie 0xf055a180
+nl80211: Event message available
+nl80211: Drv Event 60 (NL80211_CMD_FRAME_TX_STATUS) received for wlan1
+nl80211: MLME event 60 (NL80211_CMD_FRAME_TX_STATUS) on wlan1(02:00:00:00:00:00) A1=02:00:00:00:01:00 A2=02:00:00:00:00:00
+nl80211: MLME event frame - hexdump(len=30): b0 00 3a 01 02 00 00 00 01 00 02 00 00 00 00 00 02 00 00 00 00 00 50 04 00 00 02 00 00 00
+nl80211: Frame TX status event
+wlan1: Event TX_STATUS (18) received
+mgmt::auth cb
+wlan1: STA 02:00:00:00:01:00 IEEE 802.11: authenticated
+</pre>
+</div>
+</div>
+</li></ul>
+</li>
+
+<li><a id="sec-2-5-3-4" name="sec-2-5-3-4"></a>DFS<br  /><div class="outline-text-5" id="text-2-5-3-4">
+<p>
+DFS处理的入口函数为：
+</p>
+<pre class="example">
+hostapd_handle_dfs
+</pre>
+<p>
+如果DFS处理的逻辑放在驱动里面，则入口函数为：
+</p>
+<pre class="example">
+hostapd_handle_dfs_offload
+</pre>
+</div>
+</li></ul>
+</div>
+<div id="outline-container-sec-2-5-4" class="outline-4">
+<h4 id="sec-2-5-4">VLAN client</h4>
+<div class="outline-text-4" id="text-2-5-4">
+<p>
+<code>vlan_init</code>
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-5-5" class="outline-4">
+<h4 id="sec-2-5-5">问题拾遗(仅供参考)</h4>
+<div class="outline-text-4" id="text-2-5-5">
+<ol class="org-ol">
+<li>Query regarding nl80211 support in hostapd(about
+<code>NEED_AP_MLME</code>)
+问题描述：
+
+<p>
+We are planning to add AP support in open source mwifiex
+driver and use hostapd application.
+</p>
+
+<p>
+We want the compilation flag "<code>NEED_AP_MLME</code>" in hostapd to be
+disabled because our FW takes care of MLME.
+</p>
+
+<p>
+I observed that "<code>NEED_AP_MLME</code>" flag is by default getting
+enabled when we say <code>CONFIG_DRIVER_NL80211=y</code>  in
+configuration file. Can we use NL80211 support in hostapd
+with "<code>NEED_AP_MLME</code>" flag disabled?
+</p>
+
+<p>
+问题回答（Jouni Malinen at the year of 2011）
+</p>
+
+<p>
+This needs to be done at run time, not compile time.. In
+other words, the driver will somehow need to advertise over
+nl80211 that is implement MLME/SME for AP mode.
+</p>
+
+<p>
+Currently, nl80211 implementation in hostapd assumes that
+the driver does not implement MLME/SME. This needs to be
+extended to check driver capabilities (the information
+mentioned above) and make hostapd decide at run time whether
+to use the internal MLME/SME or not.
+</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
 
 <div id="outline-container-sec-3" class="outline-2">
-<h2 id="sec-3"><code>wpa_supplicant</code> 代码修改</h2>
+<h2 id="sec-3">测试框架</h2>
 <div class="outline-text-2" id="text-3">
-</div><div id="outline-container-sec-3-1" class="outline-3">
-<h3 id="sec-3-1">add a conf parameter to start a GO as HT40 if allowed</h3>
+<p>
+<code>wpa_supplicant</code> 自带了一套测试框架，用于测试不同的CASE， 依赖于一个
+虚拟的基于mac80211网络驱动 <code>mac80211_hwsim</code> ，它可以虚拟出一些无线网
+络设备出来供模拟测试使用。
+</p>
+</div>
+
+<div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1">环境准备</h3>
 <div class="outline-text-3" id="text-3-1">
+<ol class="org-ol">
+<li>首先确保 <code>mac80211_hwsim</code> 网络驱动有编译进内核
+<pre class="example">
+CONFIG_MAC80211_HWSIM=m
+</pre>
+</li>
+<li>加载驱动，测试模块能否正常加载
+<pre class="example">
+sudo modprobe mac80211_hwsim
+</pre>
+</li>
+<li>按如下步骤编译相关文件
+测试框架的代码在 tests/hwsim/ 目录下，在当前目录下执行如下操作：
+<div class="org-src-container">
+
+<pre class="src src-sh">cd ../../wpa_supplicant
+cp ../tests/hwsim/example-wpa_supplicant.config .config
+make clean
+make
+cd ../hostapd
+cp ../tests/hwsim/example-hostapd.config .config
+make clean
+make hostapd hlr_auc_gw
+cd ../wlantest
+make clean
+make
+</pre>
+</div>
+</li>
+<li>按照该目录下的 example<sub>setup</sub>.txt 文件描述的步骤验证测试环境是否OK。
+</li>
+<li>执行测试
+<ul class="org-ul">
+<li>编写一个测试程序
+文件名必须以 <code>test_*</code> 开头
+<div class="org-src-container">
+
+<pre class="src src-python"># wpa_supplicant control interface
+# Copyright (c) 2014, Qualcomm Atheros, Inc.
+#
+# This software may be distributed under the terms of the BSD license.
+# See README for more details.
+
+import logging
+logger = logging.getLogger()
+import os
+import socket
+import subprocess
+import time
+import thread
+
+import hostapd
+import hwsim_utils
+from hwsim import HWSimRadio
+from wpasupplicant import WpaSupplicant
+from utils import alloc_fail
+from test_wpas_ap import wait_ap_ready
+
+#
+## Test wpasupplicant
+#
+def test_fyj_test1(dev):
+    """wpa_supplicant: a simple test """
+    wpas = WpaSupplicant("wlan0")
+    wpas.request("SCAN_RESULTS")
+    wpas.dump_monitor()
+    logger.info("Test Finished!!") 
+
+def test_fyj_test2(dev, apdev):
+    hapd = hostapd.add_ap(apdev[0]['ifname'], { "ssid": "open" })
+    dev[0].connect("open", key_mgmt="NONE", scan_freq="2412",
+                   bg_scan_period="0")
+#    ev = hapd.wait_event([ "AP-STA-CONNECTED" ], timeout=5)
+  #  if ev is None:
+    #    raise Exception("No connection event received from hostapd")
+    #hwsim_utils.test_connectivity(dev[0], hapd)
+</pre>
+</div>
+</li>
+<li>运行一个测试
+可以通过如下命令执行一个测试程序：
+<pre class="example">
+sudo ./run_tests fyj_test1
+sudo ./run_tests fyj_test2
+</pre>
+</li>
+</ul>
+</li>
+</ol>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4">代码修改参考</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1">add a conf parameter to start a GO as HT40 if allowed</h3>
+<div class="outline-text-3" id="text-4-1">
 <p>
 When specified in the conf file this parameter will make all
 invocations of p2p<sub>group</sub><sub>add</sub> and p2p<sub>connect</sub> behave as if "ht40"
@@ -2939,9 +5672,9 @@ index ba2edff..c9c6826 100644
 </div>
 </div>
 </div>
-<div id="outline-container-sec-3-2" class="outline-3">
-<h3 id="sec-3-2">add 165和169信道支持</h3>
-<div class="outline-text-3" id="text-3-2">
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2">add 165和169信道支持</h3>
+<div class="outline-text-3" id="text-4-2">
 <p>
 Channels 165 and 169 are part of operating class 125. Add support for these channels.
 主要修改两个地方：
@@ -2981,9 +5714,9 @@ Channels 165 and 169 are part of operating class 125. Add support for these chan
 </ol>
 </div>
 </div>
-<div id="outline-container-sec-3-3" class="outline-3">
-<h3 id="sec-3-3">P2P: Clear the discovery state incase of deffered GO Neg response</h3>
-<div class="outline-text-3" id="text-3-3">
+<div id="outline-container-sec-4-3" class="outline-3">
+<h3 id="sec-4-3">P2P: Clear the discovery state incase of deffered GO Neg response</h3>
+<div class="outline-text-3" id="text-4-3">
 <div class="org-src-container">
 
 <pre class="src src-sh">diff --git a/src/p2p/p2p.c b/src/p2p/p2p.c
@@ -3013,9 +5746,9 @@ index 767706c..5d6abe3 100644
 </div>
 </div>
 </div>
-<div id="outline-container-sec-3-4" class="outline-3">
-<h3 id="sec-3-4">Android: P2P: Fix restriction of GO channels on A-band</h3>
-<div class="outline-text-3" id="text-3-4">
+<div id="outline-container-sec-4-4" class="outline-3">
+<h3 id="sec-4-4">Android: P2P: Fix restriction of GO channels on A-band</h3>
+<div class="outline-text-3" id="text-4-4">
 <div class="org-src-container">
 
 <pre class="src src-sh">diff --git a/src/p2p/p2p_go_neg.c b/src/p2p/p2p_go_neg.c
@@ -3097,18 +5830,498 @@ index 0769ede..a4c48f6 100644
 </div>
 </div>
 </div>
+<div id="outline-container-sec-4-5" class="outline-3">
+<h3 id="sec-4-5">add vht param to p2p operations</h3>
+<div class="outline-text-3" id="text-4-5">
+<p>
+Add the option to ask for vht operation similarly to the way ht40
+is configured - either by adding 'vht' param to the relevant <code>p2p_*</code>
+commands, or by configuring p2p<sub>go</sub><sub>vht</sub>=1 in the conf file.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">---
+ src/p2p/p2p.h                               |    2 ++
+ wpa_supplicant/config.c                     |    1 +
+ wpa_supplicant/config.h                     |   10 +++++++
+ wpa_supplicant/config_file.c                |    2 ++
+ wpa_supplicant/config_ssid.h                |    2 ++
+ wpa_supplicant/ctrl_iface.c                 |   43 ++++++++++++++++-----------
+ wpa_supplicant/dbus/dbus_new_handlers_p2p.c |    9 +++---
+ wpa_supplicant/p2p_supplicant.c             |   32 +++++++++++++-------
+ wpa_supplicant/p2p_supplicant.h             |    8 ++---
+ wpa_supplicant/wpa_cli.c                    |    1 +
+ wpa_supplicant/wpa_supplicant_i.h           |    1 +
+ 11 files changed, 75 insertions(+), 36 deletions(-)
+
+diff --git a/src/p2p/p2p.h b/src/p2p/p2p.h
+index 9b6921e..e02c20c 100644
+--- a/src/p2p/p2p.h
++++ b/src/p2p/p2p.h
+@@ -77,6 +77,8 @@ struct p2p_go_neg_results {
+
+        int ht40;
+
++       int vht;
++
+        /**
+         * ssid - SSID of the group
+         */
+diff --git a/wpa_supplicant/config.c b/wpa_supplicant/config.c
+index 2b17365..757ed1a 100644
+--- a/wpa_supplicant/config.c
++++ b/wpa_supplicant/config.c
+@@ -3190,6 +3190,7 @@ static const struct global_parse_data global_fields[] = {
+        { INT(p2p_group_idle), 0 },
+        { FUNC(p2p_pref_chan), CFG_CHANGED_P2P_PREF_CHAN },
+        { INT(p2p_go_ht40), 0 },
++       { INT(p2p_go_vht), 0 },
+        { INT(p2p_disabled), 0 },
+        { INT(p2p_no_group_iface), 0 },
+        { INT_RANGE(p2p_ignore_shared_freq, 0, 1), 0 },
+diff --git a/wpa_supplicant/config.h b/wpa_supplicant/config.h
+index 1748cf3..64329f5 100644
+--- a/wpa_supplicant/config.h
++++ b/wpa_supplicant/config.h
+@@ -793,6 +793,16 @@ struct wpa_config {
+        int p2p_go_ht40;
+
+        /**
++        * p2p_go_vht - Default mode for VHT enable when operating as GO.
++        *
++        * This will take effect for p2p_group_add, p2p_connect, and p2p_invite.
++        * Note that regulatory constraints and driver capabilities are
++        * consulted anyway, so setting it to 1 can't do real harm.
++        * By default: 0 (disabled)
++        */
++       int p2p_go_vht;
++
++       /**
+         * p2p_disabled - Whether P2P operations are disabled for this interface
+         */
+        int p2p_disabled;
+diff --git a/wpa_supplicant/config_file.c b/wpa_supplicant/config_file.c
+index 0d2bd8c..4cb76bf 100644
+--- a/wpa_supplicant/config_file.c
++++ b/wpa_supplicant/config_file.c
+@@ -937,6 +937,8 @@ static void wpa_config_write_global(FILE *f, struct wpa_config *config)
+        }
+        if (config-&gt;p2p_go_ht40)
+                fprintf(f, "p2p_go_ht40=%u\n", config-&gt;p2p_go_ht40);
++       if (config-&gt;p2p_go_vht)
++               fprintf(f, "p2p_go_vht=%u\n", config-&gt;p2p_go_vht);
+        if (config-&gt;p2p_disabled)
+                fprintf(f, "p2p_disabled=%u\n", config-&gt;p2p_disabled);
+        if (config-&gt;p2p_no_group_iface)
+diff --git a/wpa_supplicant/config_ssid.h b/wpa_supplicant/config_ssid.h
+index 3a44272..2a8be6b 100644
+--- a/wpa_supplicant/config_ssid.h
++++ b/wpa_supplicant/config_ssid.h
+@@ -394,6 +394,8 @@ struct wpa_ssid {
+
+        int ht40;
+
++       int vht;
++
+        /**
+         * wpa_ptk_rekey - Maximum lifetime for PTK in seconds
+         *
+diff --git a/wpa_supplicant/ctrl_iface.c b/wpa_supplicant/ctrl_iface.c
+index 0f893f7..14b95b7 100644
+--- a/wpa_supplicant/ctrl_iface.c
++++ b/wpa_supplicant/ctrl_iface.c
+@@ -3676,12 +3676,12 @@ static int p2p_ctrl_connect(struct wpa_supplicant *wpa_s, char *cmd,
+        int go_intent = -1;
+        int freq = 0;
+        int pd;
+-       int ht40;
++       int ht40, vht;
+
+        /* &lt;addr&gt; &lt;"pbc" | "pin" | PIN&gt; [label|display|keypad]
+         * [persistent|persistent=&lt;network id&gt;]
+         * [join] [auth] [go_intent=&lt;0..15&gt;] [freq=&lt;in MHz&gt;] [provdisc]
+-        * [ht40] */
++        * [ht40] [vht] */
+
+        if (hwaddr_aton(cmd, addr))
+                return -1;
+@@ -3709,7 +3709,10 @@ static int p2p_ctrl_connect(struct wpa_supplicant *wpa_s, char *cmd,
+        auth = os_strstr(pos, " auth") != NULL;
+        automatic = os_strstr(pos, " auto") != NULL;
+        pd = os_strstr(pos, " provdisc") != NULL;
+-       ht40 = (os_strstr(cmd, " ht40") != NULL) || wpa_s-&gt;conf-&gt;p2p_go_ht40;
++       vht = (os_strstr(cmd, " vht") != NULL) || wpa_s-&gt;conf-&gt;p2p_go_vht;
++       ht40 = (os_strstr(cmd, " ht40") != NULL) || wpa_s-&gt;conf-&gt;p2p_go_ht40 ||
++               vht;
++
+
+        pos2 = os_strstr(pos, " go_intent=");
+        if (pos2) {
+@@ -3750,7 +3753,7 @@ static int p2p_ctrl_connect(struct wpa_supplicant *wpa_s, char *cmd,
+        new_pin = wpas_p2p_connect(wpa_s, addr, pin, wps_method,
+                                   persistent_group, automatic, join,
+                                   auth, go_intent, freq, persistent_id, pd,
+-                                  ht40);
++                                  ht40, vht);
+        if (new_pin == -2) {
+                os_memcpy(buf, "FAIL-CHANNEL-UNAVAILABLE\n", 25);
+                return 25;
+@@ -4114,7 +4117,7 @@ static int p2p_ctrl_invite_persistent(struct wpa_supplicant *wpa_s, char *cmd)
+        struct wpa_ssid *ssid;
+        u8 *_peer = NULL, peer[ETH_ALEN];
+        int freq = 0, pref_freq = 0;
+-       int ht40;
++       int ht40, vht;
+
+        id = atoi(cmd);
+        pos = os_strstr(cmd, " peer=");
+@@ -4148,9 +4151,12 @@ static int p2p_ctrl_invite_persistent(struct wpa_supplicant *wpa_s, char *cmd)
+                        return -1;
+        }
+
+-       ht40 = (os_strstr(cmd, " ht40") != NULL) || wpa_s-&gt;conf-&gt;p2p_go_ht40;
++       vht = (os_strstr(cmd, " vht") != NULL) || wpa_s-&gt;conf-&gt;p2p_go_vht;
++       ht40 = (os_strstr(cmd, " ht40") != NULL) || wpa_s-&gt;conf-&gt;p2p_go_ht40 ||
++               vht;
+
+-       return wpas_p2p_invite(wpa_s, _peer, ssid, NULL, freq, ht40, pref_freq);
++       return wpas_p2p_invite(wpa_s, _peer, ssid, NULL, freq, ht40, vht,
++                              pref_freq);
+ }
+
+
+@@ -4197,7 +4203,8 @@ static int p2p_ctrl_invite(struct wpa_supplicant *wpa_s, char *cmd)
+
+
+ static int p2p_ctrl_group_add_persistent(struct wpa_supplicant *wpa_s,
+-                                        char *cmd, int freq, int ht40)
++                                        char *cmd, int freq, int ht40,
++                                        int vht)
+ {
+        int id;
+        struct wpa_ssid *ssid;
+@@ -4211,32 +4218,34 @@ static int p2p_ctrl_group_add_persistent(struct wpa_supplicant *wpa_s,
+                return -1;
+        }
+
+-       return wpas_p2p_group_add_persistent(wpa_s, ssid, 0, freq, ht40, NULL,
+-                                            0);
++       return wpas_p2p_group_add_persistent(wpa_s, ssid, 0, freq, ht40, vht,
++                                            NULL, 0);
+ }
+
+
+ static int p2p_ctrl_group_add(struct wpa_supplicant *wpa_s, char *cmd)
+ {
+-       int freq = 0, ht40;
++       int freq = 0, ht40, vht;
+        char *pos;
+
+        pos = os_strstr(cmd, "freq=");
+        if (pos)
+                freq = atoi(pos + 5);
+
+-       ht40 = (os_strstr(cmd, "ht40") != NULL) || wpa_s-&gt;conf-&gt;p2p_go_ht40;
++       vht = (os_strstr(cmd, "vht") != NULL) || wpa_s-&gt;conf-&gt;p2p_go_vht;
++       ht40 = (os_strstr(cmd, "ht40") != NULL) || wpa_s-&gt;conf-&gt;p2p_go_ht40 ||
++               vht;
+
+        if (os_strncmp(cmd, "persistent=", 11) == 0)
+                return p2p_ctrl_group_add_persistent(wpa_s, cmd + 11, freq,
+-                                                    ht40);
++                                                    ht40, vht);
+        if (os_strcmp(cmd, "persistent") == 0 ||
+            os_strncmp(cmd, "persistent ", 11) == 0)
+-               return wpas_p2p_group_add(wpa_s, 1, freq, ht40);
++               return wpas_p2p_group_add(wpa_s, 1, freq, ht40, vht);
+        if (os_strncmp(cmd, "freq=", 5) == 0)
+-               return wpas_p2p_group_add(wpa_s, 0, freq, ht40);
++               return wpas_p2p_group_add(wpa_s, 0, freq, ht40, vht);
+        if (ht40)
+-               return wpas_p2p_group_add(wpa_s, 0, freq, ht40);
++               return wpas_p2p_group_add(wpa_s, 0, freq, ht40, vht);
+
+        wpa_printf(MSG_DEBUG, "CTRL: Invalid P2P_GROUP_ADD parameters '%s'",
+                   cmd);
+@@ -5417,7 +5426,7 @@ char * wpa_supplicant_ctrl_iface_process(struct wpa_supplicant *wpa_s,
+                if (wpas_p2p_group_remove(wpa_s, buf + 17))
+                        reply_len = -1;
+        } else if (os_strcmp(buf, "P2P_GROUP_ADD") == 0) {
+-               if (wpas_p2p_group_add(wpa_s, 0, 0, 0))
++               if (wpas_p2p_group_add(wpa_s, 0, 0, 0, 0))
+                        reply_len = -1;
+        } else if (os_strncmp(buf, "P2P_GROUP_ADD ", 14) == 0) {
+                if (p2p_ctrl_group_add(wpa_s, buf + 14))
+diff --git a/wpa_supplicant/dbus/dbus_new_handlers_p2p.c b/wpa_supplicant/dbus/dbus_new_handlers_p2p.c
+index 52b36b4..ae98309 100644
+--- a/wpa_supplicant/dbus/dbus_new_handlers_p2p.c
++++ b/wpa_supplicant/dbus/dbus_new_handlers_p2p.c
+@@ -346,14 +346,14 @@ DBusMessage * wpas_dbus_handler_p2p_group_add(DBusMessage *message,
+                if (ssid == NULL || ssid-&gt;disabled != 2)
+                        goto inv_args;
+
+-               if (wpas_p2p_group_add_persistent(wpa_s, ssid, 0, freq, 0,
++               if (wpas_p2p_group_add_persistent(wpa_s, ssid, 0, freq, 0, 0,
+                                                  NULL, 0)) {
+                        reply = wpas_dbus_error_unknown_error(
+                                message,
+                                "Failed to reinvoke a persistent group");
+                        goto out;
+                }
+-       } else if (wpas_p2p_group_add(wpa_s, persistent_group, freq, 0))
++       } else if (wpas_p2p_group_add(wpa_s, persistent_group, freq, 0, 0))
+                goto inv_args;
+
+ out:
+@@ -505,7 +505,7 @@ DBusMessage * wpas_dbus_handler_p2p_connect(DBusMessage *message,
+
+        new_pin = wpas_p2p_connect(wpa_s, addr, pin, wps_method,
+                                   persistent_group, 0, join, authorize_only,
+-                                  go_intent, freq, -1, 0, 0);
++                                  go_intent, freq, -1, 0, 0, 0);
+
+        if (new_pin &gt;= 0) {
+                char npin[9];
+@@ -631,7 +631,8 @@ DBusMessage * wpas_dbus_handler_p2p_invite(DBusMessage *message,
+                if (ssid == NULL || ssid-&gt;disabled != 2)
+                        goto err;
+
+-               if (wpas_p2p_invite(wpa_s, peer_addr, ssid, NULL, 0, 0, 0) &lt; 0)
++               if (wpas_p2p_invite(wpa_s, peer_addr, ssid, NULL, 0, 0, 0,
++                                   0) &lt; 0)
+                {
+                        reply = wpas_dbus_error_unknown_error(
+                                message,
+diff --git a/wpa_supplicant/p2p_supplicant.c b/wpa_supplicant/p2p_supplicant.c
+index 027caef..60a549c 100644
+--- a/wpa_supplicant/p2p_supplicant.c
++++ b/wpa_supplicant/p2p_supplicant.c
+@@ -1088,6 +1088,7 @@ static void wpas_start_wps_go(struct wpa_supplicant *wpa_s,
+                WPAS_MODE_P2P_GO;
+        ssid-&gt;frequency = params-&gt;freq;
+        ssid-&gt;ht40 = params-&gt;ht40;
++       ssid-&gt;vht = params-&gt;vht;
+        ssid-&gt;ssid = os_zalloc(params-&gt;ssid_len + 1);
+        if (ssid-&gt;ssid) {
+                os_memcpy(ssid-&gt;ssid, params-&gt;ssid, params-&gt;ssid_len);
+@@ -1348,6 +1349,8 @@ void wpas_go_neg_completed(void *ctx, struct p2p_go_neg_results *res)
+
+        if (wpa_s-&gt;p2p_go_ht40)
+                res-&gt;ht40 = 1;
++       if (wpa_s-&gt;p2p_go_vht)
++               res-&gt;vht = 1;
+
+        wpa_msg_global(wpa_s, MSG_INFO, P2P_EVENT_GO_NEG_SUCCESS "role=%s "
+                       "freq=%d ht40=%d peer_dev=" MACSTR " peer_iface=" MACSTR
+@@ -2728,7 +2731,7 @@ static void wpas_invitation_received(void *ctx, const u8 *sa, const u8 *bssid,
+                if (s) {
+                        int go = s-&gt;mode == WPAS_MODE_P2P_GO;
+                        wpas_p2p_group_add_persistent(
+-                               wpa_s, s, go, go ? op_freq : 0, 0, NULL,
++                               wpa_s, s, go, go ? op_freq : 0, 0, 0, NULL,
+                                go ? P2P_MAX_INITIAL_CONN_WAIT_GO_REINVOKE : 0);
+                } else if (bssid) {
+                        wpa_s-&gt;user_initiated_pd = 0;
+@@ -2898,7 +2901,8 @@ static void wpas_invitation_result(void *ctx, int status, const u8 *bssid,
+        wpas_p2p_group_add_persistent(wpa_s, ssid,
+                                      ssid-&gt;mode == WPAS_MODE_P2P_GO,
+                                      wpa_s-&gt;p2p_persistent_go_freq,
+-                                     wpa_s-&gt;p2p_go_ht40, channels,
++                                     wpa_s-&gt;p2p_go_ht40, wpa_s-&gt;p2p_go_vht,
++                                     channels,
+                                      ssid-&gt;mode == WPAS_MODE_P2P_GO ?
+                                      P2P_MAX_INITIAL_CONN_WAIT_GO_REINVOKE :
+                                      0);
+@@ -3712,7 +3716,8 @@ static void wpas_p2p_scan_res_join(struct wpa_supplicant *wpa_s,
+                                         wpa_s-&gt;p2p_connect_freq,
+                                         wpa_s-&gt;p2p_persistent_id,
+                                         wpa_s-&gt;p2p_pd_before_go_neg,
+-                                        wpa_s-&gt;p2p_go_ht40);
++                                        wpa_s-&gt;p2p_go_ht40,
++                                        wpa_s-&gt;p2p_go_vht);
+                        return;
+                }
+
+@@ -4073,6 +4078,7 @@ exit_free:
+  * @pd: Whether to send Provision Discovery prior to GO Negotiation as an
+  *     interoperability workaround when initiating group formation
+  * @ht40: Start GO with 40 MHz channel width
++ * @vht:  Start GO with VHT support
+  * Returns: 0 or new PIN (if pin was %NULL) on success, -1 on unspecified
+  *     failure, -2 on failure due to channel not currently available,
+  *     -3 if forced channel is not supported
+@@ -4081,7 +4087,7 @@ int wpas_p2p_connect(struct wpa_supplicant *wpa_s, const u8 *peer_addr,
+                     const char *pin, enum p2p_wps_method wps_method,
+                     int persistent_group, int auto_join, int join, int auth,
+                     int go_intent, int freq, int persistent_id, int pd,
+-                    int ht40)
++                    int ht40, int vht)
+ {
+        int force_freq = 0, pref_freq = 0;
+        int ret = 0, res;
+@@ -4116,6 +4122,7 @@ int wpas_p2p_connect(struct wpa_supplicant *wpa_s, const u8 *peer_addr,
+        wpa_s-&gt;p2p_fallback_to_go_neg = 0;
+        wpa_s-&gt;p2p_pd_before_go_neg = !!pd;
+        wpa_s-&gt;p2p_go_ht40 = !!ht40;
++       wpa_s-&gt;p2p_go_vht = !!vht;
+
+        if (pin)
+                os_strlcpy(wpa_s-&gt;p2p_pin, pin, sizeof(wpa_s-&gt;p2p_pin));
+@@ -4369,7 +4376,7 @@ static int wpas_p2p_select_go_freq(struct wpa_supplicant *wpa_s, int freq)
+
+ static int wpas_p2p_init_go_params(struct wpa_supplicant *wpa_s,
+                                   struct p2p_go_neg_results *params,
+-                                  int freq, int ht40,
++                                  int freq, int ht40, int vht,
+                                   const struct p2p_channels *channels)
+ {
+        int res, *freqs;
+@@ -4379,6 +4386,7 @@ static int wpas_p2p_init_go_params(struct wpa_supplicant *wpa_s,
+        os_memset(params, 0, sizeof(*params));
+        params-&gt;role_go = 1;
+        params-&gt;ht40 = ht40;
++       params-&gt;vht = vht;
+        if (freq) {
+                if (!freq_included(channels, freq)) {
+                        wpa_printf(MSG_DEBUG, "P2P: Forced GO freq %d MHz not "
+@@ -4551,7 +4559,7 @@ wpas_p2p_get_group_iface(struct wpa_supplicant *wpa_s, int addr_allocated,
+  * i.e., without using Group Owner Negotiation.
+  */
+ int wpas_p2p_group_add(struct wpa_supplicant *wpa_s, int persistent_group,
+-                      int freq, int ht40)
++                      int freq, int ht40, int vht)
+ {
+        struct p2p_go_neg_results params;
+
+@@ -4569,7 +4577,7 @@ int wpas_p2p_group_add(struct wpa_supplicant *wpa_s, int persistent_group,
+        if (freq &lt; 0)
+                return -1;
+
+-       if (wpas_p2p_init_go_params(wpa_s, &amp;params, freq, ht40, NULL))
++       if (wpas_p2p_init_go_params(wpa_s, &amp;params, freq, ht40, vht, NULL))
+                return -1;
+        if (params.freq &amp;&amp;
+            !p2p_supported_freq(wpa_s-&gt;global-&gt;p2p, params.freq)) {
+@@ -4637,7 +4645,7 @@ static int wpas_start_p2p_client(struct wpa_supplicant *wpa_s,
+
+ int wpas_p2p_group_add_persistent(struct wpa_supplicant *wpa_s,
+                                  struct wpa_ssid *ssid, int addr_allocated,
+-                                 int freq, int ht40,
++                                 int freq, int ht40, int vht,
+                                  const struct p2p_channels *channels,
+                                  int connection_timeout)
+ {
+@@ -4672,7 +4680,7 @@ int wpas_p2p_group_add_persistent(struct wpa_supplicant *wpa_s,
+        if (freq &lt; 0)
+                return -1;
+
+-       if (wpas_p2p_init_go_params(wpa_s, &amp;params, freq, ht40, channels))
++       if (wpas_p2p_init_go_params(wpa_s, &amp;params, freq, ht40, vht, channels))
+                return -1;
+
+        params.role_go = 1;
+@@ -5133,7 +5141,7 @@ int wpas_p2p_reject(struct wpa_supplicant *wpa_s, const u8 *addr)
+ /* Invite to reinvoke a persistent group */
+ int wpas_p2p_invite(struct wpa_supplicant *wpa_s, const u8 *peer_addr,
+                    struct wpa_ssid *ssid, const u8 *go_dev_addr, int freq,
+-                   int ht40, int pref_freq)
++                   int ht40, int vht, int pref_freq)
+ {
+        enum p2p_invite_role role;
+        u8 *bssid = NULL;
+@@ -5204,6 +5212,7 @@ int wpas_p2p_invite_group(struct wpa_supplicant *wpa_s, const char *ifname,
+
+        wpa_s-&gt;p2p_persistent_go_freq = 0;
+        wpa_s-&gt;p2p_go_ht40 = 0;
++       wpa_s-&gt;p2p_go_vht = 0;
+
+        for (wpa_s = global-&gt;ifaces; wpa_s; wpa_s = wpa_s-&gt;next) {
+                if (os_strcmp(wpa_s-&gt;ifname, ifname) == 0)
+@@ -6072,7 +6081,8 @@ static void wpas_p2p_fallback_to_go_neg(struct wpa_supplicant *wpa_s,
+                         0, 0, wpa_s-&gt;p2p_go_intent, wpa_s-&gt;p2p_connect_freq,
+                         wpa_s-&gt;p2p_persistent_id,
+                         wpa_s-&gt;p2p_pd_before_go_neg,
+-                        wpa_s-&gt;p2p_go_ht40);
++                        wpa_s-&gt;p2p_go_ht40,
++                        wpa_s-&gt;p2p_go_vht);
+ }
+
+
+diff --git a/wpa_supplicant/p2p_supplicant.h b/wpa_supplicant/p2p_supplicant.h
+index b4cb0f5..c0ad29e 100644
+--- a/wpa_supplicant/p2p_supplicant.h
++++ b/wpa_supplicant/p2p_supplicant.h
+@@ -24,17 +24,17 @@ int wpas_p2p_connect(struct wpa_supplicant *wpa_s, const u8 *peer_addr,
+                     const char *pin, enum p2p_wps_method wps_method,
+                     int persistent_group, int auto_join, int join,
+                     int auth, int go_intent, int freq, int persistent_id,
+-                    int pd, int ht40);
++                    int pd, int ht40, int vht);
+ void wpas_p2p_remain_on_channel_cb(struct wpa_supplicant *wpa_s,
+                                   unsigned int freq, unsigned int duration);
+ void wpas_p2p_cancel_remain_on_channel_cb(struct wpa_supplicant *wpa_s,
+                                          unsigned int freq);
+ int wpas_p2p_group_remove(struct wpa_supplicant *wpa_s, const char *ifname);
+ int wpas_p2p_group_add(struct wpa_supplicant *wpa_s, int persistent_group,
+-                      int freq, int ht40);
++                      int freq, int ht40, int vht);
+ int wpas_p2p_group_add_persistent(struct wpa_supplicant *wpa_s,
+                                  struct wpa_ssid *ssid, int addr_allocated,
+-                                 int freq, int ht40,
++                                 int freq, int ht40, int vht,
+                                  const struct p2p_channels *channels,
+                                  int connection_timeout);
+ struct p2p_group * wpas_p2p_group_init(struct wpa_supplicant *wpa_s,
+@@ -111,7 +111,7 @@ int wpas_p2p_service_del_upnp(struct wpa_supplicant *wpa_s, u8 version,
+ int wpas_p2p_reject(struct wpa_supplicant *wpa_s, const u8 *addr);
+ int wpas_p2p_invite(struct wpa_supplicant *wpa_s, const u8 *peer_addr,
+                    struct wpa_ssid *ssid, const u8 *go_dev_addr, int freq,
+-                   int ht40, int pref_freq);
++                   int ht40, int vht, int pref_freq);
+ int wpas_p2p_invite_group(struct wpa_supplicant *wpa_s, const char *ifname,
+                          const u8 *peer_addr, const u8 *go_dev_addr);
+ void wpas_p2p_completed(struct wpa_supplicant *wpa_s);
+diff --git a/wpa_supplicant/wpa_cli.c b/wpa_supplicant/wpa_cli.c
+index f84d198..8576509 100644
+--- a/wpa_supplicant/wpa_cli.c
++++ b/wpa_supplicant/wpa_cli.c
+@@ -616,6 +616,7 @@ static char ** wpa_cli_complete_set(const char *str, int pos)
+                "p2p_go_intent", "p2p_ssid_postfix", "persistent_reconnect",
+                "p2p_intra_bss", "p2p_group_idle", "p2p_pref_chan",
+                "p2p_go_ht40", "p2p_disabled", "p2p_no_group_iface",
++               "p2p_go_vht",
+                "p2p_ignore_shared_freq", "country", "bss_max_count",
+                "bss_expiration_age", "bss_expiration_scan_count",
+                "filter_ssids", "filter_rssi", "max_num_sta",
+diff --git a/wpa_supplicant/wpa_supplicant_i.h b/wpa_supplicant/wpa_supplicant_i.h
+index be493cf..0a5b689 100644
+--- a/wpa_supplicant/wpa_supplicant_i.h
++++ b/wpa_supplicant/wpa_supplicant_i.h
+@@ -646,6 +646,7 @@ struct wpa_supplicant {
+        unsigned int p2p_fallback_to_go_neg:1;
+        unsigned int p2p_pd_before_go_neg:1;
+        unsigned int p2p_go_ht40:1;
++       unsigned int p2p_go_vht:1;
+        unsigned int user_initiated_pd:1;
+        unsigned int p2p_go_group_formation_completed:1;
+        int p2p_first_connection_timeout;
+--
+</pre>
 </div>
-<div id="outline-container-sec-4" class="outline-2">
-<h2 id="sec-4">常用代码片断</h2>
-<div class="outline-text-2" id="text-4">
+</div>
+</div>
+</div>
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5">常用代码片断</h2>
+<div class="outline-text-2" id="text-5">
 <p>
 记录 <code>wpa_supplicant</code> 源码中常见的一些代码片断。
 </p>
 </div>
 
-<div id="outline-container-sec-4-1" class="outline-3">
-<h3 id="sec-4-1">遍历当前的接口</h3>
-<div class="outline-text-3" id="text-4-1">
+<div id="outline-container-sec-5-1" class="outline-3">
+<h3 id="sec-5-1">遍历当前的接口</h3>
+<div class="outline-text-3" id="text-5-1">
 <div class="org-src-container">
 
 <pre class="src src-c">struct wpa_global *global = wpa_s-&gt;global;
@@ -3123,9 +6336,9 @@ for (wpa_s = global-&gt;ifaces; wpa_s; wpa_s = wpa_s-&gt;next) {
 </div>
 </div>
 
-<div id="outline-container-sec-4-2" class="outline-3">
-<h3 id="sec-4-2">遍历接口上存在的SSID</h3>
-<div class="outline-text-3" id="text-4-2">
+<div id="outline-container-sec-5-2" class="outline-3">
+<h3 id="sec-5-2">遍历接口上存在的SSID</h3>
+<div class="outline-text-3" id="text-5-2">
 <div class="org-src-container">
 
 <pre class="src src-c">struct wpa_ssid *s;
@@ -3140,9 +6353,9 @@ for (s = wpa_s-&gt;conf-&gt;ssid; s; s = s-&gt;next) {
 </div>
 </div>
 
-<div id="outline-container-sec-4-3" class="outline-3">
-<h3 id="sec-4-3">遍历当前的接口(方法2)</h3>
-<div class="outline-text-3" id="text-4-3">
+<div id="outline-container-sec-5-3" class="outline-3">
+<h3 id="sec-5-3">遍历当前的接口(方法2)</h3>
+<div class="outline-text-3" id="text-5-3">
 <div class="org-src-container">
 
 <pre class="src src-c">/*
@@ -3164,9 +6377,9 @@ dl_list_for_each(ifs, &amp;wpa_s-&gt;radio-&gt;ifaces, struct wpa_supplicant,
 </div>
 </div>
 
-<div id="outline-container-sec-4-4" class="outline-3">
-<h3 id="sec-4-4">遍历hostapd上的bss</h3>
-<div class="outline-text-3" id="text-4-4">
+<div id="outline-container-sec-5-4" class="outline-3">
+<h3 id="sec-5-4">遍历hostapd上的bss</h3>
+<div class="outline-text-3" id="text-5-4">
 <div class="org-src-container">
 
 <pre class="src src-c">for (i = 0; i &lt; hapd-&gt;iface-&gt;num_bss; i++) {
@@ -3178,17 +6391,35 @@ dl_list_for_each(ifs, &amp;wpa_s-&gt;radio-&gt;ifaces, struct wpa_supplicant,
 </div>
 </div>
 </div>
+
+<div id="outline-container-sec-5-5" class="outline-3">
+<h3 id="sec-5-5">遍历 <code>wpa_supplicant</code> 上的bss list</h3>
+<div class="outline-text-3" id="text-5-5">
+<div class="org-src-container">
+
+<pre class="src src-c">struct wpa_bss *bss;
+dl_list_for_each_reverse(bss, &amp;wpa_s-&gt;bss, struct wpa_bss, list) {
+  u8 addr[ETH_ALEN];
+  if (p2p_parse_dev_addr((const u8 *) (bss + 1), bss-&gt;ie_len,
+                         addr) == 0 &amp;&amp;
+      os_memcmp(addr, dev_addr, ETH_ALEN) == 0)
+    return bss;
+}
+</pre>
+</div>
+</div>
+</div>
 </div>
 <div id="footnotes">
 <h2 class="footnotes">Footnotes: </h2>
 <div id="text-footnotes">
 
 <div class="footdef"><sup><a id="fn.1" name="fn.1" class="footnum" href="#fnr.1">1</a></sup> <p class="footpara">
-<a href="https://w1.fi/wpa_supplicant/devel/index.html">https://w1.fi/wpa_supplicant/devel/index.html</a>
+<a href="https://w1.fi/">https://w1.fi/</a>
 </p></div>
 
 <div class="footdef"><sup><a id="fn.2" name="fn.2" class="footnum" href="#fnr.2">2</a></sup> <p class="footpara">
-<a href="http://lists.shmoo.com/pipermail/hostap/">http://lists.shmoo.com/pipermail/hostap/</a>
+<a href="http://w1.fi/p/">http://w1.fi/p/</a>
 </p></div>
 
 
