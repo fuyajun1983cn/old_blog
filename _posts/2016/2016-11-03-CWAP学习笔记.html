@@ -96,76 +96,14 @@ categories: wifi
 <li><a href="#sec-2-13">Review Questions</a></li>
 </ul>
 </li>
-<li><a href="#sec-3">CH03 802.11 MAC Sublayer Frame Format</a>
-<ul>
-<li><a href="#sec-3-1">General 802.11 frame format</a></li>
-<li><a href="#sec-3-2">MAC header</a></li>
-<li><a href="#sec-3-3">Frame control field</a>
-<ul>
-<li><a href="#sec-3-3-1">Protocol Version field</a></li>
-<li><a href="#sec-3-3-2">Type and Sub-type fields</a></li>
-<li><a href="#sec-3-3-3">To DS and From DS fields</a></li>
-<li><a href="#sec-3-3-4">More Fragments field</a></li>
-<li><a href="#sec-3-3-5">Retry field</a></li>
-<li><a href="#sec-3-3-6">Power Management field</a></li>
-<li><a href="#sec-3-3-7">More Data field</a></li>
-<li><a href="#sec-3-3-8">Protected Frame field</a></li>
-<li><a href="#sec-3-3-9">Order field</a></li>
-</ul>
-</li>
-<li><a href="#sec-3-4">Duration/ID field</a></li>
-<li><a href="#sec-3-5">MAC layer addressing</a></li>
-<li><a href="#sec-3-6">Sequence Control field</a>
-<ul>
-<li><a href="#sec-3-6-1">Sequence Control Subfields</a></li>
-<li><a href="#sec-3-6-2">Understanding the Fragmentation Threshold</a></li>
-</ul>
-</li>
-<li><a href="#sec-3-7">QoS Control field</a></li>
-<li><a href="#sec-3-8">Frame Body</a></li>
-<li><a href="#sec-3-9">FCS field</a></li>
-<li><a href="#sec-3-10">Review Questions</a></li>
-</ul>
-</li>
-<li><a href="#sec-4">CH04 802.11 Management Frames</a>
-<ul>
-<li><a href="#sec-4-1">Management Frame Types</a>
-<ul>
-<li><a href="#sec-4-1-1">Beacons</a></li>
-<li><a href="#sec-4-1-2">Probe Request / Response</a></li>
-<li><a href="#sec-4-1-3">Authentication</a></li>
-<li><a href="#sec-4-1-4">Association Request / Response</a></li>
-<li><a href="#sec-4-1-5">Disassociation</a></li>
-<li><a href="#sec-4-1-6">Deauthentication</a></li>
-<li><a href="#sec-4-1-7">Reassociation Request / Response</a></li>
-<li><a href="#sec-4-1-8">ATIM Frame</a></li>
-<li><a href="#sec-4-1-9">Action Frame</a></li>
-</ul>
-</li>
-<li><a href="#sec-4-2">Information Elements and Fields</a>
-<ul>
-<li><a href="#sec-4-2-1">Management Frame Fields</a></li>
-<li><a href="#sec-4-2-2">Management Frame Information Elements</a></li>
-</ul>
-</li>
-<li><a href="#sec-4-3">Action Frames</a>
-<ul>
-<li><a href="#sec-4-3-1">Spectrum and Transmit Power Management (802.11h)</a></li>
-<li><a href="#sec-4-3-2">Admission Control (802.11e)</a></li>
-<li><a href="#sec-4-3-3">802.11r and 802.11w</a></li>
-</ul>
-</li>
-<li><a href="#sec-4-4">Review Questions</a></li>
-</ul>
-</li>
-<li><a href="#sec-5">CH05 802.11 Control Frames</a></li>
-<li><a href="#sec-6">CH06 Data Frames</a></li>
-<li><a href="#sec-7">CH07 802.11 Medium Contention</a></li>
-<li><a href="#sec-8">CH08 Power Management</a></li>
-<li><a href="#sec-9">CH09 802.11 Security</a></li>
-<li><a href="#sec-10">CH10 802.11n HT Analysis</a></li>
-<li><a href="#sec-11">CH11 Spectrum Analysis</a></li>
-<li><a href="#sec-12">CH12 Protocol Analyzer Operation and Troubleshooting</a></li>
+<li><a href="#sec-3">CH05 802.11 Control Frames</a></li>
+<li><a href="#sec-4">CH06 Data Frames</a></li>
+<li><a href="#sec-5">CH07 802.11 Medium Contention</a></li>
+<li><a href="#sec-6">CH08 Power Management</a></li>
+<li><a href="#sec-7">CH09 802.11 Security</a></li>
+<li><a href="#sec-8">CH10 802.11n HT Analysis</a></li>
+<li><a href="#sec-9">CH11 Spectrum Analysis</a></li>
+<li><a href="#sec-10">CH12 Protocol Analyzer Operation and Troubleshooting</a></li>
 </ul>
 </div>
 </div>
@@ -569,31 +507,32 @@ of WLAN products by providing certification testing.
 <li>The information found inside an IP packet is considered the
 main payload for which of the following?
 
-<ol class="org-ol">
-<li>MPDU
-</li>
+<p>
+A. MPDU
+</p>
 
-<li>PPDU
-</li>
+<p>
+B. PPDU
+</p>
 
-<li>PSDU
-</li>
+<p>
+C. PSDU
+</p>
 
-<li>MSDU
-</li>
+<p>
+D. MSDU
+</p>
 
-<li>MMPDU
-</li>
-</ol>
+<p>
+E. MMPDU
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>An IP packet comprises layer 3–7 information. The MAC
-</li>
-</ol>
 <p>
+D. An IP packet comprises layer 3–7 information. The MAC
 Service Data Unit (MSDU) contains data from the LLC sublayer
 and/or any number of layers above the Data-Link layer. The MSDU
 is the payload found inside the body of 802.11 data frames. 
@@ -603,28 +542,28 @@ is the payload found inside the body of 802.11 data frames.
 <li>Which sublayer of the OSI model’s Data-Link layer is used for
 communication between 802.11 radios?
 
-<ol class="org-ol">
-<li>LLC
-</li>
+<p>
+A. LLC
+</p>
 
-<li>WPA
-</li>
+<p>
+B. WPA
+</p>
 
-<li>MAC
-</li>
+<p>
+C. MAC
+</p>
 
-<li>FSK
-</li>
-</ol>
+<p>
+D. FSK
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>The IEEE 802.11-2007 standard defines communication
-</li>
-</ol>
 <p>
+C. The IEEE 802.11-2007 standard defines communication
 mechanisms at only the Physical layer and the MAC sublayer of
 the Data-Link layer of the OSI model. The Logical Link Control
 (LLC) sublayer of the Data-Link layer is not defined by the
@@ -636,28 +575,28 @@ modulation method.
 <li>Which of the following contains the same information found with
 an MPDU?
 
-<ol class="org-ol">
-<li>APDU
-</li>
+<p>
+A. APDU
+</p>
 
-<li>PPDU
-</li>
+<p>
+B. PPDU
+</p>
 
-<li>PSDU
-</li>
+<p>
+C. PSDU
+</p>
 
-<li>MSDU
-</li>
-</ol>
+<p>
+D. MSDU
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>The Data-Link layer refers to an 802.11 frame as the MPDU,
-</li>
-</ol>
 <p>
+C. The Data-Link layer refers to an 802.11 frame as the MPDU,
 while the Physical layer refers to this same 802.11 frame as
 the PLCP Service Data Unit (PSDU). 
 </p>
@@ -666,22 +605,26 @@ the PLCP Service Data Unit (PSDU).
 <li>What are the three main components of an 802.11 MPDU? (Choose
 the three best answers.)
 
-<ol class="org-ol">
-<li>Frame body
-</li>
+<p>
+A. Frame body
+</p>
 
-<li>PPDU
-</li>
+<p>
+B. PPDU
+</p>
 
-<li>MSDU
-</li>
+<p>
+C. MSDU
+</p>
 
-<li>Trailer
-</li>
+<p>
+D. Trailer
+</p>
 
-<li>MAC header
-</li>
-</ol>
+<p>
+E. MAC header
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -698,31 +641,32 @@ PHY header.
 <li>Which 802.11 frames are usually encrypted for data privacy
 reasons?
 
-<ol class="org-ol">
-<li>Management frames
-</li>
+<p>
+A. Management frames
+</p>
 
-<li>Control frames
-</li>
+<p>
+B. Control frames
+</p>
 
-<li>QoS data frames with MSDU payload
-</li>
+<p>
+C. QoS data frames with MSDU payload
+</p>
 
-<li>Data frames without an MSDU payload
-</li>
+<p>
+D. Data frames without an MSDU payload
+</p>
 
-<li>MMPDU
-</li>
-</ol>
+<p>
+E. MMPDU
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>Most 802.11 data frames and QoS data frames carry the actual
-</li>
-</ol>
 <p>
+C. Most 802.11 data frames and QoS data frames carry the actual
 MSDU data that is passed down from the higher-layer
 protocols. The layer 3–7 MSDU payload is normally encrypted for
 data privacy reasons. However, some 802.11 data frames carry no
@@ -741,31 +685,32 @@ frames do not have a frame body.
 <li>Which OSI sublayer is responsible for modulation and
 transmission of data bits?
 
-<ol class="org-ol">
-<li>PLCP
-</li>
+<p>
+A. PLCP
+</p>
 
-<li>PPTP
-</li>
+<p>
+B. PPTP
+</p>
 
-<li>MAC
-</li>
+<p>
+C. MAC
+</p>
 
-<li>LLC
-</li>
+<p>
+D. LLC
+</p>
 
-<li>PMD
-</li>
-</ol>
+<p>
+E. PMD
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>The PLCP and PMD are sublayers of layer 1, the Physical
-</li>
-</ol>
 <p>
+E. The PLCP and PMD are sublayers of layer 1, the Physical
 layer. The PLCP sublayer adds a preamble and PHY header to the
 PSDU to create a PPDU. The preamble is used for synchronization
 between transmitting and receiving 802.11 radios. After the
@@ -778,22 +723,26 @@ sublayers of the layer 2 Data-Link layer.
 <li>In what type of WLAN devices can the distribution system
 services (DSSs) operate? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>Mesh Access point
-</li>
+<p>
+A. Mesh Access point
+</p>
 
-<li>WLAN controller
-</li>
+<p>
+B. WLAN controller
+</p>
 
-<li>Autonomous access point
-</li>
+<p>
+C. Autonomous access point
+</p>
 
-<li>Laptop client radio
-</li>
+<p>
+D. Laptop client radio
+</p>
 
-<li>VoWiFi phone
-</li>
-</ol>
+<p>
+E. VoWiFi phone
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -813,31 +762,32 @@ service (SS).
 upper layer 3–7 information from an 802.11 frame format to an
 802.3 frame format? 
 
-<ol class="org-ol">
-<li>Association
-</li>
+<p>
+A. Association
+</p>
 
-<li>Integration
-</li>
+<p>
+B. Integration
+</p>
 
-<li>Reassociation
-</li>
+<p>
+C. Reassociation
+</p>
 
-<li>Disassociation
-</li>
+<p>
+D. Disassociation
+</p>
 
-<li>QoS traffic scheduling
-</li>
-</ol>
+<p>
+E. QoS traffic scheduling
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>All the options are considered distribution system services
-</li>
-</ol>
 <p>
+B. All the options are considered distribution system services
 (DSSs). The integration service (IS) enables delivery of MSDUs
 between the distribution system (DS) and a non-IEEE-802.11
 local area network (LAN), via a portal. A simpler way of
@@ -856,22 +806,26 @@ frame payload (MSDU) must be effectively transferred into an
 <li>Which of these services can be characterized by the 802.11
 station service (SS)? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>Association
-</li>
+<p>
+A. Association
+</p>
 
-<li>Authentication
-</li>
+<p>
+B. Authentication
+</p>
 
-<li>Disassociation
-</li>
+<p>
+C. Disassociation
+</p>
 
-<li>Deauthentication
-</li>
+<p>
+D. Deauthentication
+</p>
 
-<li>Transmit power control
-</li>
-</ol>
+<p>
+E. Transmit power control
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -892,25 +846,30 @@ services.
 <li>Which of these 802.11 frames carry a MAC sublayer payload
 inside the frame body? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>Beacon
-</li>
+<p>
+A. Beacon
+</p>
 
-<li>Data frame
-</li>
+<p>
+B. Data frame
+</p>
 
-<li>Reassociation request
-</li>
+<p>
+C. Reassociation request
+</p>
 
-<li>QoS data frame
-</li>
+<p>
+D. QoS data frame
+</p>
 
-<li>Probe response
-</li>
+<p>
+E. Probe response
+</p>
 
-<li>PS-Poll
-</li>
-</ol>
+<p>
+F. PS-Poll
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -932,22 +891,26 @@ upper-layer 3–7 payload.
 <li>In what type of WLAN devices can the stations service (SS)
 operate? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>Mesh access point
-</li>
+<p>
+A. Mesh access point
+</p>
 
-<li>WLAN controller
-</li>
+<p>
+B. WLAN controller
+</p>
 
-<li>Autonomous access point
-</li>
+<p>
+C. Autonomous access point
+</p>
 
-<li>Laptop client radio
-</li>
+<p>
+D. Laptop client radio
+</p>
 
-<li>VoWiFi phone
-</li>
-</ol>
+<p>
+E. VoWiFi phone
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -970,25 +933,30 @@ such as the integration service do not operate with client STAs.
 <li>The IEEE 802.11-2007 standard defines communication mechanisms
 at which layers of the OSI model? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>Network
-</li>
+<p>
+A. Network
+</p>
 
-<li>Physical
-</li>
+<p>
+B. Physical
+</p>
 
-<li>Transport
-</li>
+<p>
+C. Transport
+</p>
 
-<li>Application
-</li>
+<p>
+D. Application
+</p>
 
-<li>Data-Link
-</li>
+<p>
+E. Data-Link
+</p>
 
-<li>Session
-</li>
-</ol>
+<p>
+F. Session
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -1003,31 +971,32 @@ Data-Link layer of the OSI model.
 <li>Which OSI sublayer is responsible for adding a preamble and
 PHY header to an MPDU?
 
-<ol class="org-ol">
-<li>PLCP
-</li>
+<p>
+A. PLCP
+</p>
 
-<li>PPTP
-</li>
+<p>
+B. PPTP
+</p>
 
-<li>MAC
-</li>
+<p>
+C. MAC
+</p>
 
-<li>LLC
-</li>
+<p>
+D. LLC
+</p>
 
-<li>PMD
-</li>
-</ol>
+<p>
+E. PMD
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>The MAC layer refers to an 802.11 frame as the MPDU, while
-</li>
-</ol>
 <p>
+A. The MAC layer refers to an 802.11 frame as the MPDU, while
 the Physical layer refers to this same exact 802.11 frame as
 the PSDU. The PLCP and PMD are sublayers of layer 1, the
 Physical layer. The PLCP sublayer adds a preamble and PHY
@@ -1042,22 +1011,26 @@ LLC and MAC are sublayers of the layer 2 Data-Link layer.
 <li>Which of the following frequency spaces are supported by HT
 clause 20 radios? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>UNII 5.15–5.25 GHz
-</li>
+<p>
+A. UNII 5.15–5.25 GHz
+</p>
 
-<li>UNII 5.25–5.35 GHz
-</li>
+<p>
+B. UNII 5.25–5.35 GHz
+</p>
 
-<li>UNII 5.47–5.715 GHz
-</li>
+<p>
+C. UNII 5.47–5.715 GHz
+</p>
 
-<li>UNII 5.725–5.825 GHz
-</li>
+<p>
+D. UNII 5.725–5.825 GHz
+</p>
 
-<li>ISM 2.4–2.4835 GHz
-</li>
-</ol>
+<p>
+E. ISM 2.4–2.4835 GHz
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -1071,19 +1044,22 @@ A, B, C, D, E. The 802.11n devices (HT clause 20) support the
 <li>Which of the following devices are classified as 802.11 STA
 devices? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>Autonomous AP
-</li>
+<p>
+A. Autonomous AP
+</p>
 
-<li>VoWiFi Telephone
-</li>
+<p>
+B. VoWiFi Telephone
+</p>
 
-<li>Cellular Telephone
-</li>
+<p>
+C. Cellular Telephone
+</p>
 
-<li>DSSS Barcode Scanner
-</li>
-</ol>
+<p>
+D. DSSS Barcode Scanner
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -1105,31 +1081,32 @@ robust security network (RSN) Which Wi-Fi Alliance
 certification validates many of the robust security network
 (RSN) apply.)
 
-<ol class="org-ol">
-<li>WMM
-</li>
+<p>
+A. WMM
+</p>
 
-<li>CWG-RF
-</li>
+<p>
+B. CWG-RF
+</p>
 
-<li>802.11k
-</li>
+<p>
+C. 802.11k
+</p>
 
-<li>WMM-PS
-</li>
+<p>
+D. WMM-PS
+</p>
 
-<li>WPA2
-</li>
-</ol>
+<p>
+E. WPA2
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>The Wi-Fi Alliance maintains the Wi-Fi Protected Access 2
-</li>
-</ol>
 <p>
+E. The Wi-Fi Alliance maintains the Wi-Fi Protected Access 2
 (WPA2) certification. WPA2 is based on the robust security
 network (RSN) mechanisms that were originally defined in the
 IEEE 802.11i amendment that is now part of the 802.11-2007
@@ -1144,19 +1121,22 @@ and WPA2-Enterprise.
 <li>HT clause 20 radios are backward compatible with which of the
 following type of 802.11 radios? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>Clause 18 radios (HR-DSSS)
-</li>
+<p>
+A. Clause 18 radios (HR-DSSS)
+</p>
 
-<li>Clause 17 radios (OFDM)
-</li>
+<p>
+B. Clause 17 radios (OFDM)
+</p>
 
-<li>Clause 14 radios (FHSS)
-</li>
+<p>
+C. Clause 14 radios (FHSS)
+</p>
 
-<li>Clause 19 radios (ERP)
-</li>
-</ol>
+<p>
+D. Clause 19 radios (ERP)
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -1174,22 +1154,26 @@ frequency hopping radios.
 <li>Which of these 802.11 frames are considered to be 802.11
 control frames? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>ATIM
-</li>
+<p>
+A. ATIM
+</p>
 
-<li>ACK
-</li>
+<p>
+B. ACK
+</p>
 
-<li>CTS
-</li>
+<p>
+C. CTS
+</p>
 
-<li>Probe response
-</li>
+<p>
+D. Probe response
+</p>
 
-<li>PS-Poll
-</li>
-</ol>
+<p>
+E. PS-Poll
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -1207,31 +1191,32 @@ frame acknowledgments.
 <li>What is the maximum size of the payload of a data frame as
 defined by the 802.11-2007 standard?
 
-<ol class="org-ol">
-<li>1500 bytes
-</li>
+<p>
+A. 1500 bytes
+</p>
 
-<li>2304 bytes
-</li>
+<p>
+B. 2304 bytes
+</p>
 
-<li>1504 bytes
-</li>
+<p>
+C. 1504 bytes
+</p>
 
-<li>1518
-</li>
+<p>
+D. 1518
+</p>
 
-<li>1522
-</li>
-</ol>
+<p>
+E. 1522
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>One of the differences between 802.3 Ethernet and 802.11
-</li>
-</ol>
 <p>
+B. One of the differences between 802.3 Ethernet and 802.11
 frames is the frame size. 802.3 frames have a maximum size of
 1,518 bytes with a maximum data payload of 1,500 bytes. If the
 802.3 frames are 802.1Q tagged for VLANs and user priority,
@@ -1248,28 +1233,28 @@ overhead from encryption.
 <li>How many MAC address fields are found in the MAC header of an
 802.11 frame? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>Four
-</li>
+<p>
+A. Four
+</p>
 
-<li>Three
-</li>
+<p>
+B. Three
+</p>
 
-<li>Two
-</li>
+<p>
+C. Two
+</p>
 
-<li>One
-</li>
-</ol>
+<p>
+D. One
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>A huge difference between 802.3 and 802.11 frames is the
-</li>
-</ol>
 <p>
+A. A huge difference between 802.3 and 802.11 frames is the
 MAC addressing fields. 802.3 frames have only a source address
 (SA) and destination address (DA) in the layer 2
 header. 802.11 frames have four address fields in the MAC
@@ -2086,31 +2071,32 @@ and 11 Mbps.
 center frequencies for HR-DSSS (clause 18) channels to be
 considered nonoverlapping? 
 
-<ol class="org-ol">
-<li>22 MHz
-</li>
+<p>
+A. 22 MHz
+</p>
 
-<li>25 MHz
-</li>
+<p>
+B. 25 MHz
+</p>
 
-<li>30 MHz
-</li>
+<p>
+C. 30 MHz
+</p>
 
-<li>35 MHz
-</li>
+<p>
+D. 35 MHz
+</p>
 
-<li>40 MHz
-</li>
-</ol>
+<p>
+E. 40 MHz
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>HR-DSSS (clause 18) was introduced under the 802.11b
-</li>
-</ol>
 <p>
+B. HR-DSSS (clause 18) was introduced under the 802.11b
 amendment, which states that channels need a minimum of 25 MHz
 of separation between the center frequencies to be considered
 nonoverlapping. 
@@ -2120,22 +2106,26 @@ nonoverlapping.
 <li>The upper portion of the Physical layer is known as the <span class="underline">_  ,
 and the lower portion is known as the _</span> .
 
-<ol class="org-ol">
-<li>PPDU
-</li>
+<p>
+A. PPDU
+</p>
 
-<li>PMD
-</li>
+<p>
+B. PMD
+</p>
 
-<li>PSDU
-</li>
+<p>
+C. PSDU
+</p>
 
-<li>PLCP
-</li>
+<p>
+D. PLCP
+</p>
 
-<li>MSDU
-</li>
-</ol>
+<p>
+E. MSDU
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -2150,22 +2140,26 @@ sublayer.
 
 <li>What three parts make up the PPDU? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>PMD
-</li>
+<p>
+A. PMD
+</p>
 
-<li>PLCP Preamble
-</li>
+<p>
+B. PLCP Preamble
+</p>
 
-<li>PLCP Header
-</li>
+<p>
+C. PLCP Header
+</p>
 
-<li>PSP
-</li>
+<p>
+D. PSP
+</p>
 
-<li>PLCP Service Data Unit (PSDU)
-</li>
-</ol>
+<p>
+E. PLCP Service Data Unit (PSDU)
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -2182,31 +2176,32 @@ to the PSDU to create the PPDU.
 <li>The Long PPDU includes a <span class="underline">_ -bit PLCP Preamble, which consists
 of a _</span> -bit Sync field.
 
-<ol class="org-ol">
-<li>144, 128
-</li>
+<p>
+A. 144, 128
+</p>
 
-<li>72, 56
-</li>
+<p>
+B. 72, 56
+</p>
 
-<li>256, 212
-</li>
+<p>
+C. 256, 212
+</p>
 
-<li>144, 72
-</li>
+<p>
+D. 144, 72
+</p>
 
-<li>128, 72
-</li>
-</ol>
+<p>
+E. 128, 72
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>The Long PPDU includes a 144-bit PLCP Preamble, which
-</li>
-</ol>
 <p>
+A. The Long PPDU includes a 144-bit PLCP Preamble, which
 consists of a 128-bit Sync field and a 16-bit Start of Frame
 Delimiter (SFD). 
 </p>
@@ -2215,31 +2210,32 @@ Delimiter (SFD).
 <li>Both the Long and Short Preambles are transmitted using which
 modulation technique?
 
-<ol class="org-ol">
-<li>DBPSK
-</li>
+<p>
+A. DBPSK
+</p>
 
-<li>DQPSK
-</li>
+<p>
+B. DQPSK
+</p>
 
-<li>2GFSK
-</li>
+<p>
+C. 2GFSK
+</p>
 
-<li>4GFSK
-</li>
+<p>
+D. 4GFSK
+</p>
 
-<li>16-QAM
-</li>
-</ol>
+<p>
+E. 16-QAM
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>The Long Preamble is transmitted using Differential Binary
-</li>
-</ol>
 <p>
+A. The Long Preamble is transmitted using Differential Binary
 Phase Shift Keying (DBPSK) at the rate of 1 Mbps. Like the
 Long PLCP Preamble, the Short PLCP Preamble is also
 transmitted using DBPSK. 
@@ -2249,22 +2245,26 @@ transmitted using DBPSK.
 <li>Which of the following fields are contained in the Long and
 Short PLCP Headers? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>Service
-</li>
+<p>
+A. Service
+</p>
 
-<li>Length
-</li>
+<p>
+B. Length
+</p>
 
-<li>Signal
-</li>
+<p>
+C. Signal
+</p>
 
-<li>Preamble
-</li>
+<p>
+D. Preamble
+</p>
 
-<li>CRC
-</li>
-</ol>
+<p>
+E. CRC
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -2279,22 +2279,26 @@ Service (8 bits), Length (16 bits), and CRC (16 bits).
 <li>Which PPDUs were defined by the 802.11n amendment? (Choose all
 that apply.)
 
-<ol class="org-ol">
-<li>Non-HT legacy PPDU
-</li>
+<p>
+A. Non-HT legacy PPDU
+</p>
 
-<li>HT PPDU
-</li>
+<p>
+B. HT PPDU
+</p>
 
-<li>HT-mixed PPDU
-</li>
+<p>
+C. HT-mixed PPDU
+</p>
 
-<li>Combined HT Legacy PPDU
-</li>
+<p>
+D. Combined HT Legacy PPDU
+</p>
 
-<li>HT-greenfield PPDU
-</li>
-</ol>
+<p>
+E. HT-greenfield PPDU
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -2309,22 +2313,26 @@ HT-greenfield PPDU.
 <li>Which of the following define radios that can transmit in the
 2.4 GHz ISM band? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>Clause 14
-</li>
+<p>
+A. Clause 14
+</p>
 
-<li>Clause 15
-</li>
+<p>
+B. Clause 15
+</p>
 
-<li>Clause 18
-</li>
+<p>
+C. Clause 18
+</p>
 
-<li>Clause 19
-</li>
+<p>
+D. Clause 19
+</p>
 
-<li>Clause 20
-</li>
-</ol>
+<p>
+E. Clause 20
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -2352,22 +2360,26 @@ technologies:
 <li>Clause 17 defines communications using which of the following
 modulation methods? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>DBPSK
-</li>
+<p>
+A. DBPSK
+</p>
 
-<li>BPSK
-</li>
+<p>
+B. BPSK
+</p>
 
-<li>QPSK
-</li>
+<p>
+C. QPSK
+</p>
 
-<li>16-QAM
-</li>
+<p>
+D. 16-QAM
+</p>
 
-<li>64-QAM
-</li>
-</ol>
+<p>
+E. 64-QAM
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -2383,25 +2395,30 @@ Mbps transmissions.
 <li>According to the IEEE, clause 17 and clause 19 require which
 of the following data rates? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>6
-</li>
+<p>
+A. 6
+</p>
 
-<li>9
-</li>
+<p>
+B. 9
+</p>
 
-<li>12
-</li>
+<p>
+C. 12
+</p>
 
-<li>18
-</li>
+<p>
+D. 18
+</p>
 
-<li>24
-</li>
+<p>
+E. 24
+</p>
 
-<li>54
-</li>
-</ol>
+<p>
+F. 54
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -2417,31 +2434,32 @@ the IEEE requires only the data rates of 6, 12, and 24 Mbps.
 the Physical), list the 4 sublayers that make up the
 Data-Link and Physical layers.
 
-<ol class="org-ol">
-<li>LLC, MAC, PSDU, PLCP
-</li>
+<p>
+A. LLC, MAC, PSDU, PLCP
+</p>
 
-<li>MAC, LLC, PSDU, PLCP
-</li>
+<p>
+B. MAC, LLC, PSDU, PLCP
+</p>
 
-<li>PMD, PLCP, MAC, LLC
-</li>
+<p>
+C. PMD, PLCP, MAC, LLC
+</p>
 
-<li>LLC, MAC, PLCP, PMD
-</li>
+<p>
+D. LLC, MAC, PLCP, PMD
+</p>
 
-<li>MAC, LLC, PLCP, PMD
-</li>
-</ol>
+<p>
+E. MAC, LLC, PLCP, PMD
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>The Data-Link layer is divided into the upper LLC sublayer
-</li>
-</ol>
 <p>
+D. The Data-Link layer is divided into the upper LLC sublayer
 and the lower MAC sublayer. The Physical layer is divided
 into the upper Physical Layer Convergence Procedure (PLCP)
 sublayer and the lower Physical Medium Dependent (PMD)
@@ -2452,22 +2470,26 @@ sublayer.
 <li>When a Long PLCP Header is used, what speeds can be used for
 transmitting the PSDU? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>1 Mbps
-</li>
+<p>
+A. 1 Mbps
+</p>
 
-<li>2 Mbps
-</li>
+<p>
+B. 2 Mbps
+</p>
 
-<li>5.5 Mbps
-</li>
+<p>
+C. 5.5 Mbps
+</p>
 
-<li>11 Mbps
-</li>
+<p>
+D. 11 Mbps
+</p>
 
-<li>54 mbps
-</li>
-</ol>
+<p>
+E. 54 mbps
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -2482,31 +2504,32 @@ Mbps, 5.5 Mbps, and 11 Mbps.
 <li>According to the 802.11n amendment, which of the following
 PPDU formats is optional?
 
-<ol class="org-ol">
-<li>Long PPDU
-</li>
+<p>
+A. Long PPDU
+</p>
 
-<li>Short PPDU
-</li>
+<p>
+B. Short PPDU
+</p>
 
-<li>Non-HT legacy PPDU
-</li>
+<p>
+C. Non-HT legacy PPDU
+</p>
 
-<li>HT-mixed PPDU
-</li>
+<p>
+D. HT-mixed PPDU
+</p>
 
-<li>HT-greenfield PPDU
-</li>
-</ol>
+<p>
+E. HT-greenfield PPDU
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>Support for the HT-greenfield format is optional, and the
-</li>
-</ol>
 <p>
+E. Support for the HT-greenfield format is optional, and the
 HT radios can transmit by using both 20 MHz and 40 MHz
 channels. 
 </p>
@@ -2514,84 +2537,90 @@ channels.
 
 <li>How wide are the UNII-1, UNII-2, and UNII-3 bands?
 
-<ol class="org-ol">
-<li>20 MHz
-</li>
+<p>
+A. 20 MHz
+</p>
 
-<li>22 MHz
-</li>
+<p>
+B. 22 MHz
+</p>
 
-<li>11 MHz
-</li>
+<p>
+C. 11 MHz
+</p>
 
-<li>100 MHz
-</li>
+<p>
+D. 100 MHz
+</p>
 
-<li>It varies depending upon the specific band.
-</li>
-</ol>
+<p>
+E. It varies depending upon the specific band.
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>These 3 UNII bands are 100 MHz wide, and UNII-2 extended is 255 MHz wide.
-</li>
-</ol>
+<p>
+D. These 3 UNII bands are 100 MHz wide, and UNII-2 extended is 255 MHz wide.
+</p>
 </li>
 
 <li>What are the boundaries of the UNII-2 Extended bands?
 
-<ol class="org-ol">
-<li>5.470 GHz to 5.725 GHz
-</li>
+<p>
+A. 5.470 GHz to 5.725 GHz
+</p>
 
-<li>5.5 GHz to 5.75 GHz
-</li>
+<p>
+B. 5.5 GHz to 5.75 GHz
+</p>
 
-<li>2.4 GHz to 2.4835 GHz
-</li>
+<p>
+C. 2.4 GHz to 2.4835 GHz
+</p>
 
-<li>902 MHz to 928 MHz
-</li>
-</ol>
+<p>
+D. 902 MHz to 928 MHz
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>The UNII-2 Extended band is 255 MHz wide and spans from 5.470 GHz to 5.725 GHz.
-</li>
-</ol>
+<p>
+A. The UNII-2 Extended band is 255 MHz wide and spans from 5.470 GHz to 5.725 GHz.
+</p>
 </li>
 
 <li>What is the frequency width of each clause 17 subcarrier?
 
-<ol class="org-ol">
-<li>20 KHz
-</li>
+<p>
+A. 20 KHz
+</p>
 
-<li>22 KHz
-</li>
+<p>
+B. 22 KHz
+</p>
 
-<li>100 KHz
-</li>
+<p>
+C. 100 KHz
+</p>
 
-<li>312.5 KHz
-</li>
+<p>
+D. 312.5 KHz
+</p>
 
-<li>350 KHz
-</li>
-</ol>
+<p>
+E. 350 KHz
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
 
-<ol class="org-ol">
-<li>The frequency width of each OFDM subcarrier is 312.5
-</li>
-</ol>
 <p>
+D. The frequency width of each OFDM subcarrier is 312.5
 KHz. The subcarriers are also transmitted at lower data
 rates, but because there are so many subcarriers, overall
 data rates are higher. 
@@ -2601,22 +2630,26 @@ data rates are higher.
 <li>Which terms are used to describe the error correction method
 used by clause 17 devices? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>Cyclic Redundancy Check
-</li>
+<p>
+A. Cyclic Redundancy Check
+</p>
 
-<li>Forward error correction
-</li>
+<p>
+B. Forward error correction
+</p>
 
-<li>Frame Check Sequence
-</li>
+<p>
+C. Frame Check Sequence
+</p>
 
-<li>Convolutional coding
-</li>
+<p>
+D. Convolutional coding
+</p>
 
-<li>Parity
-</li>
-</ol>
+<p>
+E. Parity
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -2636,19 +2669,22 @@ corrupted bits.
 along with the coding methods used by HR-DSSS
 devices. (Choose all that apply.)
 
-<ol class="org-ol">
-<li>Barker code
-</li>
+<p>
+A. Barker code
+</p>
 
-<li>Convolutional coding
-</li>
+<p>
+B. Convolutional coding
+</p>
 
-<li>Complementary Code Keying (CCK)
-</li>
+<p>
+C. Complementary Code Keying (CCK)
+</p>
 
-<li>Bitwise coding
-</li>
-</ol>
+<p>
+D. Bitwise coding
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -2665,22 +2701,26 @@ transmissions.
 terms that define the data portion of an 802.11 transmission?
 (Choose two.) 
 
-<ol class="org-ol">
-<li>PSDU
-</li>
+<p>
+A. PSDU
+</p>
 
-<li>PLCP
-</li>
+<p>
+B. PLCP
+</p>
 
-<li>MSDU
-</li>
+<p>
+C. MSDU
+</p>
 
-<li>MPDU
-</li>
+<p>
+D. MPDU
+</p>
 
-<li>PMD
-</li>
-</ol>
+<p>
+E. PMD
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -2696,22 +2736,26 @@ layer.
 <li>When a Short PLCP Header is used, what speeds can be used for
 transmitting the PSDU? (Choose all that apply.)
 
-<ol class="org-ol">
-<li>1 Mbps
-</li>
+<p>
+A. 1 Mbps
+</p>
 
-<li>2 Mbps
-</li>
+<p>
+B. 2 Mbps
+</p>
 
-<li>5.5 Mbps
-</li>
+<p>
+C. 5.5 Mbps
+</p>
 
-<li>11 Mbps
-</li>
+<p>
+D. 11 Mbps
+</p>
 
-<li>54 Mbps
-</li>
-</ol>
+<p>
+E. 54 Mbps
+</p>
+
 <p>
 <b>答案解析</b>
 </p>
@@ -2727,3813 +2771,34 @@ rates are supported: 2 Mbps, 5.5 Mbps, and 11 Mbps.
 </div>
 
 <div id="outline-container-sec-3" class="outline-2">
-<h2 id="sec-3">CH03 802.11 MAC Sublayer Frame Format</h2>
-<div class="outline-text-2" id="text-3">
-</div><div id="outline-container-sec-3-1" class="outline-3">
-<h3 id="sec-3-1">General 802.11 frame format</h3>
-<div class="outline-text-3" id="text-3-1">
-<p>
-从技术上讲，一个802.11帧就是一个MPDU。一个MPDU主要包含三个基本部
-分：
-</p>
-<ul class="org-ul">
-<li>MAC Header
-</li>
-<li>Frame Body
-</li>
-<li>Frame Check Sequence (FCS)
-</li>
-</ul>
-</div>
-</div>
-<div id="outline-container-sec-3-2" class="outline-3">
-<h3 id="sec-3-2">MAC header</h3>
-<div class="outline-text-3" id="text-3-2">
-<p>
-MAC头部主要有8个字段，其中4个用于寻址，每个地址字段占用4个字节。
-其他4个字段分别是： Frame Control， Duration/ID， Sequence
-Control， QoS Control，每个字段各占2个字节。如果所有的字段都用到
-时的话，一个802.11 MAC头部的最大大小为32字节。802.11n增加了一个新
-的字段：HT Control，占4个字节。所以，对于11n设备来说，最大的MAC头
-部大小为36字节。不过，通常实际帧的头部大小要小于上述值。
-</p>
-</div>
-</div>
-<div id="outline-container-sec-3-3" class="outline-3">
-<h3 id="sec-3-3">Frame control field</h3>
-<div class="outline-text-3" id="text-3-3">
-</div><div id="outline-container-sec-3-3-1" class="outline-4">
-<h4 id="sec-3-3-1">Protocol Version field</h4>
-<div class="outline-text-4" id="text-3-3-1">
-<p>
-占两个比特，主要标识802.11协议的版本，通常值为0.
-</p>
-</div>
-</div>
-<div id="outline-container-sec-3-3-2" class="outline-4">
-<h4 id="sec-3-3-2">Type and Sub-type fields</h4>
-<div class="outline-text-4" id="text-3-3-2">
-<p>
-两个字段一起标识了一个帧的功能。Type占用了2个比特，Sub-type占用
-了4个比特。
-</p>
-</div>
-</div>
-<div id="outline-container-sec-3-3-3" class="outline-4">
-<h4 id="sec-3-3-3">To DS and From DS fields</h4>
-<div class="outline-text-4" id="text-3-3-3">
-<p>
-各占一个比特。 用于改变4个地址的意义。
-</p>
-</div>
-</div>
-<div id="outline-container-sec-3-3-4" class="outline-4">
-<h4 id="sec-3-3-4">More Fragments field</h4>
-<div class="outline-text-4" id="text-3-3-4">
-<p>
-占用一个比特，不为0时代表后面还有分片需要接收。
-</p>
-</div>
-</div>
-<div id="outline-container-sec-3-3-5" class="outline-4">
-<h4 id="sec-3-3-5">Retry field</h4>
-<div class="outline-text-4" id="text-3-3-5">
-<p>
-占用一个比特，不为0时代表当前帧是一个重传帧。Layer 2发生太多的
-重传会导致数据传输的延迟增大，一般重传率应该不大于10%。
-</p>
-</div>
-</div>
-<div id="outline-container-sec-3-3-6" class="outline-4">
-<h4 id="sec-3-3-6">Power Management field</h4>
-<div class="outline-text-4" id="text-3-3-6">
-<p>
-占一个比特，表示当前STA是否处于省电状态。
-</p>
-</div>
-</div>
-<div id="outline-container-sec-3-3-7" class="outline-4">
-<h4 id="sec-3-3-7">More Data field</h4>
-<div class="outline-text-4" id="text-3-3-7">
-<p>
-当休眠的STA 醒来时，发现AP缓存了发往自己的数据时，通过PS-POLL
-向AP获取数据，当该位不为0时，STA需要不断的发送PS-POLL以获取AP
-中缓存的数据。
-</p>
-</div>
-</div>
-<div id="outline-container-sec-3-3-8" class="outline-4">
-<h4 id="sec-3-3-8">Protected Frame field</h4>
-<div class="outline-text-4" id="text-3-3-8">
-<p>
-占用一个比特，当不为0时，代表当前帧的MSDU部分已经加密。
-</p>
-</div>
-</div>
-<div id="outline-container-sec-3-3-9" class="outline-4">
-<h4 id="sec-3-3-9">Order field</h4>
-<div class="outline-text-4" id="text-3-3-9">
-<p>
-占用一个比特，当上层要求一个非QoS的数据帧必须严格按序发送数据
-时，该位置为1,其他情况都应该置为0.
-</p>
-</div>
-</div>
-</div>
-<div id="outline-container-sec-3-4" class="outline-3">
-<h3 id="sec-3-4">Duration/ID field</h3>
-<div class="outline-text-3" id="text-3-4">
-<p>
-该字段占用16个比特，主要用于3个不同的目的：
-</p>
-<ul class="org-ul">
-<li>Virtual carrier-sense
-The main purpose of this field is to reset the NAV timer of
-other stations.
-</li>
-<li>Legacy power management
-PS-Poll frames use the field as an association identifier (AID).
-</li>
-<li>Contention-free period
-The field is used as an indicator that a point coordination
-function (PCF) process has begun.
-</li>
-</ul>
-</div>
-</div>
-<div id="outline-container-sec-3-5" class="outline-3">
-<h3 id="sec-3-5">MAC layer addressing</h3>
-<div class="outline-text-3" id="text-3-5">
-<p>
-802.11 MAC层地址主要分为两类：
-</p>
-<ul class="org-ul">
-<li>单播地址
-</li>
-<li>组地址
-<ul class="org-ul">
-<li>广播地址
-</li>
-<li>多播地址
-</li>
-</ul>
-
-<div class="figure">
-<p><img src="/images/2016/2016101001.png" alt="2016101001.png" />
-</p>
-<p><span class="figure-number">Figure 9:</span> 802.11 MAC addressing</p>
-</div>
-</li>
-</ul>
-</div>
-</div>
-
-<div id="outline-container-sec-3-6" class="outline-3">
-<h3 id="sec-3-6">Sequence Control field</h3>
-<div class="outline-text-3" id="text-3-6">
-<p>
-占用16比特， 包含两个子字段： Fragment Number（4比特）， Sequence
-Number（12比特）。 
-</p>
-</div>
-
-<div id="outline-container-sec-3-6-1" class="outline-4">
-<h4 id="sec-3-6-1">Sequence Control Subfields</h4>
-<div class="outline-text-4" id="text-3-6-1">
-<p>
-值的范围为0~4095. 
-</p>
-</div>
-</div>
-
-<div id="outline-container-sec-3-6-2" class="outline-4">
-<h4 id="sec-3-6-2">Understanding the Fragmentation Threshold</h4>
-<div class="outline-text-4" id="text-3-6-2">
-<p>
-All 802.11 stations can be configured with a fragmentation
-threshold. If the fragmentation threshold is set at 300 bytes,
-any MSDU larger than 300 bytes will be fragmented. 
-</p>
-</div>
-</div>
-</div>
-
-<div id="outline-container-sec-3-7" class="outline-3">
-<h3 id="sec-3-7">QoS Control field</h3>
-<div class="outline-text-3" id="text-3-7">
-<p>
-the QoS control field is only used in the MAC header of QoS data
-frames. 
-</p>
-
-
-<div class="figure">
-<p><img src="/images/2016/2016101002.png" alt="2016101002.png" />
-</p>
-<p><span class="figure-number">Figure 10:</span> QoS Control field</p>
-</div>
-</div>
-</div>
-
-<div id="outline-container-sec-3-8" class="outline-3">
-<h3 id="sec-3-8">Frame Body</h3>
-<div class="outline-text-3" id="text-3-8">
-<p>
-大小可变， 其中控制帧没有帧主体。
-</p>
-
-<p>
-The 802.11-2007 standard states that the maximum size of the MSDU
-is 2,304 bytes.
-</p>
-
-<p>
-An 802.11n station using this method of aggregation can have a
-frame body with a maximum A-MSDU size (3839 or 7935 octets,
-depending upon the STA’s capability), plus any overhead from
-encryption. 
-</p>
-
-<p>
-WEP encryption adds 8 bytes of overhead to the frame body of an
-802.11 data frame.
-</p>
-
-<p>
-TKIP encryption adds 20 bytes of overhead to an 802.11 MPDU.
-</p>
-
-<p>
-CCMP encryption adds 16 bytes of overhead to an 802.11 data frame.
-</p>
-</div>
-</div>
-
-<div id="outline-container-sec-3-9" class="outline-3">
-<h3 id="sec-3-9">FCS field</h3>
-<div class="outline-text-3" id="text-3-9">
-<p>
-包含32比特的CRC，用于验证接收到的帧的完整性。
-</p>
-</div>
-</div>
-
-<div id="outline-container-sec-3-10" class="outline-3">
-<h3 id="sec-3-10">Review Questions</h3>
-<div class="outline-text-3" id="text-3-10">
-<ol class="org-ol">
-<li>Based on the 802.11 frame capture shown here, what type of
-networking communications are occurring?
-
-
-<div class="figure">
-<p><img src="/images/2016/2016101201.png" alt="2016101201.png" />
-</p>
-</div>
-
-<ol class="org-ol">
-<li>AP to client station
-</li>
-
-<li>Client station to server
-</li>
-
-<li>Client station to AP
-</li>
-
-<li>Server to client station
-</li>
-
-<li>Mesh backhaul
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>The graphic displays four MAC addresses. Although 802.11 frames have four address
-</li>
-</ol>
-</li>
-</ol>
-<p>
-fields in the MAC header, 802.11 frames typically use only three of the MAC address fields.
-An 802.11 frame sent within a wireless distribution system (WDS) requires all four MAC
-addresses. Although the standard does not specifically define procedures for using this format,
-WLAN vendors often implement WDS solutions. Examples of a WDS include WLAN
-bridges, mesh networks, and wireless repeaters.
-</p>
-
-<ol class="org-ol">
-<li>CCMP/AES encryption adds an extra  <span class="underline">__</span>  of overhead to the
-body of an 802.11 data frame.
-
-<ol class="org-ol">
-<li>16 bytes
-</li>
-
-<li>12 bytes
-</li>
-
-<li>20 bytes
-</li>
-
-<li>10 bytes
-</li>
-
-<li>None of the above
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>CCMP/AES encryption will add an extra 16 bytes of overhead to the body of an 802.11
-</li>
-</ol>
-</li>
-</ol>
-<p>
-data frame. Eight bytes are added by the CCMP header, and 8 bytes are added by the MIC.
-WEP encryption will add an extra 8 bytes of overhead to the body of an 802.11 data frame.
-When TKIP is implemented, because of the extra overhead from the extended IV and the
-MIC, a total of 20 bytes of overhead is added to the body of an 802.11 data frame.
-</p>
-
-<ol class="org-ol">
-<li>Which of the following 802.11 frames carry an MSDU payload
-that may eventually be transferred by the integration service
-into an 802.3 Ethernet frame? (Choose all that apply.) 
-
-<ol class="org-ol">
-<li>802.11 management frames
-</li>
-
-<li>802.11 control frames
-</li>
-
-<li>802.11 data frames
-</li>
-
-<li>802.11 power-management frames
-</li>
-
-<li>802.11 action frames
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>Only 802.11 data frames can carry an upper-layer payload (MSDU) within the body
-</li>
-</ol>
-</li>
-</ol>
-<p>
-of the frame. The MSDU can be as large as 2,304 bytes and usually should be encrypted.
-802.11 control frames do not have a body. 802.11 management frames have a body; however,
-the payload is strictly layer 2 information.
-</p>
-
-<ol class="org-ol">
-<li>What would cause an 802.11 station to retransmit a unicast
-frame? (Choose all that apply.) 
-
-<ol class="org-ol">
-<li>The transmitted unicast frame was corrupted.
-</li>
-
-<li>The ACK frame from the receiver was corrupted.
-</li>
-
-<li>The receiver’s buffer was full.
-</li>
-
-<li>The transmitting station sent a PS-Poll frame.
-</li>
-
-<li>The transmitting station sent a retransmit notification.
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<p>
-A, B. The receiving station may have received the data, but the returning ACK frame may
-</p>
-</li>
-</ol>
-<p>
-have become corrupted, and the original unicast frame will have to be retransmitted. If the
-unicast frame becomes corrupted for any reason, the receiving station will not send an ACK.
-</p>
-
-<ol class="org-ol">
-<li>How does a client station indicate that it is using Power Save
-mode?
-
-<ol class="org-ol">
-<li>It transmits a frame to the access point with the Sleep
-</li>
-</ol>
-<p>
-field set to 1.
-</p>
-
-<ol class="org-ol">
-<li>It transmits a frame to the access point with the Power
-</li>
-</ol>
-<p>
-Management field set to 1.
-</p>
-
-<ol class="org-ol">
-<li>Using DTIM, the access point determines when the client
-</li>
-</ol>
-<p>
-station uses Power Save mode.
-</p>
-
-<ol class="org-ol">
-<li>It doesn’t need to, because Power Save mode is the default.
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>When the client station transmits a frame with the Power Management field set to 1, it
-</li>
-</ol>
-</li>
-</ol>
-<p>
-is enabling Power Save mode. The DTIM does not enable Power Save mode; it only notifies
-clients to stay awake in preparation for a multicast or broadcast.
-</p>
-
-<ol class="org-ol">
-<li>Which field in the MAC header of an 802.11 frame resets the
-NAV timer for all listening 802.11 stations?
-
-<ol class="org-ol">
-<li>NAV
-</li>
-
-<li>Frame control
-</li>
-
-<li>Duration/ID
-</li>
-
-<li>Sequence number
-</li>
-
-<li>Strictly ordered bit
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>When the listening radio hears a frame transmission from another station, it looks at
-</li>
-</ol>
-</li>
-</ol>
-<p>
-the header of the frame and determines whether the Duration/ID field contains a Duration
-value or an ID value. If the field contains a Duration value, the listening station will set its
-NAV timer to this value.
-</p>
-
-<ol class="org-ol">
-<li>What are some the reasons for the existence of the Duration/ID
-field of the MAC header of an 802.11 MPDU? (Choose all that
-apply.)
-
-<ol class="org-ol">
-<li>Physical carrier-sense
-</li>
-
-<li>Fragmentation
-</li>
-
-<li>Virtual carrier-sense
-</li>
-
-<li>Integrity check
-</li>
-
-<li>Power management
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<p>
-C, E. The Duration/ID field has three possible purposes. The main purpose of this field is
-</p>
-</li>
-</ol>
-<p>
-to reset the NAV timer of other stations, which is a virtual carrier-sense mechanism. PSPoll
-frames use the Duration/ID field as an association identifier (AID) during legacy power
-management processes. Although never implemented by vendors, the Duration/ID field can
-also be used to signal that a contention-free period (CFP) process has begun.
-</p>
-
-<ol class="org-ol">
-<li>What is the maximum amount of microseconds that can be set on
-the NAV timers of listening stations that hear the
-transmission of another 802.11 station? 
-
-<ol class="org-ol">
-<li>32,768 μs
-</li>
-
-<li>2007 μs
-</li>
-
-<li>16,383 μs
-</li>
-
-<li>2008 μs
-</li>
-
-<li>32,767 μs
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>The main purpose of the Duration/ID field is to reset the NAV timer of other stations.
-</li>
-</ol>
-</li>
-</ol>
-<p>
-When bit 15 of the field is zero, the value in bits 140 represent the duration of a frame
-exchange sequence remaining after the frame in which the Duration value is found. Bits
-140 can have a Duration value of 0 to 32,767. The Duration value translates into microseconds
-when resetting NAV timers of other stations. The other common use of the Duration/
-ID field is as an AID in PS-Poll control frames. When bits 15 and 14 have a value of 1,
-bits 130 can be used to represent an AID in PS-Poll frames from 1 to 2007.
-</p>
-
-<ol class="org-ol">
-<li>What are some of the negative effects of layer 2
-retransmissions? (Choose all that apply.) 
-
-<ol class="org-ol">
-<li>Decreased range
-</li>
-
-<li>Excessive MAC sublayer overhead
-</li>
-
-<li>Decreased latency
-</li>
-
-<li>Increased latency
-</li>
-
-<li>Jitter
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<p>
-B, D, E. Excessive layer 2 retransmissions adversely affect the WLAN in two ways. First,
-</p>
-</li>
-</ol>
-<p>
-layer 2 retransmissions increase MAC overhead and therefore decrease throughput. Second,
-if application data has to be retransmitted at layer 2, the timely delivery of application traffic
-becomes delayed or inconsistent. Applications such as VoIP depend on the timely and consistent
-delivery of the IP packet. Excessive layer 2 retransmissions usually result in increased
-latency and jitter problems for time-sensitive applications such as voice and video.
-</p>
-
-<ol class="org-ol">
-<li>When an AP sends a unicast frame to VoWiFi client station,
-which of the other stations will not update their NAV timers
-based on the Duration value represented in the Duration/ID
-field in the unicast frame sent by the AP? (Choose all that
-apply.) 
-
-<ol class="org-ol">
-<li>Transmitting access point
-</li>
-
-<li>Another access point nearby on the same channel
-</li>
-
-<li>All the other client stations
-</li>
-
-<li>The VoWiFi client
-</li>
-
-<li>Any other clients within listening range on the same
-</li>
-</ol>
-<p>
-channel
-</p>
-
-<p>
-<b>答案解析</b>
-</p>
-
-<p>
-A, D. The NAV is not updated when the receiver address (RA) is the same as the receiving
-</p>
-</li>
-</ol>
-<p>
-station’s MAC address. Therefore, in this scenario, the Duration value did not reset the
-VoWiFi client’s NAV because it was the receiver. You should also understand that the Duration
-value of the transmitting station does not reset the transmitting stations NAV timer.
-The transmitter cannot hear its own transmitted frame. The transmitter’s NAV will be zero
-after transmitting, just like it was zero before the transmitter gained control of the medium.
-The AP was the transmitter so the Duration value did not reset its NAV. Any other client or
-AP stations within hearing range on the same channel will reset their NAV, even if they are
-not members of the BSS.
-</p>
-
-<ol class="org-ol">
-<li>Which of these statements regarding the four MAC address
-fields in the header of a data MPDU are accurate? (Choose all
-that apply.) 
-
-<ol class="org-ol">
-<li>Address 2 is always the transmitter address (TA).
-</li>
-
-<li>Address 3 is always the transmitter address (TA).
-</li>
-
-<li>Address 1 is always the basic service set identifier
-</li>
-</ol>
-<p>
-(BSSID).
-</p>
-
-<ol class="org-ol">
-<li>Address 1 is always the receiver address (RA).
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<p>
-A, D. Depending on how the To DS and From DS fields are used, the definition of the four
-</p>
-</li>
-</ol>
-<p>
-MAC fields will change. One constant, however, is that the Address 1 field will always be
-the receiver address (RA) but may have a second definition as well. The Address 2 field will
-always be the transmitter address (TA) but also may have a second definition. Address 3 is
-normally used to additional MAC address information. Address 4 is used only in the case
-of a WDS.
-</p>
-
-<ol class="org-ol">
-<li>Which of the following is a possible scenario when the To DS
-field and the From DS field both have a value of 0? (Choose
-all that apply.)
-
-<ol class="org-ol">
-<li>The frame transmission is a control frame.
-</li>
-
-<li>An ad hoc network exists.
-</li>
-
-<li>The frame transmission is a simple data frame.
-</li>
-
-<li>Fragmentation is not being used.
-</li>
-
-<li>The frame transmission is a management frame.
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<p>
-A, B, E. When both bits are set to 0, several different scenarios exist. The most common
-</p>
-</li>
-</ol>
-<p>
-scenario is that the frames are either management or control frames. Management and
-control frames do not have an MSDU payload, and therefore their final destination is never
-the distribution system (DS). Management and control exist only at the MAC sublayer
-and therefore have no need to be translated by the integration service (IS) and never are
-delivered to the distribution system service (DSS). Another scenario is a direct data frame
-transfer from one STA to another STA within an independent basic service set (IBSS), more
-commonly known as an ad hoc network. The third scenario involves what is known as a
-station-to-station link (STSL), which involves a data frame being sent directly from one client
-station to another client station that belongs to the same BSS, thereby bypassing the AP.
-</p>
-
-<ol class="org-ol">
-<li>What can you conclude about this frame based on the frame
-capture graphic shown here?(Choose all that apply.) 
-
-
-<div class="figure">
-<p><img src="/images/2016/2016101202.png" alt="2016101202.png" />
-</p>
-</div>
-
-<ol class="org-ol">
-<li>This is the second fragment of an MSDU.
-</li>
-
-<li>This is the third fragment of an MSDU.
-</li>
-
-<li>The AP is using fragmentation.
-</li>
-
-<li>This is the last transmitted fragment of an MSDU.
-</li>
-
-<li>The client station is using fragmentation.
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<p>
-B, C, D. In the Sequence Control field, the Fragment Number subfield contains a 4-bit
-</p>
-</li>
-</ol>
-<p>
-number assigned to each fragment of an MSDU. The first, or only, fragment of an MSDU is
-assigned a fragment number of 0. Each successive fragment is assigned a sequentially incremented
-fragment number. The graphic shows a fragment number of 2, which means it is the
-third fragment. The More Fragments field indicates a value of 0, which means it is the last
-transmitted fragment. The To DS field has a value of 0, and the From DS field has a value of
-1, which means this is a downstream transmission from an AP to a client station.
-</p>
-
-<ol class="org-ol">
-<li>What can you conclude about this frame based on the frame
-capture graphic shown here?Choose all that apply.) 
-
-
-<div class="figure">
-<p><img src="/images/2016/2016101203.png" alt="2016101203.png" />
-</p>
-</div>
-
-<ol class="org-ol">
-<li>The Duration/ID field is an AID.
-</li>
-
-<li>This is first fragment of a fragmented MSDU.
-</li>
-
-<li>The AP is buffering the client station’s traffic.
-</li>
-
-<li>Fragmentation is not being used.
-</li>
-
-<li>This is a PS-Poll frame.
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<p>
-C, D. The Power Management field indicates a value of 1, meaning that the client STA is in
-</p>
-</li>
-</ol>
-<p>
-Power Save mode and that the AP must buffer the client STA’s traffic. Fragmentation is not
-being used because the frag number in the Sequence Control field has a value of 0 and the
-More Fragments field also has a value of 0. The Subtype field indicates that this is a Null
-data frame and not a PS-Poll frame. PS-Poll frames are the only frames that use the Duration/
-ID field as an association identifier (AID).
-</p>
-
-<ol class="org-ol">
-<li>What can you conclude about this frame based on the frame
-capture graphic shown here?
-
-
-<div class="figure">
-<p><img src="/images/2016/2016101204.png" alt="2016101204.png" />
-</p>
-</div>
-
-<ol class="org-ol">
-<li>This data frame has no frame body.
-</li>
-
-<li>CCMP encryption is being used.
-</li>
-
-<li>This is an IBSS topology.
-</li>
-
-<li>No data privacy is being provided.
-</li>
-
-<li>The ACK frame was delivered successfully.
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>The Protected Frame field has a value of 0, which indicates that the MSDU payload of
-</li>
-</ol>
-</li>
-</ol>
-<p>
-this simple data frame is not encrypted.
-</p>
-
-<ol class="org-ol">
-<li>What can you conclude about this frame based on the frame
-capture graphic shown here?(Choose all that apply.) 
-
-
-<div class="figure">
-<p><img src="/images/2016/2016101205.png" alt="2016101205.png" />
-</p>
-</div>
-
-<ol class="org-ol">
-<li>This is a unicast frame.
-</li>
-
-<li>The frame check sequence (FCS) of the previous attempt of
-</li>
-</ol>
-<p>
-the same frame failed at the receiving station.
-</p>
-
-<ol class="org-ol">
-<li>This is a multicast frame.
-</li>
-
-<li>This is a mesh backhaul transmission.
-</li>
-
-<li>The ACK frame was delivered successfully.
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<p>
-A, B. The Retry field indicates a value of 1, meaning this is a retransmission. Every time
-</p>
-</li>
-</ol>
-<p>
-an 802.11 radio transmits a unicast frame, if the frame is received properly and the cyclic
-redundancy check (CRC) of the FCS passes, the 802.11 radio that received the frame will
-reply with an acknowledgment (ACK) frame. If the ACK is received, the original station
-knows that the frame transfer was successful. All unicast 802.11 frames must be acknowledged.
-Broadcast and multicast frames do not require an acknowledgment.
-</p>
-
-<p>
-If any portion of a unicast frame is corrupted, the CRC will fail, and the receiving
-802.11 radio will not send an ACK frame to the transmitting 802.11 radio. If an ACK
-frame is not received by the original transmitting radio, the unicast frame is not acknowledged
-and will have to be retransmitted.
-</p>
-
-<ol class="org-ol">
-<li>When the To DS field has a value of 0 and the From DS field
-has a value of 1, which of these statements possibly are
-accurate? (Choose all that apply.) 
-
-<ol class="org-ol">
-<li>The frame transmission is a control frame.
-</li>
-
-<li>This is a DHCP response packet.
-</li>
-
-<li>The frame transmission is a data frame.
-</li>
-
-<li>Client STA is transmitting.
-</li>
-
-<li>The frame transmission is a management frame.
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<p>
-B, C. When the To DS bit is set to 0 and the From DS bit is set to 1, this indicates that an
-</p>
-</li>
-</ol>
-<p>
-802.11 data frame is being sent downstream from an access point to a client station. The
-original source of the MSDU payload of the 802.11 data frame is an address that exists on
-the distribution system medium (DSM). An example is a DHCP server that resides on the
-802.3 network forwarding a DHCP response packet through an AP with the final destination
-being an 802.11 client station.
-</p>
-
-<ol class="org-ol">
-<li>How many bytes is the frame body of an 802.11 MPDU?
-
-<ol class="org-ol">
-<li>0-2304
-</li>
-
-<li>2304
-</li>
-
-<li>2346
-</li>
-
-<li>4095
-</li>
-
-<li>Variable
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>The frame body is of variable size. The maximum frame body size is determined by
-</li>
-</ol>
-</li>
-</ol>
-<p>
-the maximum MSDU size (2,304 octets) plus any overhead from encryption. The 802.11n-
-2009 HT amendment defines a frame aggregation method called Aggregate MAC Service
-Data Unit (A-MSDU). An 802.11n station using this method of aggregation can have a
-frame body with a maximum A-MSDU size (3839 or 7935 octets, depending upon the
-STA’s capability), plus any overhead from encryption.
-</p>
-
-<ol class="org-ol">
-<li>How many MAC addresses are found in an 802.3 frame?
-
-<ol class="org-ol">
-<li>Four
-</li>
-
-<li>Three
-</li>
-
-<li>Two
-</li>
-
-<li>One
-</li>
-
-<li>Zero
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>802.3 Ethernet frames have only a source address (SA) and destination address (DA)
-</li>
-</ol>
-</li>
-</ol>
-<p>
-in the layer 2 header. 802.11 frames have four address fields in the MAC header. The contents
-of these four fields can include the following MAC addresses: receiver address (RA),
-transmitter address (TA), basic service set identifier (BSSID), destination address (DA), and
-source address (SA). In other words, an 802.11 frame can contain as many as four MAC
-addresses with five different meanings.
-</p>
-
-<ol class="org-ol">
-<li>How does a transmitting station maintain control of the
-medium during a fragment burst?(Choose all that apply.) 
-
-<ol class="org-ol">
-<li>Random backoff algorithm
-</li>
-
-<li>Duration
-</li>
-
-<li>DIFS
-</li>
-
-<li>Sequence Control
-</li>
-
-<li>SIFS
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<p>
-B, E. Fragments are always sent in what is known as a fragment burst. Once the transmitting
-</p>
-</li>
-</ol>
-<p>
-station gains control of the medium, it maintains control through two mechanisms:
-Duration values (which set other stations’ NAVs) and SIFS. First, the value of the Duration
-field in the MAC header of data fragments and ACK frames is used to reserve the medium
-for the next fragment. As a backup mechanism, SIFS is used between data fragments
-and ACK frames in order to preempt those stations that are trying to gain control of the
-medium using DIFS.
-</p>
-</div>
-</div>
+<h2 id="sec-3">CH05 802.11 Control Frames</h2>
 </div>
 
 <div id="outline-container-sec-4" class="outline-2">
-<h2 id="sec-4">CH04 802.11 Management Frames</h2>
-<div class="outline-text-2" id="text-4">
-</div><div id="outline-container-sec-4-1" class="outline-3">
-<h3 id="sec-4-1">Management Frame Types</h3>
-<div class="outline-text-3" id="text-4-1">
-<p>
-管理帧的结构：
-</p>
-
-<div class="figure">
-<p><img src="/images/2016/2016101701.png" alt="2016101701.png" />
-</p>
-<p><span class="figure-number">Figure 16:</span> Management frame structure</p>
-</div>
-
-<p>
-管理帧通常标准MAC头部的大小为24字节，拥有三个地址域，当使用802.11n
-时，会加入一些HT控制相关的信息，其结构如下：
-</p>
-
-<div class="figure">
-<p><img src="/images/2016/2016101702.png" alt="2016101702.png" />
-</p>
-<p><span class="figure-number">Figure 17:</span> Management frame structure: 802.11n</p>
-</div>
-
-<p>
-DA是帧的目的地址， 它可以是单播的，也可以是多播的，取决于管理帧的
-了类型。 SA是传输该帧的STA的MAC地址， BSSID可能是AP的MAC地址，也可
-能是一个通配值。如下是12种管理帧的类型：
-</p>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-<caption class="t-above"><span class="table-number">Table 7:</span> Management frame subtypes</caption>
-
-<colgroup>
-<col  class="right" />
-
-<col  class="left" />
-</colgroup>
-<thead>
-<tr>
-<th scope="col" class="right">Subtype bits</th>
-<th scope="col" class="left">Subtype description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="right">0000</td>
-<td class="left">Association request</td>
-</tr>
-
-<tr>
-<td class="right">0001</td>
-<td class="left">Association response</td>
-</tr>
-
-<tr>
-<td class="right">0010</td>
-<td class="left">Reassociation request</td>
-</tr>
-
-<tr>
-<td class="right">0011</td>
-<td class="left">Reassociation response</td>
-</tr>
-
-<tr>
-<td class="right">0100</td>
-<td class="left">Probe request</td>
-</tr>
-
-<tr>
-<td class="right">0101</td>
-<td class="left">Probe response</td>
-</tr>
-
-<tr>
-<td class="right">1000</td>
-<td class="left">Beacon</td>
-</tr>
-
-<tr>
-<td class="right">1001</td>
-<td class="left">Announcement traffic indication message (ATIM)</td>
-</tr>
-
-<tr>
-<td class="right">1010</td>
-<td class="left">Disassociation</td>
-</tr>
-
-<tr>
-<td class="right">1011</td>
-<td class="left">Authentication</td>
-</tr>
-
-<tr>
-<td class="right">1100</td>
-<td class="left">Deauthentication</td>
-</tr>
-
-<tr>
-<td class="right">1101</td>
-<td class="left">Action</td>
-</tr>
-
-<tr>
-<td class="right">1110</td>
-<td class="left">Action no ack</td>
-</tr>
-</tbody>
-</table>
-
-<p>
-管理帧总是是MAC层处理，它们不会被传递给上层（for app），另外，它们
-的To DS和From DS的值总是为0.
-</p>
-</div>
-<div id="outline-container-sec-4-1-1" class="outline-4">
-<h4 id="sec-4-1-1">Beacons</h4>
-<div class="outline-text-4" id="text-4-1-1">
-<p>
-MaxChannelTime: defined in each driver MIB, duration of dwelling
-time on each channel.
-</p>
-
-<p>
-Beacon frames are sent periodically, at a time called target beacon transmission time
-(TBTT) and at a rate defined by the dot11BeaconPeriod parameter in
-the AP MIB.
-</p>
-
-<p>
-dot11BeaconPeriod 这个参数默认是100 TU(time units)。 
-</p>
-
-<p>
-AP以某个固定的时间间隔发送Beacon帧，并通知下一个Beacon帧发送的时间。
-如果当前媒介忙碌，会推迟当前Beacon帧的发送，但是不会影响下一个
-Beacon帧的发送，下一个Beacon帧仍然会按照预定的时间进行发送。
-</p>
-
-
-<div class="figure">
-<p><img src="/images/2016/2016101703.png" alt="2016101703.png" />
-</p>
-<p><span class="figure-number">Figure 18:</span> Beacon frame structure</p>
-</div>
-</div>
-</div>
-
-<div id="outline-container-sec-4-1-2" class="outline-4">
-<h4 id="sec-4-1-2">Probe Request / Response</h4>
-<div class="outline-text-4" id="text-4-1-2">
-</div><ul class="org-ul"><li><a id="sec-4-1-2-1" name="sec-4-1-2-1"></a>Probe Request Frame<br  /><div class="outline-text-5" id="text-4-1-2-1">
-<p>
-主要用于主动扫描，查找AP信息。
-</p>
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-<caption class="t-above"><span class="table-number">Table 8:</span> Elements and fields in a probe request frame body</caption>
-
-<colgroup>
-<col  class="right" />
-
-<col  class="left" />
-
-<col  class="left" />
-</colgroup>
-<thead>
-<tr>
-<th scope="col" class="right">Order</th>
-<th scope="col" class="left">Information</th>
-<th scope="col" class="left">Note</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="right">1</td>
-<td class="left">Service Set Identifier (SSID)</td>
-<td class="left">&#xa0;</td>
-</tr>
-
-<tr>
-<td class="right">2</td>
-<td class="left">Supported Rates</td>
-<td class="left">&#xa0;</td>
-</tr>
-
-<tr>
-<td class="right">3</td>
-<td class="left">Request Information</td>
-<td class="left">Used with 802.11d.</td>
-</tr>
-
-<tr>
-<td class="right">4</td>
-<td class="left">Extended Supported Rates</td>
-<td class="left">The Extended Supported Rates element is present whenever there are more than eight supported rates; it is optional otherwise.</td>
-</tr>
-
-<tr>
-<td class="right">5</td>
-<td class="left">Vendor Specific</td>
-<td class="left">One or more vendor-specific information elements may appear in this frame. This information element follows all other information elements.</td>
-</tr>
-</tbody>
-</table>
-
-<p>
-STA也可以利用Probe Request来发现某个网络特定的信息。 为了支持这个
-目的，Probe Request可以包含一个 Request Information信息， 它们可以
-请求一个或多个额外的参数。 
-</p>
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-<caption class="t-above"><span class="table-number">Table 9:</span> Request Information element</caption>
-
-<colgroup>
-<col  class="left" />
-
-<col  class="left" />
-</colgroup>
-<thead>
-<tr>
-<th scope="col" class="left">Element ID</th>
-<th scope="col" class="left">Length</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="left">Requested element ID 1</td>
-<td class="left">Requested element ID 2</td>
-</tr>
-
-<tr>
-<td class="left">&#x2026;</td>
-<td class="left">&#x2026;</td>
-</tr>
-
-<tr>
-<td class="left">Requested element ID N1</td>
-<td class="left">Requested element ID N</td>
-</tr>
-</tbody>
-</table>
-<p>
-这些IE信息都是可选的。 另外， Probe Request也可以携带一些厂商自定
-义的IE信息。
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-1-2-2" name="sec-4-1-2-2"></a>Probe Response Frame<br  /><div class="outline-text-5" id="text-4-1-2-2">
-<p>
-主要回应对方的 Probe Request请求。 携带的信息与Beacon帧类似。与
-beacon帧相比，主要有如下一些区别：
-</p>
-<ol class="org-ol">
-<li>The beacon frame contains a TIM field; the probe response does not.
-</li>
-<li>The beacon frame can contain a QoS Capability Information
-element that announces basic QoS support to the cell.
-</li>
-<li>The probe response also contains the Requested Information
-elements that may have  been requested by the probing station.
-</li>
-</ol>
-</div>
-</li></ul>
-</div>
-
-<div id="outline-container-sec-4-1-3" class="outline-4">
-<h4 id="sec-4-1-3">Authentication</h4>
-<div class="outline-text-4" id="text-4-1-3">
-<p>
-In all cases, after having performed a network discovery through the probe request/
-probe response exchange or by listening to beacons, a station wanting to join a cell goes
-through an authentication process, exchanging authentication frames with the access point.
-Unlike the probe and association phases, which use a different frame for the request and
-the response, there is only one type of authentication frame.
-</p>
-
-
-<div class="figure">
-<p><img src="/images/2016/2016101801.png" alt="2016101801.png" />
-</p>
-<p><span class="figure-number">Figure 19:</span> Authentication frame format</p>
-</div>
-</div>
-
-<ul class="org-ul"><li><a id="sec-4-1-3-1" name="sec-4-1-3-1"></a>Open System<br  /><div class="outline-text-5" id="text-4-1-3-1">
-<p>
-The initial purpose of the authentication frame is to validate the
-device type, in other words, verify that the requesting station
-has proper 802.11 capabilities to join the cell. 
-</p>
-
-<p>
-This exchange is based on a simple two-frame dialogue
-(authentication request, authentication response)
-</p>
-</div>
-</li>
-
-
-<li><a id="sec-4-1-3-2" name="sec-4-1-3-2"></a>WEP Shared Key<br  /><div class="outline-text-5" id="text-4-1-3-2">
-<p>
-This shared key exchange adds two frames to the default Open
-System authentication, resulting in a four-frame exchange. 
-</p>
-
-<p>
-The Authentication Algorithm number field value describes which
-authentication system is used (0 for Open System and 1 for Shared
-Key).
-</p>
-
-<p>
-the 2-byte Authentication Transaction Sequence Number field
-indicates the current state of progress through the multistep
-transaction. 
-</p>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-<caption class="t-above"><span class="table-number">Table 10:</span> Summary of authentication frame fields values and usage</caption>
-
-<colgroup>
-<col  class="left" />
-
-<col  class="right" />
-
-<col  class="left" />
-
-<col  class="left" />
-</colgroup>
-<thead>
-<tr>
-<th scope="col" class="left">Authentication algorithm</th>
-<th scope="col" class="right">Authentication transaction sequence no.</th>
-<th scope="col" class="left">Status code</th>
-<th scope="col" class="left">Challenge text</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="left">Open System</td>
-<td class="right">1</td>
-<td class="left">Reserved</td>
-<td class="left">Not present</td>
-</tr>
-
-<tr>
-<td class="left">Open System</td>
-<td class="right">2</td>
-<td class="left">Status</td>
-<td class="left">Not present</td>
-</tr>
-
-<tr>
-<td class="left">Shared Key</td>
-<td class="right">1</td>
-<td class="left">Reserved</td>
-<td class="left">Not present</td>
-</tr>
-
-<tr>
-<td class="left">Shared Key</td>
-<td class="right">2</td>
-<td class="left">Status</td>
-<td class="left">Present</td>
-</tr>
-
-<tr>
-<td class="left">Shared Key</td>
-<td class="right">3</td>
-<td class="left">Reserved</td>
-<td class="left">Present</td>
-</tr>
-
-<tr>
-<td class="left">Shared Key</td>
-<td class="right">4</td>
-<td class="left">Status</td>
-<td class="left">Not present</td>
-</tr>
-</tbody>
-</table>
-</div>
-</li></ul>
-</div>
-
-<div id="outline-container-sec-4-1-4" class="outline-4">
-<h4 id="sec-4-1-4">Association Request / Response</h4>
-<div class="outline-text-4" id="text-4-1-4">
-</div><ul class="org-ul"><li><a id="sec-4-1-4-1" name="sec-4-1-4-1"></a>Association Request Frame<br  /><div class="outline-text-5" id="text-4-1-4-1">
-<p>
-认证成功后，STA就会进入关联阶段， 这个交互的目的是为了加入这个BSS
-并获取一个AID。 
-</p>
-
-
-<div class="figure">
-<p><img src="/images/2016/2016101802.png" alt="2016101802.png" />
-</p>
-<p><span class="figure-number">Figure 20:</span> Association request frame format</p>
-</div>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-<caption class="t-above"><span class="table-number">Table 11:</span> Elements and fields in the association request body</caption>
-
-<colgroup>
-<col  class="right" />
-
-<col  class="left" />
-
-<col  class="left" />
-</colgroup>
-<thead>
-<tr>
-<th scope="col" class="right">Order</th>
-<th scope="col" class="left">Information</th>
-<th scope="col" class="left">Notes</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="right">1</td>
-<td class="left">Capability Information</td>
-<td class="left">&#xa0;</td>
-</tr>
-
-<tr>
-<td class="right">2</td>
-<td class="left">Listen interval</td>
-<td class="left">&#xa0;</td>
-</tr>
-
-<tr>
-<td class="right">3</td>
-<td class="left">SSID</td>
-<td class="left">&#xa0;</td>
-</tr>
-
-<tr>
-<td class="right">4</td>
-<td class="left">Supported rates</td>
-<td class="left">&#xa0;</td>
-</tr>
-
-<tr>
-<td class="right">5</td>
-<td class="left">Extended Supported Rates</td>
-<td class="left">当支持的速率超过8个的时候，会出现该IE，否则是可选的。</td>
-</tr>
-
-<tr>
-<td class="right">6</td>
-<td class="left">Power Capability</td>
-<td class="left">Used with 802.11h.</td>
-</tr>
-
-<tr>
-<td class="right">7</td>
-<td class="left">Supported Channels</td>
-<td class="left">Used with 802.11h.</td>
-</tr>
-
-<tr>
-<td class="right">8</td>
-<td class="left">RSN</td>
-<td class="left">Used with 802.11i.</td>
-</tr>
-
-<tr>
-<td class="right">9</td>
-<td class="left">QoS Capability</td>
-<td class="left">Used with 802.11e QoS.</td>
-</tr>
-
-<tr>
-<td class="right">10</td>
-<td class="left">RRM Enabled Capabilities</td>
-<td class="left">Used with 802.11k.</td>
-</tr>
-
-<tr>
-<td class="right">11</td>
-<td class="left">Mobility Domain</td>
-<td class="left">Used with 802.11r.</td>
-</tr>
-
-<tr>
-<td class="right">12</td>
-<td class="left">Supported Regulatory Classes</td>
-<td class="left">Used with 802.11r.</td>
-</tr>
-
-<tr>
-<td class="right">13</td>
-<td class="left">HT Capabilities</td>
-<td class="left">Used with 802.11n.</td>
-</tr>
-
-<tr>
-<td class="right">14</td>
-<td class="left">20/40 BSS Coexistence</td>
-<td class="left">Used with 802.11n.</td>
-</tr>
-
-<tr>
-<td class="right">15</td>
-<td class="left">Extended Capabilities</td>
-<td class="left">只有存在一个IE，就会出现</td>
-</tr>
-
-<tr>
-<td class="right">Last</td>
-<td class="left">Vendor Specific</td>
-<td class="left">一个或多个厂商相关的IE。</td>
-</tr>
-</tbody>
-</table>
-
-<p>
-通过Association Request携带的信息，使AP了解STA的相关能力信息，这样
-AP就可以决定如何与该STA进行通信。
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-1-4-2" name="sec-4-1-4-2"></a>Association Response Frame<br  /><div class="outline-text-5" id="text-4-1-4-2">
-<p>
-当AP收到Association Request后，它会检查每一个802.11参数，并与自己
-支持的802.11参数进行匹配，如果出现不匹配的情况，AP会看当前的差异
-是否属于Bloocking Factor。 如果是的话，AP就会拒绝关联，否则的话，
-AP就会标记这个差异，并在回Association Response的时候携带自己的
-802.11参数。
-</p>
-
-
-<div class="figure">
-<p><img src="/images/2016/2016101803.png" alt="2016101803.png" />
-</p>
-<p><span class="figure-number">Figure 21:</span> Association response frame format</p>
-</div>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-<caption class="t-above"><span class="table-number">Table 12:</span> The association response frame</caption>
-
-<colgroup>
-<col  class="right" />
-
-<col  class="left" />
-
-<col  class="left" />
-</colgroup>
-<thead>
-<tr>
-<th scope="col" class="right">Order</th>
-<th scope="col" class="left">Information</th>
-<th scope="col" class="left">Notes</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="right">1</td>
-<td class="left">Capability Information</td>
-<td class="left">&#xa0;</td>
-</tr>
-
-<tr>
-<td class="right">2</td>
-<td class="left">Status Code</td>
-<td class="left">&#xa0;</td>
-</tr>
-
-<tr>
-<td class="right">3</td>
-<td class="left">Association ID</td>
-<td class="left">&#xa0;</td>
-</tr>
-
-<tr>
-<td class="right">4</td>
-<td class="left">Supported rates</td>
-<td class="left">&#xa0;</td>
-</tr>
-
-<tr>
-<td class="right">5</td>
-<td class="left">Extended Supported Rates</td>
-<td class="left">&#xa0;</td>
-</tr>
-
-<tr>
-<td class="right">6</td>
-<td class="left">EDCA Parameter Set</td>
-<td class="left">&#xa0;</td>
-</tr>
-
-<tr>
-<td class="right">7</td>
-<td class="left">RCPI</td>
-<td class="left">Used with 802.11k.</td>
-</tr>
-
-<tr>
-<td class="right">8</td>
-<td class="left">RSNI</td>
-<td class="left">Used with 802.11k.</td>
-</tr>
-
-<tr>
-<td class="right">9</td>
-<td class="left">RRM Enabled Capabilities</td>
-<td class="left">Used with 802.11k.</td>
-</tr>
-
-<tr>
-<td class="right">10</td>
-<td class="left">Mobility Domain</td>
-<td class="left">Used with 802.11r.</td>
-</tr>
-
-<tr>
-<td class="right">11</td>
-<td class="left">Fast BSS Transition</td>
-<td class="left">Used with 802.11r.</td>
-</tr>
-
-<tr>
-<td class="right">12</td>
-<td class="left">DSE Registered Location</td>
-<td class="left">Used with 802.11y.</td>
-</tr>
-
-<tr>
-<td class="right">13</td>
-<td class="left">Timeout Interval(association comeback time)</td>
-<td class="left">Used with 802.11w.</td>
-</tr>
-
-<tr>
-<td class="right">14</td>
-<td class="left">HT Capabilities</td>
-<td class="left">Used with 802.11n.</td>
-</tr>
-
-<tr>
-<td class="right">15</td>
-<td class="left">HT Operation</td>
-<td class="left">Used with 802.11n.</td>
-</tr>
-
-<tr>
-<td class="right">16</td>
-<td class="left">20/40 BSS Coexistence</td>
-<td class="left">Used with 802.11n.</td>
-</tr>
-
-<tr>
-<td class="right">17</td>
-<td class="left">Overlapping BSS Scan Parameters</td>
-<td class="left">Used with 802.11n.</td>
-</tr>
-
-<tr>
-<td class="right">18</td>
-<td class="left">Extended Capabilities</td>
-<td class="left">&#xa0;</td>
-</tr>
-
-<tr>
-<td class="right">Last</td>
-<td class="left">Vendor Specific</td>
-<td class="left">&#xa0;</td>
-</tr>
-</tbody>
-</table>
-
-<p>
-    AP返回一个状态码，0代表关联成功。 并为STA分配一个AID，它是1~2007(2
-    字节长，只用到最低的14个Bit,其他位为1.
-)
-</p>
-</div>
-</li></ul>
-</div>
-<div id="outline-container-sec-4-1-5" class="outline-4">
-<h4 id="sec-4-1-5">Disassociation</h4>
-<div class="outline-text-4" id="text-4-1-5">
-<p>
-通信的任何一方都可以主动发出这个帧。 它的格式如下：
-</p>
-
-<div class="figure">
-<p><img src="/images/2016/2016101804.png" alt="2016101804.png" />
-</p>
-<p><span class="figure-number">Figure 22:</span> Disassociation frame format</p>
-</div>
-
-<p>
-该帧可能是单播帧，也可能是多播帧。 其IE信息如下：
-</p>
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-<caption class="t-above"><span class="table-number">Table 13:</span> Disassociation Frame</caption>
-
-<colgroup>
-<col  class="right" />
-
-<col  class="left" />
-</colgroup>
-<thead>
-<tr>
-<th scope="col" class="right">Order</th>
-<th scope="col" class="left">Notes</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="right">1</td>
-<td class="left">Reason code.</td>
-</tr>
-
-<tr>
-<td class="right">2</td>
-<td class="left">One or more vendor-specific information elements may appear in this frame.</td>
-</tr>
-
-<tr>
-<td class="right">Last</td>
-<td class="left">Used with 802.11w.</td>
-</tr>
-</tbody>
-</table>
-
-<p>
-处于Disassociated状态的STA仍然是处于Authenticated状态，它们可以直接
-进行重新关联。
-</p>
-</div>
-</div>
-
-<div id="outline-container-sec-4-1-6" class="outline-4">
-<h4 id="sec-4-1-6">Deauthentication</h4>
-<div class="outline-text-4" id="text-4-1-6">
-<p>
-当双方通信完成，会发送此帧结束会话。 该帧的格式与Disassociation类似。
-</p>
-</div>
-</div>
-<div id="outline-container-sec-4-1-7" class="outline-4">
-<h4 id="sec-4-1-7">Reassociation Request / Response</h4>
-<div class="outline-text-4" id="text-4-1-7">
-</div><ul class="org-ul"><li><a id="sec-4-1-7-1" name="sec-4-1-7-1"></a>Reassociation Request Frame<br  /><div class="outline-text-5" id="text-4-1-7-1">
-<p>
-该帧只能由STA 发出。 使用场景主要是： 当STA已经关联到一个ESS并想关
-联到同一个ESS下的另一个AP上。 也可用于： 当STA短暂离开当前关联的AP
-后，重新关联此AP。 也可用于：当Authenticator timer过期后，STA
-进行认证和重新关联。已经关联上某个AP的STA也可以通过此帧重新协商一
-些参数。
-</p>
-
-
-<div class="figure">
-<p><img src="/images/2016/2016101805.png" alt="2016101805.png" />
-</p>
-<p><span class="figure-number">Figure 23:</span> Reassociation request frame format</p>
-</div>
-</div>
-</li>
-
-<li><a id="sec-4-1-7-2" name="sec-4-1-7-2"></a>Reassociation Response Frame<br  /><div class="outline-text-5" id="text-4-1-7-2">
-<p>
-An AP uses the reassociation response frame in response to a
-reassociation request frame.其格式与Association Response类似。
-</p>
-</div>
-</li></ul>
-</div>
-
-<div id="outline-container-sec-4-1-8" class="outline-4">
-<h4 id="sec-4-1-8">ATIM Frame</h4>
-<div class="outline-text-4" id="text-4-1-8">
-<p>
-The ATIM frame is specific to IBSS networks and used for
-distribution of buffered frames to stations in sleep mode in the
-ad hoc network. 
-</p>
-</div>
-</div>
-
-<div id="outline-container-sec-4-1-9" class="outline-4">
-<h4 id="sec-4-1-9">Action Frame</h4>
-<div class="outline-text-4" id="text-4-1-9">
-<p>
-Action frames form the 12th and last type of management frame. They
-are used to trigger specific actions in the cell.
-</p>
-
-
-<div class="figure">
-<p><img src="/images/2016/2016101806.png" alt="2016101806.png" />
-</p>
-<p><span class="figure-number">Figure 24:</span> Action frame format</p>
-</div>
-</div>
-</div>
-</div>
-
-<div id="outline-container-sec-4-2" class="outline-3">
-<h3 id="sec-4-2">Information Elements and Fields</h3>
-<div class="outline-text-3" id="text-4-2">
-</div><div id="outline-container-sec-4-2-1" class="outline-4">
-<h4 id="sec-4-2-1">Management Frame Fields</h4>
-<div class="outline-text-4" id="text-4-2-1">
-</div><ul class="org-ul"><li><a id="sec-4-2-1-1" name="sec-4-2-1-1"></a>Timestamp Field<br  /><div class="outline-text-5" id="text-4-2-1-1">
-<p>
-8字节长， 通常出现在Beacon帧和Probe Response帧。 
-the timestamp is a value representing the time on the access
-point, which is the number of microseconds the AP has been
-active. 
-</p>
-
-<p>
-The stations in the cell use that timestamp value to adjust
-their own clock(using their Time Synchronization Function).
-</p>
-</div>
-</li>
-<li><a id="sec-4-2-1-2" name="sec-4-2-1-2"></a>Beacon Interval Field<br  /><div class="outline-text-5" id="text-4-2-1-2">
-<p>
-2字节长， The Beacon Interval field represents the number
-of time units between target beacon transmission times
-(TBTTs). 
-</p>
-
-<p>
-The default value is 100 TUs (0.102400 seconds), but the
-field size allows for any value between 1 and more than 67
-seconds! 
-</p>
-
-<p>
-这个值不能太长，也不太短。太短的话， STA无法快速地从休眠的
-状态下醒来监听Beacon帧。 会导致断线。
-</p>
-</div>
-</li>
-<li><a id="sec-4-2-1-3" name="sec-4-2-1-3"></a>Capability Information Field<br  /><div class="outline-text-5" id="text-4-2-1-3">
-<p>
-The Capability Information field contains a number of
-subfields that are used to indicate requested or advertised
-optional capabilities. 
-</p>
-
-<p>
-2个字节长， Capability Information field exists in several
-management frames (beacons,probe response, association
-request, association response, reassociation request,
-andreassociation response). 
-</p>
-
-
-<div class="figure">
-<p><img src="/images/2016/2016101901.png" alt="2016101901.png" />
-</p>
-<p><span class="figure-number">Figure 25:</span> Capability Information field</p>
-</div>
-</div>
-
-<ul class="org-ul"><li><a id="sec-4-2-1-3-1" name="sec-4-2-1-3-1"></a>ESS/IBSS Subfields<br  /><div class="outline-text-6" id="text-4-2-1-3-1">
-<p>
-The ESS bit indicates whether the beacon is coming from an
-AP (1) or not (0).  The IBSS bit indicates whether the
-beacon is coming from an IBSS station (1) or not (0). 
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-1-3-2" name="sec-4-2-1-3-2"></a>Privacy Subfield<br  /><div class="outline-text-6" id="text-4-2-1-3-2">
-<p>
-APs set the Privacy subfield to 1 if data confidentiality is required for all data frames
-exchanged within the BSS. If data confidentiality is not required, the Privacy subfield is set
-to 0.
-</p>
-
-<p>
-The Privacy field only shows the requirement (or not)
-for encryption when sending data frames.
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-1-3-3" name="sec-4-2-1-3-3"></a>Short Preamble Subfield<br  /><div class="outline-text-6" id="text-4-2-1-3-3">
-<p>
-当为1时， 表示可使用short preamble和long preamble。 为0时，
-只允许使用long preamble。 
-</p>
-</div>
-</li>
-<li><a id="sec-4-2-1-3-4" name="sec-4-2-1-3-4"></a>Channel Agility Subfield<br  /><div class="outline-text-6" id="text-4-2-1-3-4">
-<p>
-Its aim was to offer the possibility for the center channel to shift periodically
-slightly up and down, in the hopes of avoiding
-interferences.
-</p>
-
-<p>
-The Channel Agility feature
-was never widely implemented. It is still present as a possibility in the Capability field, but
-only for HR/DSSS stations (OFDM does not implement this
-feature).
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-1-3-5" name="sec-4-2-1-3-5"></a>Spectrum Management Subfield<br  /><div class="outline-text-6" id="text-4-2-1-3-5">
-<p>
-related to 802.11h, set this field to reflect that they
-implement DFS and TPC.
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-1-3-6" name="sec-4-2-1-3-6"></a>QoS Subfield<br  /><div class="outline-text-6" id="text-4-2-1-3-6">
-<p>
-this field shows whether the AP supports QoS. The
-QoS subfield in the Capability Information field simply tells the cell “I can do QoS; look for
-other QoS fields in my frames.”
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-1-3-7" name="sec-4-2-1-3-7"></a>Short Slot Time Subfield<br  /><div class="outline-text-6" id="text-4-2-1-3-7">
-<p>
-Standard slot time used to be 20 μs with 802.11 and 802.11b and
-was reduced to 9 μs with 802.11g (802.11a also uses 9 μs
-slot times).
-</p>
-
-<p>
-This subfield determines
-whether short slot time is allowed in the cell (the Short
-Slot Time subfield set to 1)
-</p>
-
-<p>
-When AP set this filed, it's a clear sign that the AP is
-not Supporting 802.11b. 
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-1-3-8" name="sec-4-2-1-3-8"></a>APSD Subfield<br  /><div class="outline-text-6" id="text-4-2-1-3-8">
-<p>
-When this APSD bit is set to 1, the AP supports the
-802.11e APSD feature.
-</p>
-
-<p>
-STA发出的association or reassociation requests该域总是设为
-0, 因为它功能是针对整个BSS的，不是单个STA能作出的决定。
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-1-3-9" name="sec-4-2-1-3-9"></a>DSSS-OFDM Subfield<br  /><div class="outline-text-6" id="text-4-2-1-3-9">
-<p>
-When this bit is set to 1, the DSSS-OFDM mode is allowed
-in the cell。 
-</p>
-
-<p>
-This bit is always set to 0 for 802.11a networks.
-</p>
-</div>
-</li></ul>
-</li>
-
-<li><a id="sec-4-2-1-4" name="sec-4-2-1-4"></a>Listen Interval Field<br  /><div class="outline-text-5" id="text-4-2-1-4">
-<p>
-the Listen Interval field is used to indicate to the AP how often a station in Power Save
-mode wakes to listen to beacon management frames.
-</p>
-
-<p>
-This value is an integer expressed in
-beacon interval units (for example, a value of 3 indicates that the station wakes up every
-three beacons). This fi eld is 2 bytes long, which means that the maximum interval could
-be 65,535.
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-1-5" name="sec-4-2-1-5"></a>Status Code Field<br  /><div class="outline-text-5" id="text-4-2-1-5">
-<p>
-The Status Code fi eld is used in a response management frame to indicate the success or
-failure of a requested operation.
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-1-6" name="sec-4-2-1-6"></a>Association ID Field<br  /><div class="outline-text-5" id="text-4-2-1-6">
-<p>
-2个字节， AP为关联上的STA 分配的AID， 值的范围为1~2007. 
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-1-7" name="sec-4-2-1-7"></a>Reason Code Field<br  /><div class="outline-text-5" id="text-4-2-1-7">
-<p>
-This Reason Code field is used to indicate the reason that an unsolicited notification management
-frame of type disassociation, deauthentication, DELTS, DELBA, or DLS teardown
-was generated.
-</p>
-
-<p>
-The Status Code field
-indicates if a request is successful and details the cause
-of the failure.
-</p>
-
-<p>
-The Reason Code
-fi eld is present only when the frames listed earlier are sent to a station without the station
-asking for any negotiation of any parameter.
-</p>
-</div>
-</li></ul>
-</div>
-
-<div id="outline-container-sec-4-2-2" class="outline-4">
-<h4 id="sec-4-2-2">Management Frame Information Elements</h4>
-<div class="outline-text-4" id="text-4-2-2">
-
-<div class="figure">
-<p><img src="/images/2016/2016101902.png" alt="2016101902.png" />
-</p>
-<p><span class="figure-number">Figure 26:</span> Generic information element format</p>
-</div>
-</div>
-
-<ul class="org-ul"><li><a id="sec-4-2-2-1" name="sec-4-2-2-1"></a>Extended Capabilities Element<br  /><div class="outline-text-5" id="text-4-2-2-1">
-<p>
-对Capability Information field的一个扩展，包含其没有的一些IE
-信息。 它出现在以下的类型中： beacons, probe responses,
-association requests, association responses, reassociation
-requests, and reassociation responses. 
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-2-2" name="sec-4-2-2-2"></a>SSID Element<br  /><div class="outline-text-5" id="text-4-2-2-2">
-<p>
-出现在如下一些类型的帧中：beacons, probe requests, probe
-responses, association requests, and reassociation requests.
-</p>
-
-<p>
-ID为0, SSID字符串的最大长度为32. 
-</p>
-
-<p>
-如果AP支持多个SSID， 就会在每个beacon interval 发送相应数量
-的beacon帧。 
-</p>
-
-<p>
-If your AP is expected to send a beacon
-every 100 TUs and your AP supports 5 SSIDs, the AP will send one beacon every 20 TU,
-advertising its capabilities for each SSID in turn.
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-2-3" name="sec-4-2-2-3"></a>Supported Rates Element<br  /><div class="outline-text-5" id="text-4-2-2-3">
-<p>
-The Supported Rates element is present in beacons, probe requests, probe responses, and all
-association frames。
-</p>
-
-<p>
-This element
-specifies up to eight rates.
-</p>
-
-<p>
-In the Supported Rates field, the length field is encoded as 1 to 8 octets, where
-each octet describes a single supported rate.
-</p>
-
-<p>
-Each rate is listed over one octet, with the following
-logic:
-</p>
-<ul class="org-ul">
-<li>The last bit (bit 7) is set to 1 if the rate is a basic
-rate (NN or mandatory rate) and set to 0 if the rate is
-simply supported.
-</li>
-<li>The other seven bits (bits 0 to 6) are set to the data
-rate, if necessary rounded up to the next 500 Kbps, in
-units of 500 Kbps. 
-
-<p>
-For example, a 5.5 Mbps rate contained in the BSSBasicRateSet parameter is encoded
-</p>
-</li>
-</ul>
-<p>
-as 10001011 (10000000 because it is set to Basic Rate, and binary 1011 for decimal
-11, because 5.5 Mbps are 11 times 500 kbps); 2 Mbps
-supported would be 00000100.
-</p>
-
-<p>
-任何一个想加入某个AP的STA必须支持AP指定的基本速率。 
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-2-4" name="sec-4-2-2-4"></a>Extended Supported Rates Element<br  /><div class="outline-text-5" id="text-4-2-2-4">
-<p>
-The Extended Supported Rates element specifies the supported rates not carried in the
-Supported Rates element.
-</p>
-
-<p>
-The
-information element is encoded as 1 to 255 octets where each octet describes a single supported
-rate.
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-2-5" name="sec-4-2-2-5"></a>Extended Rate PHY (ERP) Element<br  /><div class="outline-text-5" id="text-4-2-2-5">
-<p>
-The ERP element is present only on 2.4 GHz networks supporting 802.11g and is present
-in beacons and probe responses.
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-2-6" name="sec-4-2-2-6"></a>Robust Security Network (RSN) Information Element<br  /><div class="outline-text-5" id="text-4-2-2-6">
-<p>
-当使用WPA/WPA2来决定AP的认证和加密机制时，这个IE非常重要。
-</p>
-
-<p>
-RSN的ID是48, 主要存在于beacons, probe responses,association
-responses, and reassociation responses.其结构如下：
-</p>
-
-
-<div class="figure">
-<p><img src="/images/2016/2016102001.png" alt="2016102001.png" />
-</p>
-<p><span class="figure-number">Figure 27:</span> RSN element</p>
-</div>
-
-<ul class="org-ul">
-<li>Version
-</li>
-</ul>
-<p>
-总是设为1.
-</p>
-<ul class="org-ul">
-<li>Pairwise Cipher Suite Count
-</li>
-</ul>
-<p>
-代表支持多少种加密算法。
-</p>
-<ul class="org-ul">
-<li>Pairwise Cipher Suite List field
-Each field is of course 4 bytes long, because each cipher
-is represented over 4 bytes.
-
-<p>
-When a station supports several ciphers, it always chooses
-the strongest one first (in order: CCMP, TKIP, WEP 104, WEP
-40). 
-</p>
-
-<p>
-<b>Authentication and Key Management (AKM)</b>
-</p>
-
-<p>
-Now that the ciphers allowed in the cell are defined, you still need to inform potential
-cell clients about how they are supposed to authenticate in
-order to join the cell.
-</p>
-
-<ul class="org-ul">
-<li>AKM Suite count
-the number of methods allowed
-</li>
-
-<li>AKM Suite list
-displays each individual method. each method is coded
-over 4 bytes: the first 3 bytes are an OUI, and the last
-byte is one of the methods supported by the vendor
-matching the OUI. 
-
-<p>
-The 802.11i committee defined two methods : 00-0F-AC-1 for 802.1X or PMK caching
-and 00-0F-AC-2 for PSK
-</p>
-</li>
-</ul>
-</li>
-</ul>
-</div>
-</li>
-
-<li><a id="sec-4-2-2-7" name="sec-4-2-2-7"></a>Basic Service Set (BSS) Load Element<br  /><div class="outline-text-5" id="text-4-2-2-7">
-<p>
-This element is used only when QoS is supported. It is
-often called QBSS Load element. 
-</p>
-
-<p>
-从AP的角度提供了网络单元的信息， 通常由AP发出， 接收的STA根
-据里面提供的信息决定如何进行漫游。 
-</p>
-
-
-<div class="figure">
-<p><img src="/images/2016/2016101002.png" alt="2016101002.png" />
-</p>
-<p><span class="figure-number">Figure 28:</span> BSS Load element</p>
-</div>
-
-<ul class="org-ul">
-<li>station count
-a simple number, showing how many stations are currently
-associated to the cell.
-</li>
-<li>Channel Utilization
-the percentage of time, normalized to 255, that the AP
-sensed the medium was busy, as indicated by either the
-physical or virtual carrier sense mechanism.
-
-<p>
-The AP senses the medium, just like any other station, every slot time. At regular intervals
-</p>
-</li>
-</ul>
-<p>
-(every 50 beacons by default, which represents 5.12 seconds if the beacons are sent
-at 100 TU intervals), the AP looks over the last period and counts how many times the
-network was seen as busy and how many times the network was seen as idle. The AP then
-calculates a simple percentage and translates it into a 0
-to 255 range.
-</p>
-
-<p>
-This information is used by QoS stations to gauge the space
-available on several APs in range. 
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-2-8" name="sec-4-2-2-8"></a>Enhanced Distributed Channel Access (EDCA) Parameter Element<br  /><div class="outline-text-5" id="text-4-2-2-8">
-<p>
-In most QoS-enabled networks, this field is not used, and
-the same information is provided through the WMM or the WME
-vendor-specific element. 
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-2-9" name="sec-4-2-2-9"></a>QoS Capability Element<br  /><div class="outline-text-5" id="text-4-2-2-9">
-<p>
-This element is used only when QoS is supported. It is used
-as a replacement to the EDCA Parameter element when EDCA
-Parameter is not present. It is also used by the AP to communicate
-to the cell the QoS information.
-</p>
-
-<p>
-In most QoS-enabled networks, this field is not used, and
-the same information is provided through the WMM or the WME
-vendor-specific element. 
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-2-10" name="sec-4-2-2-10"></a>Direct Sequence Parameter Set Element<br  /><div class="outline-text-5" id="text-4-2-2-10">
-<p>
-This element is used by both the DSSS and OFDM systems, on
-both 2.4 GHz and 5 GHz spectrums. It is a very important
-field that  <i>simply indicates the current channel.</i> 
-</p>
-
-<p>
-[<img src="/images/2016/2016102003.png" alt="2016102003.png" />]
-</p>
-
-<p>
-代表发送方发送数据时所在的Central Channel或Primary Channel
-的值。
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-2-11" name="sec-4-2-2-11"></a>Traffic Indication Map (TIM) Element<br  /><div class="outline-text-5" id="text-4-2-2-11">
-<p>
-This element is present only in beacons.  
-</p>
-
-
-<div class="figure">
-<p><img src="/images/2016/2016102004.png" alt="2016102004.png" />
-</p>
-<p><span class="figure-number">Figure 29:</span> TIM element</p>
-</div>
-
-<p>
-The DTIM is not present in all beacons and all TIMs. At regular intervals (usually configurable
-on the AP), the beacon will contain a TIM that will also be a DTIM. The DTIM
-purpose is easy to understand. The AP uses the beacon frames Delivery Traffic Indication
-Message (DTIM) information to inform the cell if it has broadcasts or multicasts frames
-buffered.
-</p>
-
-<p>
-Stations in low power mode should wake up at least for every beacon that is a
-DTIM. The DTIM does not have to be in every beacon but can, for example, occur every
-two to five beacons. The DTIM is contained in the TIM, so in that case it is said that the
-TIM is also a DTIM.
-</p>
-
-<ul class="org-ul">
-<li>DTIM period
-the number of beacon intervals between successive DTIMs
-(for example, 3 means every third beacon is a DTIM).
-</li>
-<li>DTIM Count
-how many beacon frames (including the current frame)
-appear before the next DTIM.
-
-<p>
-A DTIM Count field of 0 indicates that the current TIM is
-a DTIM. A DTIM count of 1 indicates that the next beacon
-is a DTIM.
-</p>
-</li>
-<li>Bitmap Control field
-The first bit of the bitmap control field is used to
-announce the presence of multicast or broadcast traffic
-buffered on the AP. 
-
-<p>
-The next 7 bits of the Bitmap Control fi eld, along with
-the virtual bitmap, represent the stations in low power
-mode for which the AP has traffic buffered. 
-</p>
-</li>
-</ul>
-</div>
-</li>
-
-<li><a id="sec-4-2-2-12" name="sec-4-2-2-12"></a>IBSS Parameter Set Element<br  /><div class="outline-text-5" id="text-4-2-2-12">
-<p>
-This element is present only on probe responses and beacons
-of stations in an IBSS.
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-2-13" name="sec-4-2-2-13"></a>Country Element<br  /><div class="outline-text-5" id="text-4-2-2-13">
-<p>
-802.11d. The Country field defines the country of operation,
-along with the allowed channels and maximum transmit power. 
-</p>
-
-<p>
-It is not a mandatory field and is typically found on APs
-that can support several country settings. 
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-2-14" name="sec-4-2-2-14"></a>Power Constraint Element<br  /><div class="outline-text-5" id="text-4-2-2-14">
-<p>
-802.11h. In the Power Constraint fi eld, the AP indicates
-how much lower than this maximum power participants should
-try to go. 
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-2-15" name="sec-4-2-2-15"></a>TPC Report Element<br  /><div class="outline-text-5" id="text-4-2-2-15">
-<p>
-802.1h. The TPC Report element contains transmit power and
-link margin information, usually sent in response to a TPC
-Request element. 
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-2-16" name="sec-4-2-2-16"></a>Channel Switch Announcement Element<br  /><div class="outline-text-5" id="text-4-2-2-16">
-<p>
-802.1h. When a radar blast is detected, all stations must
-leave the affected channel. The AP can be set to announce
-to the cell which is the next channel.
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-2-17" name="sec-4-2-2-17"></a>Quiet Element<br  /><div class="outline-text-5" id="text-4-2-2-17">
-<p>
-802.1h. An AP can request a quiet time during which no
-stations should transmit in order to test the channel for
-the presence of radars. 
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-2-2-18" name="sec-4-2-2-18"></a>Vendor-Specific Elements<br  /><div class="outline-text-5" id="text-4-2-2-18">
-<p>
-Beyond all the options defi ned by the standard or any of its amendments, each vendor can
-defi ne proprietary options and add them to any management
-frames’ supporting elements
-</p>
-
-
-<div class="figure">
-<p><img src="/images/2016/2016102005.png" alt="2016102005.png" />
-</p>
-<p><span class="figure-number">Figure 30:</span> Vendor-specific element</p>
-</div>
-
-<p>
-Each vendor wanting to implement vendor-specific elements needs to obtain an OUI for
-this purpose from the IEEE. The vendor will display this OUI in the element header, along
-with the element ID 221, which identifies a vendor-specific
-element.
-</p>
-</div>
-</li></ul>
-</div>
-</div>
-
-<div id="outline-container-sec-4-3" class="outline-3">
-<h3 id="sec-4-3">Action Frames</h3>
-<div class="outline-text-3" id="text-4-3">
-<p>
-Action frames are a type of management frame used to trigger an
-action in the cell.
-</p>
-
-
-<div class="figure">
-<p><img src="/images/2016/20102006.png" alt="20102006.png" />
-</p>
-<p><span class="figure-number">Figure 31:</span> Action frame structure</p>
-</div>
-
-<p>
-The frame body contains three sections:
-</p>
-<ul class="org-ul">
-<li>Category
-Describes the action frame type. Category allows you to know
-which family the action frame belongs to and which protocol
-introduced it.
-</li>
-<li>Action
-The action to perform. It is usually a number. You need to know
-the category to understand which action is called.
-</li>
-<li>Element
-Adds additional information specific to the action.
-</li>
-</ul>
-
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-<caption class="t-above"><span class="table-number">Table 14:</span> Action frame types (continued)</caption>
-
-<colgroup>
-<col  class="right" />
-
-<col  class="left" />
-
-<col  class="right" />
-
-<col  class="left" />
-</colgroup>
-<thead>
-<tr>
-<th scope="col" class="right">Category</th>
-<th scope="col" class="left">Meaning</th>
-<th scope="col" class="right">Action</th>
-<th scope="col" class="left">Action description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="right">0</td>
-<td class="left">spectrum management</td>
-<td class="right">1</td>
-<td class="left">Measurement Request Frame</td>
-</tr>
-
-<tr>
-<td class="right">0</td>
-<td class="left">spectrum management</td>
-<td class="right">2</td>
-<td class="left">TPC request</td>
-</tr>
-
-<tr>
-<td class="right">0</td>
-<td class="left">spectrum management</td>
-<td class="right">3</td>
-<td class="left">TPC report</td>
-</tr>
-
-<tr>
-<td class="right">0</td>
-<td class="left">spectrum management</td>
-<td class="right">4</td>
-<td class="left">Channel Switch Announcement frame</td>
-</tr>
-
-<tr>
-<td class="right">1</td>
-<td class="left">QoS</td>
-<td class="right">0</td>
-<td class="left">ADDTS request</td>
-</tr>
-
-<tr>
-<td class="right">1</td>
-<td class="left">QoS</td>
-<td class="right">1</td>
-<td class="left">ADDTS response</td>
-</tr>
-
-<tr>
-<td class="right">1</td>
-<td class="left">QoS</td>
-<td class="right">2</td>
-<td class="left">DELTS</td>
-</tr>
-
-<tr>
-<td class="right">1</td>
-<td class="left">QoS</td>
-<td class="right">3</td>
-<td class="left">Schedule</td>
-</tr>
-
-<tr>
-<td class="right">1</td>
-<td class="left">QoS</td>
-<td class="right">4-255</td>
-<td class="left">Unused/reserved</td>
-</tr>
-
-<tr>
-<td class="right">2</td>
-<td class="left">DLS</td>
-<td class="right">0</td>
-<td class="left">DLS request</td>
-</tr>
-
-<tr>
-<td class="right">2</td>
-<td class="left">DLS</td>
-<td class="right">1</td>
-<td class="left">DLS response</td>
-</tr>
-
-<tr>
-<td class="right">2</td>
-<td class="left">DLS</td>
-<td class="right">2</td>
-<td class="left">DLS teardown</td>
-</tr>
-
-<tr>
-<td class="right">2</td>
-<td class="left">DLS</td>
-<td class="right">3-255</td>
-<td class="left">Unused/reserved</td>
-</tr>
-
-<tr>
-<td class="right">3</td>
-<td class="left">Block ack</td>
-<td class="right">0</td>
-<td class="left">ADDBA request</td>
-</tr>
-
-<tr>
-<td class="right">3</td>
-<td class="left">Block ack</td>
-<td class="right">1</td>
-<td class="left">ADDBA response</td>
-</tr>
-
-<tr>
-<td class="right">3</td>
-<td class="left">Block ack</td>
-<td class="right">2</td>
-<td class="left">DELBA</td>
-</tr>
-
-<tr>
-<td class="right">3</td>
-<td class="left">Block ack</td>
-<td class="right">3-255</td>
-<td class="left">Unused/reserved</td>
-</tr>
-
-<tr>
-<td class="right">4</td>
-<td class="left">Public</td>
-<td class="right">0</td>
-<td class="left">Reserved</td>
-</tr>
-
-<tr>
-<td class="right">4</td>
-<td class="left">Public</td>
-<td class="right">1</td>
-<td class="left">DSE enablement</td>
-</tr>
-
-<tr>
-<td class="right">4</td>
-<td class="left">Public</td>
-<td class="right">2</td>
-<td class="left">DSE deenablement</td>
-</tr>
-
-<tr>
-<td class="right">4</td>
-<td class="left">Public</td>
-<td class="right">3</td>
-<td class="left">DSE registered location announcement</td>
-</tr>
-
-<tr>
-<td class="right">4</td>
-<td class="left">Public</td>
-<td class="right">4</td>
-<td class="left">Extended channel switch announcement</td>
-</tr>
-
-<tr>
-<td class="right">4</td>
-<td class="left">Public</td>
-<td class="right">5</td>
-<td class="left">DSE measurement request</td>
-</tr>
-
-<tr>
-<td class="right">4</td>
-<td class="left">Public</td>
-<td class="right">6</td>
-<td class="left">DSE measurement report</td>
-</tr>
-
-<tr>
-<td class="right">4</td>
-<td class="left">Public</td>
-<td class="right">7</td>
-<td class="left">Measurement pilot</td>
-</tr>
-
-<tr>
-<td class="right">4</td>
-<td class="left">Public</td>
-<td class="right">8</td>
-<td class="left">DSE power constraint</td>
-</tr>
-
-<tr>
-<td class="right">4</td>
-<td class="left">Public</td>
-<td class="right">9</td>
-<td class="left">Vendor specific</td>
-</tr>
-
-<tr>
-<td class="right">4</td>
-<td class="left">Public</td>
-<td class="right">10-255</td>
-<td class="left">Unused/reserved</td>
-</tr>
-
-<tr>
-<td class="right">5</td>
-<td class="left">Radio measurement</td>
-<td class="right">0</td>
-<td class="left">Radio measurement request</td>
-</tr>
-
-<tr>
-<td class="right">5</td>
-<td class="left">Radio measurement</td>
-<td class="right">1</td>
-<td class="left">Radio measurement report</td>
-</tr>
-
-<tr>
-<td class="right">5</td>
-<td class="left">Radio measurement</td>
-<td class="right">2</td>
-<td class="left">Link measurement request</td>
-</tr>
-
-<tr>
-<td class="right">5</td>
-<td class="left">Radio measurement</td>
-<td class="right">3</td>
-<td class="left">Link measurement report</td>
-</tr>
-
-<tr>
-<td class="right">5</td>
-<td class="left">Radio measurement</td>
-<td class="right">4</td>
-<td class="left">Neighbor report request</td>
-</tr>
-
-<tr>
-<td class="right">5</td>
-<td class="left">Radio measurement</td>
-<td class="right">5</td>
-<td class="left">Neighbor report response</td>
-</tr>
-
-<tr>
-<td class="right">5</td>
-<td class="left">Radio measurement</td>
-<td class="right">6-255</td>
-<td class="left">Unused/reserved</td>
-</tr>
-
-<tr>
-<td class="right">6</td>
-<td class="left">Fast BSS transition</td>
-<td class="right">0</td>
-<td class="left">Reserved</td>
-</tr>
-
-<tr>
-<td class="right">6</td>
-<td class="left">Fast BSS transition</td>
-<td class="right">1</td>
-<td class="left">FT request</td>
-</tr>
-
-<tr>
-<td class="right">6</td>
-<td class="left">Fast BSS transition</td>
-<td class="right">2</td>
-<td class="left">FT response</td>
-</tr>
-
-<tr>
-<td class="right">6</td>
-<td class="left">Fast BSS transition</td>
-<td class="right">3</td>
-<td class="left">FT confirm</td>
-</tr>
-
-<tr>
-<td class="right">6</td>
-<td class="left">Fast BSS transition</td>
-<td class="right">4</td>
-<td class="left">FT ack</td>
-</tr>
-
-<tr>
-<td class="right">6</td>
-<td class="left">Fast BSS transition</td>
-<td class="right">5-255</td>
-<td class="left">Unused/reserved</td>
-</tr>
-
-<tr>
-<td class="right">7</td>
-<td class="left">&#xa0;</td>
-<td class="right">0-255</td>
-<td class="left">Unused/reserved</td>
-</tr>
-
-<tr>
-<td class="right">8</td>
-<td class="left">SA query</td>
-<td class="right">0</td>
-<td class="left">SA query</td>
-</tr>
-
-<tr>
-<td class="right">8</td>
-<td class="left">SA query</td>
-<td class="right">1</td>
-<td class="left">SA response</td>
-</tr>
-
-<tr>
-<td class="right">8</td>
-<td class="left">SA query</td>
-<td class="right">2-255</td>
-<td class="left">Unused/reserved</td>
-</tr>
-
-<tr>
-<td class="right">9</td>
-<td class="left">Protected dual of public action</td>
-<td class="right">0</td>
-<td class="left">Reserved</td>
-</tr>
-
-<tr>
-<td class="right">9</td>
-<td class="left">Protected dual of public action</td>
-<td class="right">1</td>
-<td class="left">Protected DSE enablement</td>
-</tr>
-
-<tr>
-<td class="right">9</td>
-<td class="left">Protected dual of public action</td>
-<td class="right">2</td>
-<td class="left">Protected DSE deenablement</td>
-</tr>
-
-<tr>
-<td class="right">9</td>
-<td class="left">Protected dual of public action</td>
-<td class="right">3</td>
-<td class="left">Reserved</td>
-</tr>
-
-<tr>
-<td class="right">9</td>
-<td class="left">Protected dual of public action</td>
-<td class="right">4</td>
-<td class="left">Protected extended channel switch announcement</td>
-</tr>
-
-<tr>
-<td class="right">9</td>
-<td class="left">Protected dual of public action</td>
-<td class="right">5</td>
-<td class="left">Protected DSE measurement request</td>
-</tr>
-
-<tr>
-<td class="right">9</td>
-<td class="left">Protected dual of public action</td>
-<td class="right">6</td>
-<td class="left">Protected DSE measurement report</td>
-</tr>
-
-<tr>
-<td class="right">9</td>
-<td class="left">Protected dual of public action</td>
-<td class="right">7</td>
-<td class="left">Reserved</td>
-</tr>
-
-<tr>
-<td class="right">9</td>
-<td class="left">Protected dual of public action</td>
-<td class="right">8</td>
-<td class="left">Protected DSE power constraint</td>
-</tr>
-
-<tr>
-<td class="right">9</td>
-<td class="left">Protected dual of public action</td>
-<td class="right">9-255</td>
-<td class="left">Unused/reserved</td>
-</tr>
-
-<tr>
-<td class="right">10-125</td>
-<td class="left">&#xa0;</td>
-<td class="right">&#xa0;</td>
-<td class="left">Unused/reserved</td>
-</tr>
-
-<tr>
-<td class="right">126</td>
-<td class="left">Vendor-specific protected</td>
-<td class="right">0-255</td>
-<td class="left">Vendor dependent</td>
-</tr>
-
-<tr>
-<td class="right">127</td>
-<td class="left">Vendor specific</td>
-<td class="right">0-255</td>
-<td class="left">Vendor dependent</td>
-</tr>
-
-<tr>
-<td class="right">128-255</td>
-<td class="left">Error</td>
-<td class="right">0-255</td>
-<td class="left">Unused, returns an error message</td>
-</tr>
-</tbody>
-</table>
-</div>
-
-<div id="outline-container-sec-4-3-1" class="outline-4">
-<h4 id="sec-4-3-1">Spectrum and Transmit Power Management (802.11h)</h4>
-<div class="outline-text-4" id="text-4-3-1">
-<p>
-DFS &amp; TPC. 
-</p>
-</div>
-
-<ul class="org-ul"><li><a id="sec-4-3-1-1" name="sec-4-3-1-1"></a>Channel Switch Announcement<br  /><div class="outline-text-5" id="text-4-3-1-1">
-<p>
-AP use it to inform the cell that all stations had to move
-to another channel because a radar was detected on the
-current frequency.  present in beacons and probe responses 
-</p>
-
-
-<div class="figure">
-<p><img src="/images/2016/2016102006.png" alt="2016102006.png" />
-</p>
-<p><span class="figure-number">Figure 32:</span> Channel Switch Announcement action frame</p>
-</div>
-
-<p>
-The Channel Switch Count segment can be set to 0 to indicate that the change will
-occur any time after the present beacon was sent. It can be set to 1 to show that the jump
-will occur just before the next beacon.
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-3-1-2" name="sec-4-3-1-2"></a>Measurement Request Frame and Measurement Report Frame<br  /><div class="outline-text-5" id="text-4-3-1-2">
-<p>
-侦测是否有Radar信号请求，以及报告侦测结果。 
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-3-1-3" name="sec-4-3-1-3"></a>TPC Request Frame and TPC Report Frame<br  /><div class="outline-text-5" id="text-4-3-1-3">
-<p>
-用于动态调整功率。 
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-3-1-4" name="sec-4-3-1-4"></a>Quiet Element<br  /><div class="outline-text-5" id="text-4-3-1-4">
-<p>
-携带在probe responses和beacons.  告知STA 某段时间内保持沉默，
-不允许发送数据。 
-</p>
-</div>
-</li></ul>
-</div>
-
-<div id="outline-container-sec-4-3-2" class="outline-4">
-<h4 id="sec-4-3-2">Admission Control (802.11e)</h4>
-<div class="outline-text-4" id="text-4-3-2">
-<p>
-QoS 按不同优先级传输数据。  traffic stream（TS）
-</p>
-</div>
-
-<ul class="org-ul"><li><a id="sec-4-3-2-1" name="sec-4-3-2-1"></a>ADDTS Request and ADDTS Response Frames<br  /><div class="outline-text-5" id="text-4-3-2-1">
-<p>
-The ADDTS request is always sent by a station (that is, never by an access point) wanting
-to add a new TS to the cell.
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-3-2-2" name="sec-4-3-2-2"></a>DELTS Frames<br  /><div class="outline-text-5" id="text-4-3-2-2">
-<p>
-Once a TS is admitted, a station receives the predetermined QoS level negotiated in the
-ADDTS exchange. After a while, the TS can be removed to free
-resources from the cell.
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-3-2-3" name="sec-4-3-2-3"></a>Schedule Frames<br  /><div class="outline-text-5" id="text-4-3-2-3">
-<p>
-When a TS is admitted, the schedule frame is transmitted by the AP to the station to
-announce the schedule of delivery of data and polls (when
-the station also uses power save).
-</p>
-</div>
-</li></ul>
-</div>
-
-<div id="outline-container-sec-4-3-3" class="outline-4">
-<h4 id="sec-4-3-3">802.11r and 802.11w</h4>
-<div class="outline-text-4" id="text-4-3-3">
-</div><ul class="org-ul"><li><a id="sec-4-3-3-1" name="sec-4-3-3-1"></a>Fast BSS Transition (802.11r)<br  /><div class="outline-text-5" id="text-4-3-3-1">
-<p>
-The 802.11r amendment defines how fast secure roaming can be
-handled between access points.
-</p>
-</div>
-</li>
-
-<li><a id="sec-4-3-3-2" name="sec-4-3-3-2"></a>Protected Management Frames<br  /><div class="outline-text-5" id="text-4-3-3-2">
-<p>
-In 2009, the 802.11w amendment was published to provide a
-way to protect management frames 
-</p>
-</div>
-</li></ul>
-</div>
-</div>
-
-<div id="outline-container-sec-4-4" class="outline-3">
-<h3 id="sec-4-4">Review Questions</h3>
-<div class="outline-text-3" id="text-4-4">
-<ol class="org-ol">
-<li>How many management frame types are described by the
-802.11-2007 standard?
-
-<ol class="org-ol">
-<li>4
-</li>
-
-<li>11
-</li>
-
-<li>12
-</li>
-
-<li>13
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>The 802.11-2007 standard describes 12 management frame types: beacon, probe request,
-</li>
-</ol>
-</li>
-</ol>
-<p>
-probe response, authentication, association request, association response, reassociation
-request, reassociation response, disassociation, deauthentication, ATIM, and action frame.
-</p>
-
-<ol class="org-ol">
-<li>In which frame would you find a timestamp field?
-
-<ol class="org-ol">
-<li>Beacon
-</li>
-
-<li>Association request
-</li>
-
-<li>Association response
-</li>
-
-<li>Authentication
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>The timestamp is present in beacons and is used by stations associated to the cell as a clock
-</li>
-</ol>
-</li>
-</ol>
-<p>
-reference. The time synchronization function uses the timestamp to align the stations’ cell
-clock to the AP clock.
-</p>
-
-<ol class="org-ol">
-<li>What is the purpose of the Listen Interval field?
-
-<ol class="org-ol">
-<li>To determine the next QoS service period
-</li>
-
-<li>To organize the detection of radar blasts
-</li>
-
-<li>To optimize BSS Fast Roaming transition times
-</li>
-
-<li>To specify when stations in low power mode would wake up
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>In frames sent from stations to access points (association request, reassociation request),
-</li>
-</ol>
-</li>
-</ol>
-<p>
-the Listen Interval field is used to indicate to the AP how often a station in Power Save
-mode wakes to listen to beacon management frames.
-</p>
-
-<ol class="org-ol">
-<li>In which case would a station send a reassociation frame?
-
-<ol class="org-ol">
-<li>To rejoin an IBSS after a member disconnected
-</li>
-
-<li>To join a new AP on the same ESS
-</li>
-
-<li>To rejoin an AP after deauthentication occurred
-</li>
-
-<li>To reenter the cell after the AP jumped to a new channel
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>This type of frame can be sent only by a station to an access point and is used when the
-</li>
-</ol>
-</li>
-</ol>
-<p>
-station is already associated to the ESS and wants to associate to another access point connecting
-to the same ESS.
-</p>
-
-<ol class="org-ol">
-<li>How does a QoS station request a quality of service commitment
-from its AP?
-
-<ol class="org-ol">
-<li>By using the ADDTS frame
-</li>
-
-<li>By using the TSPEC request frame
-</li>
-
-<li>By using the QoS BSS Load action frame
-</li>
-
-<li>By sending the Schedule Request frame
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>QoS station use the ADDTS frame to ask the AP to add a traffic stream to the cell. The
-</li>
-</ol>
-</li>
-</ol>
-<p>
-ADDTS contains a TSPEC element describing the traffic specifications. There is no such
-thing as a TSPEC request frame. The QBSS Load Element is present in the beacon to inform
-potential client stations about the current load in the cell. Schedule is a frame sent by the AP
-to determine when the service period will start.
-</p>
-
-<ol class="org-ol">
-<li>How long do stations have before leaving a channel affected by
-a radar blast?
-
-<ol class="org-ol">
-<li>260 milliseconds
-</li>
-
-<li>10 seconds
-</li>
-
-<li>30 seconds
-</li>
-
-<li>60 seconds
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>Stations detecting a radar blast have 10 seconds from the moment of detection to leave
-</li>
-</ol>
-</li>
-</ol>
-<p>
-the affected frequency. During this interval, they have the right to still send up to 260 milliseconds
-worth of frames. Upon getting to a new channel, they can respect a quiet interval
-to listen for radar blasts on the new frequency. This quiet interval is commonly 60 seconds.
-Stations cannot return to the affected channel for 30 minutes.
-</p>
-
-<ol class="org-ol">
-<li>Which of the following is true about the Privacy subfield?
-
-<ol class="org-ol">
-<li>When its value is 1, WEP encryption is in place.
-</li>
-
-<li>When its value is 1, any encryption may be in place.
-</li>
-
-<li>Its values can be 0 for no encryption, 1 for WEP, 2 for
-</li>
-</ol>
-<p>
-WPA, and 3 for WPA2.
-</p>
-
-<ol class="org-ol">
-<li>When its value is 1, the station is in low power mode and
-</li>
-</ol>
-<p>
-not listening to the cell frames.
-</p>
-
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>Although originally designed for WEP, the Privacy subfield
-</li>
-</ol>
-<p>
-today indicates that some form of encryption is in place, WEP,
-TKIP, or AES. 
-</p>
-</li>
-
-<li>What is the beacon default interval?
-
-<ol class="org-ol">
-<li>100 milliseconds
-</li>
-
-<li>102.4 TUs
-</li>
-
-<li>102.4 milliseconds
-</li>
-
-<li>100 TBTTs
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>A beacon is sent by default every 102.4 milliseconds or 100 TUs (one time unit is
-</li>
-</ol>
-</li>
-</ol>
-<p>
-1.024 millisecond). The time at which the next beacon should be sent is the target beacon
-transmission time (TBTT). The AP tries to send the beacon at each
-planned TBTT.
-</p>
-
-<ol class="org-ol">
-<li>Which of the following is the OUI used by the IEEE in the RSN
-information element?
-
-<ol class="org-ol">
-<li>00-00-00
-</li>
-
-<li>0E-EE-00
-</li>
-
-<li>11-11-11
-</li>
-
-<li>00-0F-AC
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>The RSN element uses a cipher suite to describe what encryption should be used for
-</li>
-</ol>
-</li>
-</ol>
-<p>
-unicast or broadcast/multicast frames. The element is composed of an organization unique
-identifier representing the cipher vendor and of a cipher number for this vendor. The IEEE
-uses the OUI 00-0F-AC.
-</p>
-
-<ol class="org-ol">
-<li>Which amendment uses FT frames?
-
-<ol class="org-ol">
-<li>802.11i
-</li>
-
-<li>802.11n
-</li>
-
-<li>802.11r
-</li>
-
-<li>802.11w
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>FT frames are action frames defined by the BSS Fast Transition amendment 802.11r and
-</li>
-</ol>
-</li>
-</ol>
-<p>
-are used for fast and secure roaming between APs part of the same ESS.
-</p>
-
-<ol class="org-ol">
-<li>What should a station where an ADDTS request has been refused
-do next?
-
-<ol class="org-ol">
-<li>Retry the same or a lower TSPEC
-</li>
-
-<li>Revert back to PCF
-</li>
-
-<li>Roam to the next AP
-</li>
-
-<li>Drop the current TS and negotiate the next TS
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>When an ADDTS is denied by an AP, the station cannot get the QoS level it requested,
-</li>
-</ol>
-</li>
-</ol>
-<p>
-usually because there was not enough space to accept this TS as requested in the cell. The
-station can retry, hoping that other TSPEC of the same level got terminated and that space
-becomes available, or it can revert its ADDTS to a lower QoS level and retry. A station
-would not leave the cell by default, because roaming takes longer than retry, and would not
-drop its queued traffic. PCF was never implemented by any vendor.
-</p>
-
-<ol class="org-ol">
-<li>What information is sent in a TPC report sent from station A
-to station B?
-
-<ol class="org-ol">
-<li>Link margin as measured by A
-</li>
-
-<li>Link margin as measured by B
-</li>
-
-<li>A to B attenuation value
-</li>
-
-<li>B to A attenuation value
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>Station A sends its link margin, that is to say what margin it wants B to take when
-</li>
-</ol>
-</li>
-</ol>
-<p>
-reducing its power. If station A link margin is 5 dB and B calculates that it can send with its
-power down to 6 dBm, B will send at 11 dBm to respect station A’s link margin request.
-</p>
-
-<ol class="org-ol">
-<li>What is the category number allocated to QoS-related action
-frames?
-
-<ol class="org-ol">
-<li>0
-</li>
-
-<li>1
-</li>
-
-<li>4
-</li>
-
-<li>5
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>The 802.11e amendment defines several action frames. QoS-related frames are Category 1.
-</li>
-</ol>
-</li>
-</ol>
-<p>
-Category 0 is allocated to spectrum management frames introduced by the 802.11h amendment.
-Category 4 is used by public action frames introduced by the 802.11w amendment.
-Category 5 is used by radio measurement action frames introduced by the 802.11k
-amendment.
-</p>
-
-<ol class="org-ol">
-<li>What does ATIM stand for?
-
-<ol class="org-ol">
-<li>Ad Hoc Traffic Indication Message
-</li>
-
-<li>Announcement Traffic Indication Message
-</li>
-
-<li>Announcement Traffic Indication Map
-</li>
-
-<li>Ad Hoc Traffic Indication Map
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>ATIM stands for Announcement Traffic Indication Message. Don’t confuse this acronym
-</li>
-</ol>
-</li>
-</ol>
-<p>
-with Traffic Indication Map (TIM) or Delivery Traffic Indication Message (DTIM).
-</p>
-
-<ol class="org-ol">
-<li>Which information element is a summary of the AP QoS
-capabilities?
-
-<ol class="org-ol">
-<li>EDCA Parameter Set
-</li>
-
-<li>TSPEC
-</li>
-
-<li>QoS Subfield
-</li>
-
-<li>QoS Capabilities
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>The QoS Capabilities IE summarizes the AP QoS Capabilities. A more extensive support
-</li>
-</ol>
-</li>
-</ol>
-<p>
-description is given in the EDCA parameter set. TSPEC element is used by stations
-(not APs) requesting QoS level through ADDTS Request frames. It can be found in the AP
-answers but only to describe the original station request, not the AP capabilities. The QoS
-subfield simply informs whether the AP supports QoS, without details about its capabilities.
-</p>
-
-<ol class="org-ol">
-<li>How does an AP hide its SSID (SSID not broadcasted in
-beacons)?
-
-<ol class="org-ol">
-<li>By not sending the SSID information element
-</li>
-
-<li>By sending an empty SSID information element
-</li>
-
-<li>By stopping beacon broadcasts
-</li>
-
-<li>By moving the SSID information element to the
-</li>
-</ol>
-<p>
-vendor-specific section of the beacon
-</p>
-
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>An AP cannot stop broadcasting beacons (most clients would disconnect). The SSID
-</li>
-</ol>
-</li>
-</ol>
-<p>
-information element has to be present, but its size is not fixed. APs hide the SSID by sending
-an empty SSID IE. Moving the SSID IE to the vendor-specific section would mean removing
-the SSID IE from its standard position (order 4 in beacons), which is not allowed by the
-802.11 standard.
-</p>
-
-<ol class="org-ol">
-<li>For which specific conditions does the 802.11 standard
-describe that the NonERPPresent bit should be set in AP
-beacons?
-
-<ol class="org-ol">
-<li>802.11g station associated to the AP
-</li>
-
-<li>802.11/802.11b station detected by the AP
-</li>
-
-<li>802.11/802.11b station associated to the AP
-</li>
-
-<li>802.11/802.11b station authenticated by the AP
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>The standard describes that the NonERPPresent bit should be set by the AP if a non
-</li>
-</ol>
-</li>
-</ol>
-<p>
-802.11g station (that is, 802.11 or 802.11b) is associated to the AP. Many vendors implement
-this bit as soon as the station is detected by the AP, thus extending the standard
-requirements.
-</p>
-
-<ol class="org-ol">
-<li>How do the Supported Rates and Extended Supported Rates
-information elements specify which rates are mandatory
-(basic)?
-
-<ol class="org-ol">
-<li>By setting bit 7 to 1 when basic and 0 when supported
-</li>
-
-<li>By setting mandatory rates in the Supported Rates IE and
-</li>
-</ol>
-<p>
-Supported Rates in the Extended Supported Rates information
-element
-</p>
-
-<ol class="org-ol">
-<li>By displaying the six basic rates first and then the
-</li>
-</ol>
-<p>
-supported rates
-</p>
-
-<ol class="org-ol">
-<li>The distinction between mandatory and supported is set by
-</li>
-</ol>
-<p>
-the 802.11 standard, not by the information elements
-</p>
-
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>Each rate is coded over 8 bits (bits 0 to 7), representing a multiple of 500 Kbps. Bit 7 is
-</li>
-</ol>
-</li>
-</ol>
-<p>
-set to 1 when the rate is mandatory and to 0 when the rate is supported. Disabled rates are
-not listed.
-</p>
-
-<ol class="org-ol">
-<li>Which information element describes support for 40 MHz wide
-channels?
-
-<ol class="org-ol">
-<li>The Channel Bonding information element
-</li>
-
-<li>The HT Extended Channel information element
-</li>
-
-<li>The HT Frequency Slicing information element
-</li>
-
-<li>The HT Operation element
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>The HT Operation element describes how 40 MHz channel support is set. The Channel
-</li>
-</ol>
-</li>
-</ol>
-<p>
-Bonding information element, HT Extended Channel information element, and HT Frequency
-Slicing information element do not exist.
-</p>
-
-<ol class="org-ol">
-<li>Which of the following can be identified in an 802.11h
-measurement report frame?
-
-<ol class="org-ol">
-<li>DSSS signals
-</li>
-
-<li>OFDM signals
-</li>
-
-<li>FHSS stations
-</li>
-
-<li>NonERP stations
-</li>
-</ol>
-<p>
-<b>答案解析</b>
-</p>
-
-<ol class="org-ol">
-<li>The basic measurement report can identify other neighboring cells (BSS), OFDM signals,
-</li>
-</ol>
-</li>
-</ol>
-<p>
-unidentified signals, or recognized radar signatures (in the sense that a radar matches
-a specific pattern, which 802.11h-compliant stations must recognize). The CCA measurement
-can also simply report the RF activity in the cell.
-</p>
-</div>
-</div>
+<h2 id="sec-4">CH06 Data Frames</h2>
 </div>
 
 <div id="outline-container-sec-5" class="outline-2">
-<h2 id="sec-5">CH05 802.11 Control Frames</h2>
+<h2 id="sec-5">CH07 802.11 Medium Contention</h2>
 </div>
 
 <div id="outline-container-sec-6" class="outline-2">
-<h2 id="sec-6">CH06 Data Frames</h2>
+<h2 id="sec-6">CH08 Power Management</h2>
 </div>
 
 <div id="outline-container-sec-7" class="outline-2">
-<h2 id="sec-7">CH07 802.11 Medium Contention</h2>
+<h2 id="sec-7">CH09 802.11 Security</h2>
 </div>
 
 <div id="outline-container-sec-8" class="outline-2">
-<h2 id="sec-8">CH08 Power Management</h2>
+<h2 id="sec-8">CH10 802.11n HT Analysis</h2>
 </div>
 
 <div id="outline-container-sec-9" class="outline-2">
-<h2 id="sec-9">CH09 802.11 Security</h2>
+<h2 id="sec-9">CH11 Spectrum Analysis</h2>
 </div>
 
 <div id="outline-container-sec-10" class="outline-2">
-<h2 id="sec-10">CH10 802.11n HT Analysis</h2>
-</div>
-
-<div id="outline-container-sec-11" class="outline-2">
-<h2 id="sec-11">CH11 Spectrum Analysis</h2>
-</div>
-
-<div id="outline-container-sec-12" class="outline-2">
-<h2 id="sec-12">CH12 Protocol Analyzer Operation and Troubleshooting</h2>
+<h2 id="sec-10">CH12 Protocol Analyzer Operation and Troubleshooting</h2>
 </div>
 </div>
