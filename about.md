@@ -25,6 +25,5 @@ permalink: /about/
 - CSDN Blog  <http://blog.csdn.net/fuyajun01>    
 - Github Home Page: <https://github.com/fuyajun1983cn>
 
-如果您也是一名技术爱好者，或者您正在为公司寻找相关人才，请扫描如下二维码加我微信：
-
+联系方式：   
 ![wemedia](/images/wemedia.jpg)
